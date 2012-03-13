@@ -2,4 +2,4 @@ Fellesprosjekt gruppe 26
 ========================
 
 Akkurat begynt!
-<ninja mod av baf>
+[ninja mod av baf]
