@@ -1,20 +1,28 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import sun.util.calendar.CalendarSystem;
-import sun.util.calendar.CalendarUtils;
-import sun.util.resources.CalendarData;
-import sun.util.resources.CalendarData_no;
-
 public class Week {
-	Date startDate, endDate;
-	List appointments;
+	private Date startDate, endDate;
+	private ArrayList<Appointment> appointments;
 	
+	
+	public Week(Date startDate, Date endDate) {
+		this.startDate = startDate;
+		this.endDate = endDate;
+	}
+	
+	public Week(Date startDate, Date endDate, ArrayList<Appointment> appointments) {
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.appointments = appointments;
+	}
+
 	int getWeekNumber() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(startDate);
-		return cal.WEEK_OF_YEAR;
+		return cal.get(Calendar.WEEK_OF_YEAR);
 	}
 }
