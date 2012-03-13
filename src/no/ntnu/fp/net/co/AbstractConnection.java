@@ -23,7 +23,7 @@ import no.ntnu.fp.net.co.Connection;
  * @author mariubje A partial implementation of the Connection-interface. It
  *         implements partial functionality and some utility functions.
  */
-public abstract class AbstractConnection implements Connection {
+public abstract class AbstractConnection implements Connection{
 
     /**
      * The possible states for a Connection.
@@ -227,10 +227,14 @@ public abstract class AbstractConnection implements Connection {
      */
     protected synchronized KtnDatagram sendDataPacketWithRetransmit(KtnDatagram packet)
             throws IOException {
-        if (state != State.ESTABLISHED)
-            throw new IllegalStateException("Should only be used in ESTABLISHED state.");
-        if (packet.getFlag() != Flag.NONE)
-            throw new IllegalArgumentException("Packet must be a data packet.");
+    	// TODO: Am I allowed to do this?!?!?!?!?!?! :)
+    	if(state == State.CLOSED) {
+    		throw new IllegalStateException("Connection is closed!");
+    	}
+//        if (state != State.ESTABLISHED)
+//            throw new IllegalStateException("Should only be used in ESTABLISHED state.");
+//        if (packet.getFlag() != Flag.NONE)
+//            throw new IllegalArgumentException("Packet must be a data packet.");
         /*
          * Algorithm: 1 Start a timer used to resend the packet with a specified
          * interval, and that immediately starts trying (sending the first
