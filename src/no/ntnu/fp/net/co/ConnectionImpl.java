@@ -12,6 +12,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Timer;
 
 import no.ntnu.fp.net.admin.Log;
 import no.ntnu.fp.net.cl.ClException;
@@ -32,10 +33,13 @@ import no.ntnu.fp.net.cl.KtnDatagram.Flag;
  * @see no.ntnu.fp.net.co.Connection
  * @see no.ntnu.fp.net.cl.ClSocket
  */
-public class ConnectionImpl extends AbstractConnection {
+public class ConnectionImpl extends AbstractConnection implements Runnable {
 
     /** Keeps track of the used ports for each server port. */
     private static Map<Integer, Boolean> usedPorts = Collections.synchronizedMap(new HashMap<Integer, Boolean>());
+    
+    private final static int INITIAL_PORT = 10000;
+    private final static int PORT_RANGE = 100;
     
     //Testing the A2 framework
     private KtnDatagram datagram;
@@ -47,7 +51,15 @@ public class ConnectionImpl extends AbstractConnection {
      */
     public ConnectionImpl(int myPort) {
     	datagram = new KtnDatagram();
-    	//throw new RuntimeException("NOT IMPLEMENTED");
+    	this.myPort = myPort;
+//    	throw new RuntimeException("NOT IMPLEMENTED");
+    }
+    
+    public ConnectionImpl(KtnDatagram packet) {
+    	this.myPort = packet.getDest_port();
+    	this.remotePort = packet.getSrc_port();
+    	this.remoteAddress = packet.getSrc_addr();
+    	this.lastValidPacketReceived = packet;
     }
 
     private String getIPv4Address() {
@@ -74,11 +86,38 @@ public class ConnectionImpl extends AbstractConnection {
      */
     public void connect(InetAddress remoteAddress, int remotePort) throws IOException,
     SocketTimeoutException {
-        KtnDatagram k = new KtnDatagram();
-        
-    	throw new RuntimeException("NOT IMPLEMENTED");
+    	this.remoteAddress = remoteAddress.getHostAddress();
+    	this.remotePort = remotePort;
+        KtnDatagram synPacket = constructInternalPacket(Flag.SYN);
+        // TODO: Should we check if packet is corrupted??
+        this.state = State.SYN_SENT;
+        this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
+        sendAck(this.lastValidPacketReceived, false);
+        this.state = State.ESTABLISHED;
     }
 
+    private static int getNextPortNumber() throws IOException {
+    	// TODO: Change exception type
+    	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
+			if(!usedPorts.get(i)) {
+				usedPorts.put(i, true);
+				return i;
+			}
+		}
+    	throw new IOException("Out of ports!");
+    }
+    
+    public static void main(String[] args) {
+		Connection c = new ConnectionImpl(1337);
+		try {
+			Connection con = c.accept();
+			con.send("test");
+			con.receive();
+		} catch (Exception e) {
+			
+		}
+	}
+    
     /**
      * Listen for, and accept, incoming connections.
      * 
@@ -86,7 +125,16 @@ public class ConnectionImpl extends AbstractConnection {
      * @see Connection#accept()
      */
     public Connection accept() throws IOException, SocketTimeoutException {
-    	Connection conn = new ConnectionImpl(10500);
+    	// TODO: Should we check if packet is corrupted??
+    	// Receive SYN
+    	this.lastValidPacketReceived = this.receivePacket(true);
+    	if(this.lastValidPacketReceived.getFlag() != Flag.SYN) {
+    		throw new IOException("Received packet did not contain SYN flag");
+    	}
+    	this.lastValidPacketReceived.setSrc_port(getNextPortNumber());
+    	ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
+    	Thread t = new Thread(conn);
+    	t.start();
     	return conn;
     	//throw new RuntimeException("NOT IMPLEMENTED");
     }
@@ -140,4 +188,17 @@ public class ConnectionImpl extends AbstractConnection {
     protected boolean isValid(KtnDatagram packet) {
         throw new RuntimeException("NOT IMPLEMENTED");
     }
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		// Send SYN-ACK
+		try {
+			sendAck(this.lastValidPacketReceived, true);
+			this.lastValidPacketReceived = receiveAck();
+		} catch(Exception e) {
+			this.state = State.CLOSED;
+		}
+		// Wait for ACK
+	}
 }
