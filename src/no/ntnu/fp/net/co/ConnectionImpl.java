@@ -247,7 +247,13 @@ public class ConnectionImpl extends AbstractConnection {
     		System.out.println("Listening on port " + port);
     		Connection con = c.accept();
     		System.out.println("Connection established! " + con.toString());
-    		System.out.println("Message: " + con.receive());
+    		while(true){
+    			String msg = con.receive();
+    			if(msg.equals("quit")){
+    				break;
+    			}
+    			System.out.println("Message: " + msg);
+    		}
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
     		e.printStackTrace();
@@ -264,10 +270,16 @@ public class ConnectionImpl extends AbstractConnection {
     	try {
     		System.out.println("Trying to connect to " + address + " on port " + port);
     		c.connect(Inet4Address.getByName(address), port);
-    		Scanner scanner = new Scanner(System.in);
-    		System.out.print("Type something to send: ");
-    		c.send(scanner.nextLine());
     		System.out.println("Connection established!");
+    		Scanner scanner = new Scanner(System.in);
+    		while(true){
+    			System.out.print("Type something to send: ");
+	    		String msg = scanner.nextLine();
+	    		if (msg.equals("quit")){
+	    			break;
+	    		}
+	    		c.send(msg);
+    		}
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
     		e.printStackTrace();
@@ -280,10 +292,10 @@ public class ConnectionImpl extends AbstractConnection {
     
     public static void main(String[] args) {
 //    	fixLogDirectory();
-    	serverMain(1337);
+//    	serverMain(1337);
     	// Stian IP
-//    	clientMain("78.91.13.73", 1337);
-    	// Bjørn Arve IP
+    	clientMain("78.91.13.73", 1337);
+    	// Bjï¿½rn Arve IP
 //    	clientMain("78.91.36.121", 1337);
     	
 //    	ConnectionImpl c = new ConnectionImpl(1338);
