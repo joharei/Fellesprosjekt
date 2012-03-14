@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -246,6 +247,7 @@ public class ConnectionImpl extends AbstractConnection {
     		System.out.println("Listening on port " + port);
     		Connection con = c.accept();
     		System.out.println("Connection established! " + con.toString());
+    		System.out.println("Message: " + con.receive());
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
     		e.printStackTrace();
@@ -262,6 +264,9 @@ public class ConnectionImpl extends AbstractConnection {
     	try {
     		System.out.println("Trying to connect to " + address + " on port " + port);
     		c.connect(Inet4Address.getByName(address), port);
+    		Scanner scanner = new Scanner(System.in);
+    		System.out.print("Type something to send: ");
+    		c.send(scanner.nextLine());
     		System.out.println("Connection established!");
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
@@ -334,7 +339,11 @@ public class ConnectionImpl extends AbstractConnection {
      * @see no.ntnu.fp.net.co.Connection#send(String)
      */
     public void send(String msg) throws ConnectException, IOException {
-        throw new RuntimeException("NOT IMPLEMENTED");
+    	KtnDatagram packet = constructDataPacket(msg);
+    	packet.setChecksum(packet.calculateChecksum());
+    	sendDataPacketWithRetransmit(packet);
+    	
+//        throw new RuntimeException("NOT IMPLEMENTED");
     }
 
     /**
@@ -346,8 +355,24 @@ public class ConnectionImpl extends AbstractConnection {
      * @see AbstractConnection#sendAck(KtnDatagram, boolean)
      */
     public String receive() throws ConnectException, IOException {
-        return receivePacket(false).getPayload().toString();
-    	//return datagram.getPayload().toString();
+    	while(this.state == State.ESTABLISHED) {
+	    	KtnDatagram packet = receivePacket(false);
+	    	if(!isValid(packet)) {
+	    		sendAck(this.lastValidPacketReceived, false);
+	    	} else {
+	    		this.lastValidPacketReceived = packet;
+	    		return packet.getPayload().toString();
+	    	}
+	    	synchronized (this) {
+	    		try {
+	    			wait(TIMEOUT);
+	    		} catch (InterruptedException e) {
+	    			// TODO Auto-generated catch block
+	    			e.printStackTrace();
+	    		}
+			}
+    	}
+    	throw new IOException("Connection died while waiting for packet!");
     }
 
     /**
@@ -368,7 +393,9 @@ public class ConnectionImpl extends AbstractConnection {
      * @return true if packet is free of errors, false otherwise.
      */
     protected boolean isValid(KtnDatagram packet) {
-        throw new RuntimeException("NOT IMPLEMENTED");
+    	return packet.getChecksum() == packet.calculateChecksum();
+    	
+//        throw new RuntimeException("NOT IMPLEMENTED");
     }
 
 }
