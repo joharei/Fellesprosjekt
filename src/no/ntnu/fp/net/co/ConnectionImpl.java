@@ -292,9 +292,9 @@ public class ConnectionImpl extends AbstractConnection {
     
     public static void main(String[] args) {
 //    	fixLogDirectory();
-    	serverMain(1337);
+//    	serverMain(1337);
     	// Stian IP
-//    	clientMain("78.91.13.73", 1337);
+    	clientMain("78.91.13.73", 1337);
     	// Bj�rn Arve IP
 //    	clientMain("78.91.36.121", 1337);
     	
@@ -356,7 +356,7 @@ public class ConnectionImpl extends AbstractConnection {
     	KtnDatagram ack;
     	do {
 	    	ack = sendDataPacketWithRetransmit(packet);
-    	} while(ack.getAck() != packet.getSeq_nr() + 1);
+    	} while(ack == null || ack.getAck() != packet.getSeq_nr());
     	
 //        throw new RuntimeException("NOT IMPLEMENTED");
     }
@@ -380,14 +380,6 @@ public class ConnectionImpl extends AbstractConnection {
 	    		sendAck(this.lastValidPacketReceived, false);
 	    		return packet.getPayload().toString();
 	    	}
-	    	synchronized (this) {
-	    		try {
-	    			wait(TIMEOUT);
-	    		} catch (InterruptedException e) {
-	    			// TODO Auto-generated catch block
-	    			e.printStackTrace();
-	    		}
-			}
     	}
     	throw new IOException("Connection died while waiting for packet!");
     }
