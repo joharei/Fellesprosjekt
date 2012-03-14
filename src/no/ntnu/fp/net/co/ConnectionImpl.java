@@ -292,9 +292,9 @@ public class ConnectionImpl extends AbstractConnection {
     
     public static void main(String[] args) {
 //    	fixLogDirectory();
-//    	serverMain(1337);
+    	serverMain(1337);
     	// Stian IP
-    	clientMain("78.91.13.73", 1337);
+//    	clientMain("78.91.13.73", 1337);
     	// Bj�rn Arve IP
 //    	clientMain("78.91.36.121", 1337);
     	
@@ -353,7 +353,10 @@ public class ConnectionImpl extends AbstractConnection {
     public void send(String msg) throws ConnectException, IOException {
     	KtnDatagram packet = constructDataPacket(msg);
     	packet.setChecksum(packet.calculateChecksum());
-    	sendDataPacketWithRetransmit(packet);
+    	KtnDatagram ack;
+    	do {
+	    	ack = sendDataPacketWithRetransmit(packet);
+    	} while(ack.getAck() != packet.getSeq_nr() + 1);
     	
 //        throw new RuntimeException("NOT IMPLEMENTED");
     }
@@ -369,8 +372,8 @@ public class ConnectionImpl extends AbstractConnection {
     public String receive() throws ConnectException, IOException {
     	while(this.state == State.ESTABLISHED) {
 	    	KtnDatagram packet = receivePacket(false);
-	    	if(!isValid(packet)) {
-	    		System.out.println("Corrupted package!");
+	    	if(packet.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1 || !isValid(packet)) {
+	    		System.out.println("Corrupted or unexpected package!");
 	    		sendAck(this.lastValidPacketReceived, false);
 	    	} else {
 	    		this.lastValidPacketReceived = packet;
