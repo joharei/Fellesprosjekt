@@ -8,14 +8,20 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import sun.net.InetAddressCachePolicy;
 
 import no.ntnu.fp.net.admin.Log;
 import no.ntnu.fp.net.cl.ClException;
@@ -83,13 +89,25 @@ public class ConnectionImpl extends AbstractConnection {
     	this.state = State.ESTABLISHED;
     }
 
-    private String getIPv4Address() {
+    public String getIPv4Address() {
         try {
-            return InetAddress.getLocalHost().getHostAddress();
+        	Enumeration<NetworkInterface> networkInterfaces = java.net.NetworkInterface.getNetworkInterfaces();
+        	while(networkInterfaces.hasMoreElements()){
+				Enumeration<InetAddress> networkAddresses = networkInterfaces.nextElement().getInetAddresses();
+				while(networkAddresses.hasMoreElements()){
+					String address = networkAddresses.nextElement().getHostAddress();
+					if(address.contains(".") && !address.equals("127.0.0.1")){
+						return address;
+					}
+				}
+        	}
+        	return InetAddress.getLocalHost().getHostAddress();
         }
         catch (UnknownHostException e) {
-            return "127.0.0.1";
-        }
+        	return "127.0.0.1";
+        } catch (SocketException e) {
+        	return "127.0.0.1";
+		}
     }
 
     /**
@@ -110,6 +128,7 @@ public class ConnectionImpl extends AbstractConnection {
     	this.remoteAddress = remoteAddress.getHostAddress();
     	this.remotePort = remotePort;
         KtnDatagram synPacket = constructInternalPacket(Flag.SYN);
+        synPacket.setSrc_addr(getIPv4Address());
         // TODO: Should we check if packet is corrupted??
         this.state = State.SYN_SENT;
         this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
@@ -129,11 +148,11 @@ public class ConnectionImpl extends AbstractConnection {
     }
     
     public static void main(String[] args) {
-		Connection c = new ConnectionImpl(1337);
+		ConnectionImpl c = new ConnectionImpl(1337);
 		try {
-			System.out.println("Listening on port 1337");
-			Connection con = c.accept();
-			System.out.println("Connection established! " + con.toString());
+			System.out.println("Trying to connect on port 1337");
+			c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
+			System.out.println("Connection established!");
 		} catch (SocketTimeoutException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -141,6 +160,7 @@ public class ConnectionImpl extends AbstractConnection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		System.out.println("Finished!");
 	}
     
     /**
