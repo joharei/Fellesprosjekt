@@ -49,6 +49,7 @@ public class ConnectionImpl extends AbstractConnection {
     
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
+    private final static int RETRIES = 5;
     
     //Testing the A2 framework
     private KtnDatagram datagram;
@@ -131,9 +132,27 @@ public class ConnectionImpl extends AbstractConnection {
         synPacket.setSrc_addr(getIPv4Address());
         // TODO: Should we check if packet is corrupted??
         this.state = State.SYN_SENT;
-        this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
-        sendAck(this.lastValidPacketReceived, false);
-        this.state = State.ESTABLISHED;
+        try {
+			simplySendPacket(synPacket);
+			for (int i = 0; i < RETRIES; i++) {
+				this.lastValidPacketReceived = receiveAck();
+				if(this.lastValidPacketReceived.getFlag() == Flag.SYN_ACK) {
+					sendAck(this.lastValidPacketReceived, false);
+					this.state = State.ESTABLISHED;
+					break;
+				} 
+			}
+		} catch (ClException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        if(this.state != State.ESTABLISHED) {
+        	throw new SocketTimeoutException("Did not receive SYN-ACK!");
+        }
+        
+        
+//        this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
+//        sendAck(this.lastValidPacketReceived, false);
     }
 
     private static int getNextPortNumber() throws IOException {
@@ -148,7 +167,8 @@ public class ConnectionImpl extends AbstractConnection {
     }
     
     public static void main(String[] args) {
-		ConnectionImpl c = new ConnectionImpl(1337);
+    	ConnectionImpl c = new ConnectionImpl(1337);
+    	System.out.println(c.getIPv4Address());
 		try {
 			System.out.println("Trying to connect on port 1337");
 			c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
