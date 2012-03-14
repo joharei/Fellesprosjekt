@@ -12,6 +12,7 @@ public class User {
 	private ArrayList<Week> weekModels;
 	private int phone;
 	private boolean isOnline;
+	public final static String NAME_PROPERTY_CLASSTYPE = "user";
 	public final static String NAME_PROPERTY_FIRSTNAME = "fname";
 	public final static String NAME_PROPERTY_SURNAME = "sname";
 	public final static String NAME_PROPERTY_USERNAME = "uname";
@@ -77,6 +78,10 @@ public class User {
 	public void setDateOfBirth(Date date) {
 		this.dateOfBirth = date;
 	}
+	
+	public Date getDateOfBirth() {
+		return this.dateOfBirth;
+	}
 
 	private void setEmail(String email) {
 		this.email = email;
@@ -124,5 +129,9 @@ public class User {
 	
 	private void setPhone(int phone) {
 		this.phone = phone;
+	}
+
+	public String getEmail() {
+		 return this.email;
 	}
 }
