@@ -6,9 +6,9 @@
   <ghost>0</ghost>
   <payload>1</payload>
   <header>0</header>
-  <onlydata>true</onlydata>
+  <onlydata>false</onlydata>
   <serverAddress>localhost</serverAddress>
   <serverport>10500</serverport>
-  <simpleConnection>false</simpleConnection>
+  <simpleConnection>true</simpleConnection>
 </root>
 
