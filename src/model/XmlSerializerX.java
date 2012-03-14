@@ -2,7 +2,9 @@ package model;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 
 import no.ntnu.fp.model.Person;
 import no.ntnu.fp.model.XmlSerializer;
@@ -16,6 +18,28 @@ public class XmlSerializerX extends XmlSerializer {
 	
 	public Object toObject(Document xml) {
 		return null;
+	}
+	
+	/**
+	 * Group Xml-supporting objects in a document
+	 */
+	private Document buildXml(ArrayList list, SaveableClass classType) {
+		Element root = new Element("" + classType);
+		switch (classType) {
+			case User : {
+				@SuppressWarnings("unchecked")
+				Iterator it = list.iterator();
+				while (it.hasNext()) {
+					Element element = userToXmlElement((User) it.next());
+					root.appendChild(element);
+				}
+				break;
+			}
+			default : {
+				throw new IllegalArgumentException("Unhandled class type");
+			}
+		}
+		return new Document(root);
 	}
 	
 	private User assembleUser(Element userElement) throws ParseException {
