@@ -193,7 +193,22 @@ public class ConnectionImpl extends AbstractConnection {
 //        this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
 //        sendAck(this.lastValidPacketReceived, false);
     }
-
+    
+    public static void fixLogDirectory() {
+    	File log = new File("Log");
+    	if(!log.isDirectory()) {
+    		log.mkdir();
+    	}
+    	File logFile = new File("Log/logfile.txt");
+    	if(!logFile.exists()) {
+    		try {
+				logFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+    	}
+    }
+    
     private static int getNextPortNumber() throws IOException {
     	// TODO: Change exception type
     	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
@@ -205,44 +220,44 @@ public class ConnectionImpl extends AbstractConnection {
     	throw new IOException("Out of ports!");
     }
     
-    public static void main(String[] args) {
-    	ConnectionImpl.initPortNumbers();
-    	
-    	
-    	
-    	
-    	/////// SERVER SIDE ///////
+    public static void serverMain() {
     	ConnectionImpl c = new ConnectionImpl(1337);
-		try {
-			System.out.println("Listening on port 1337");
-			Connection con = c.accept();
-			System.out.println("Connection established! " + con.toString());
-		} catch (SocketTimeoutException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println("Closed");
-    	
-    	
-    	
-		/////// CLIENT SIDE ///////
-//    	ConnectionImpl c = new ConnectionImpl(1337);
-//    	System.out.println(c.getIPv4Address());
-//		try {
-//			System.out.println("Trying to connect on port 1337");
-//			c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
-//			System.out.println("Connection established!");
-//		} catch (SocketTimeoutException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		System.out.println("Finished!");
+    	try {
+    		System.out.println("Listening on port 1337");
+    		Connection con = c.accept();
+    		System.out.println("Connection established! " + con.toString());
+    	} catch (SocketTimeoutException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	} catch (IOException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+    	System.out.println("Closed");
+    }
+    
+    public static void clientMain() {
+    	ConnectionImpl c = new ConnectionImpl(1337);
+    	System.out.println(c.getIPv4Address());
+    	try {
+    		System.out.println("Trying to connect on port 1337");
+    		c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
+    		System.out.println("Connection established!");
+    	} catch (SocketTimeoutException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	} catch (IOException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+    	System.out.println("Finished!");
+    }
+    
+    public static void main(String[] args) {
+//    	fixLogDirectory();
+    	initPortNumbers();
+//    	serverMain();
+//    	clientMain();
 	}
     
     /**
