@@ -4,7 +4,7 @@
   <loss>0</loss>
   <delay>0</delay>
   <ghost>0</ghost>
-  <payload>1</payload>
+  <payload>0.7</payload>
   <header>0</header>
   <onlydata>false</onlydata>
   <serverAddress>localhost</serverAddress>
