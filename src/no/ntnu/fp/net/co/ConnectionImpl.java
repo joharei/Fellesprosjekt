@@ -125,6 +125,7 @@ public class ConnectionImpl extends AbstractConnection {
     public KtnDatagram internalReceiveAck(boolean synAck) throws SocketTimeoutException {
     	KtnDatagram temp;
     	for (int i = 0; i < RETRIES; i++) {
+    		System.out.println("Waiting for ACK");
     		try {
 				temp = receiveAck();
 				if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
@@ -188,6 +189,7 @@ public class ConnectionImpl extends AbstractConnection {
 		}
         this.state = State.SYN_SENT;
         this.lastValidPacketReceived = internalReceiveAck(true);
+        this.remotePort = this.lastValidPacketReceived.getSrc_port();
         sendAck(this.lastValidPacketReceived, false);
         this.state = State.ESTABLISHED;
         
@@ -266,9 +268,9 @@ public class ConnectionImpl extends AbstractConnection {
     	initPortNumbers();
 //    	serverMain(1337);
     	// Stian IP
-//    	clientMain("78.91.13.73", 1337);
+    	clientMain("78.91.13.73", 1337);
     	// Bjørn Arve IP
-    	clientMain("78.91.36.121", 1337);
+//    	clientMain("78.91.36.121", 1337);
     	
 //    	ConnectionImpl c = new ConnectionImpl(1338);
 //    	c.testSimplySend("78.91.36.121", 1337);
