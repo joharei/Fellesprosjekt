@@ -60,6 +60,7 @@ public class ConnectionImpl extends AbstractConnection {
      *            - the local port to associate with this connection
      */
     public ConnectionImpl(int myPort) {
+    	this.myAddress = getIPv4Address();
     	datagram = new KtnDatagram();
     	this.myPort = myPort;
 //    	throw new RuntimeException("NOT IMPLEMENTED");
@@ -73,6 +74,7 @@ public class ConnectionImpl extends AbstractConnection {
      * @throws IOException
      */
     public ConnectionImpl(KtnDatagram packet) throws ConnectException, IOException {
+    	this.myAddress = getIPv4Address();
     	this.myPort = packet.getDest_port();
     	this.remotePort = packet.getSrc_port();
     	this.remoteAddress = packet.getSrc_addr();
@@ -176,7 +178,7 @@ public class ConnectionImpl extends AbstractConnection {
     	this.remoteAddress = remoteAddress.getHostAddress();
     	this.remotePort = remotePort;
         KtnDatagram synPacket = constructInternalPacket(Flag.SYN);
-        synPacket.setSrc_addr(getIPv4Address());
+//        synPacket.setSrc_addr(getIPv4Address());
         // TODO: Should we check if packet is corrupted??
         try {
 			simplySendPacket(synPacket);
@@ -264,9 +266,9 @@ public class ConnectionImpl extends AbstractConnection {
     	initPortNumbers();
 //    	serverMain(1337);
     	// Stian IP
-    	clientMain("78.91.13.73", 1337);
+//    	clientMain("78.91.13.73", 1337);
     	// Bjørn Arve IP
-//    	clientMain("78.91.36.121", 1337);
+    	clientMain("78.91.36.121", 1337);
     	
 //    	ConnectionImpl c = new ConnectionImpl(1338);
 //    	c.testSimplySend("78.91.36.121", 1337);
