@@ -358,9 +358,11 @@ public class ConnectionImpl extends AbstractConnection {
     	while(this.state == State.ESTABLISHED) {
 	    	KtnDatagram packet = receivePacket(false);
 	    	if(!isValid(packet)) {
+	    		System.out.println("Corrupted package!");
 	    		sendAck(this.lastValidPacketReceived, false);
 	    	} else {
 	    		this.lastValidPacketReceived = packet;
+	    		sendAck(this.lastValidPacketReceived, false);
 	    		return packet.getPayload().toString();
 	    	}
 	    	synchronized (this) {
