@@ -82,14 +82,23 @@ public class ConnectionImpl extends AbstractConnection {
     	sendAck(this.lastValidPacketReceived, true);
     	this.state = State.SYN_RCVD;
     	// Wait for ACK
-    	this.lastValidPacketReceived = receiveAck();
-    	if(this.lastValidPacketReceived.getFlag() != Flag.ACK) {
-    		this.state = State.CLOSED;
-    		throw new ConnectException("Did not receive ACK for sent SYN-ACK");
-    	}
+    	this.lastValidPacketReceived = internalReceiveAck(false);
     	this.state = State.ESTABLISHED;
+    	
+//    	this.lastValidPacketReceived = receiveAck();
+//    	if(this.lastValidPacketReceived.getFlag() != Flag.ACK) {
+//    		this.state = State.CLOSED;
+//    		throw new ConnectException("Did not receive ACK for sent SYN-ACK");
+//    	}
+//    	this.state = State.ESTABLISHED;
     }
 
+    public static void initPortNumbers() {
+    	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
+			usedPorts.put(i, false);
+		}
+    }
+    
     public String getIPv4Address() {
         try {
         	Enumeration<NetworkInterface> networkInterfaces = java.net.NetworkInterface.getNetworkInterfaces();
@@ -111,6 +120,44 @@ public class ConnectionImpl extends AbstractConnection {
 		}
     }
 
+    public KtnDatagram internalReceiveAck(boolean synAck) throws SocketTimeoutException {
+    	KtnDatagram temp;
+    	for (int i = 0; i < RETRIES; i++) {
+    		try {
+				temp = receiveAck();
+				if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
+					return temp;
+				}
+			} catch (EOFException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    	throw new SocketTimeoutException();
+    }
+    
+    public KtnDatagram internalReceive(Flag flag, boolean internal) throws SocketTimeoutException {
+    	KtnDatagram temp;
+    	for (int i = 0; i < RETRIES; i++) {
+			try {
+				temp = receivePacket(internal);
+				if(temp != null && temp.getFlag() == flag) {
+					return temp;
+				} 
+			} catch (EOFException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+    	throw new SocketTimeoutException();
+    }
+    
     /**
      * Establish a connection to a remote location.
      * 
@@ -132,20 +179,12 @@ public class ConnectionImpl extends AbstractConnection {
         synPacket.setSrc_addr(getIPv4Address());
         // TODO: Should we check if packet is corrupted??
         this.state = State.SYN_SENT;
-        try {
-			simplySendPacket(synPacket);
-			for (int i = 0; i < RETRIES; i++) {
-				this.lastValidPacketReceived = receiveAck();
-				if(this.lastValidPacketReceived.getFlag() == Flag.SYN_ACK) {
-					sendAck(this.lastValidPacketReceived, false);
-					this.state = State.ESTABLISHED;
-					break;
-				} 
-			}
-		} catch (ClException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        this.lastValidPacketReceived = internalReceiveAck(true);
+        sendAck(this.lastValidPacketReceived, false);
+        this.state = State.ESTABLISHED;
+        
+        
+        
         if(this.state != State.ESTABLISHED) {
         	throw new SocketTimeoutException("Did not receive SYN-ACK!");
         }
@@ -167,12 +206,17 @@ public class ConnectionImpl extends AbstractConnection {
     }
     
     public static void main(String[] args) {
+    	ConnectionImpl.initPortNumbers();
+    	
+    	
+    	
+    	
+    	/////// SERVER SIDE ///////
     	ConnectionImpl c = new ConnectionImpl(1337);
-    	System.out.println(c.getIPv4Address());
 		try {
-			System.out.println("Trying to connect on port 1337");
-			c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
-			System.out.println("Connection established!");
+			System.out.println("Listening on port 1337");
+			Connection con = c.accept();
+			System.out.println("Connection established! " + con.toString());
 		} catch (SocketTimeoutException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -180,7 +224,25 @@ public class ConnectionImpl extends AbstractConnection {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		System.out.println("Finished!");
+		System.out.println("Closed");
+    	
+    	
+    	
+		/////// CLIENT SIDE ///////
+//    	ConnectionImpl c = new ConnectionImpl(1337);
+//    	System.out.println(c.getIPv4Address());
+//		try {
+//			System.out.println("Trying to connect on port 1337");
+//			c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
+//			System.out.println("Connection established!");
+//		} catch (SocketTimeoutException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		System.out.println("Finished!");
 	}
     
     /**
@@ -193,12 +255,10 @@ public class ConnectionImpl extends AbstractConnection {
     	while(true) {
 	    	// TODO: Should we check if packet is corrupted??
 	    	// Receive SYN
-	    	this.lastValidPacketReceived = this.receivePacket(true);
-	    	if(this.lastValidPacketReceived.getFlag() == Flag.SYN) {
-		    	this.lastValidPacketReceived.setDest_port(getNextPortNumber());
-		    	ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
-		    	return conn;
-	    	}
+    		this.lastValidPacketReceived = this.internalReceive(Flag.SYN, true);
+		    this.lastValidPacketReceived.setDest_port(getNextPortNumber());
+		    ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
+		    return conn;
     	}
     }
 
