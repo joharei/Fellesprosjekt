@@ -5,18 +5,23 @@ import java.util.Date;
 
 import no.ntnu.fp.model.Person;
 
-public class User extends Person {
-	private String username, password;
+public class User {
+	private String firstname, surname, username, email, password;
+	private Date dateOfBirth;
 	private ArrayList<Notification> notifications;
 	private ArrayList<Week> weekModels;
 	private int phone;
 	private boolean isOnline;
-	public final static String NAME_PROPERTY_USERNAME = "username";
-	public final static String NAME_PROPERTY_PASSWORD = "password";
+	public final static String NAME_PROPERTY_FIRSTNAME = "fname";
+	public final static String NAME_PROPERTY_SURNAME = "sname";
+	public final static String NAME_PROPERTY_USERNAME = "uname";
+	public final static String NAME_PROPERTY_PASSWORD = "pwd";
+	public final static String NAME_PROPERTY_EMAIL = "email";
 	public final static String NAME_PROPERTY_PHONE = "phone";
+	public final static String NAME_PROPERTY_DATE_OF_BIRTH = "date";
 	
-	public User(String name, String username, String password, String email, Date dateOfBirth, int phone) {
-		setName(name);
+	public User(String firstname, String surname, String username, String password, String email, Date dateOfBirth, int phone) {
+		setName(firstname, surname);
 		setDateOfBirth(dateOfBirth);
 		setEmail(email);
 		setPhone(phone);
@@ -26,6 +31,19 @@ public class User extends Person {
 		weekModels = new ArrayList<Week>();
 	}
 	
+	public void setName(String n1, String n2) {
+		this.firstname = n1;
+		this.surname = n2;
+	}
+
+	public void setDateOfBirth(Date date) {
+		this.dateOfBirth = date;
+	}
+
+	private void setEmail(String email) {
+		this.email = email;
+	}
+
 	private void setPassword(String password) {
 		this.password = password;
 	}

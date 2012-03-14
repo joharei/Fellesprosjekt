@@ -17,8 +17,7 @@ public class Person {
 	/**
 	 * This member variable holds the person's name.
 	 */
-	private String firstName;
-	private String surName;
+	private String name;
 	
 	/**
 	 * This member variable holds the person's email address.
