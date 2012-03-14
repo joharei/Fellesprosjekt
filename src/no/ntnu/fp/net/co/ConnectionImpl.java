@@ -51,6 +51,8 @@ public class ConnectionImpl extends AbstractConnection {
     private final static int PORT_RANGE = 100;
     private final static int RETRIES = 5;
     
+    private static boolean shouldInitPortNumbers = true;
+    
     //Testing the A2 framework
     private KtnDatagram datagram;
     /**
@@ -60,6 +62,7 @@ public class ConnectionImpl extends AbstractConnection {
      *            - the local port to associate with this connection
      */
     public ConnectionImpl(int myPort) {
+    	initPortNumbers();
     	this.myAddress = getIPv4Address();
     	datagram = new KtnDatagram();
     	this.myPort = myPort;
@@ -74,6 +77,7 @@ public class ConnectionImpl extends AbstractConnection {
      * @throws IOException
      */
     public ConnectionImpl(KtnDatagram packet) throws ConnectException, IOException {
+    	initPortNumbers();
     	this.myAddress = getIPv4Address();
     	this.myPort = packet.getDest_port();
     	this.remotePort = packet.getSrc_port();
@@ -96,9 +100,11 @@ public class ConnectionImpl extends AbstractConnection {
     }
 
     public static void initPortNumbers() {
-    	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
-			usedPorts.put(i, false);
-		}
+    	if(shouldInitPortNumbers) {
+	    	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
+				usedPorts.put(i, false);
+			}
+    	}
     }
     
     public String getIPv4Address() {
@@ -204,6 +210,10 @@ public class ConnectionImpl extends AbstractConnection {
 //        sendAck(this.lastValidPacketReceived, false);
     }
     
+    /**
+     * Creates the local folder "Log" if it doesn't already exist.
+     * Creates the file "Log/logfile.txt" if it doesn't already exist.
+     */
     public static void fixLogDirectory() {
     	File log = new File("Log");
     	if(!log.isDirectory()) {
@@ -265,10 +275,9 @@ public class ConnectionImpl extends AbstractConnection {
     
     public static void main(String[] args) {
 //    	fixLogDirectory();
-    	initPortNumbers();
-//    	serverMain(1337);
+    	serverMain(1337);
     	// Stian IP
-    	clientMain("78.91.13.73", 1337);
+//    	clientMain("78.91.13.73", 1337);
     	// Bjørn Arve IP
 //    	clientMain("78.91.36.121", 1337);
     	
@@ -301,7 +310,11 @@ public class ConnectionImpl extends AbstractConnection {
     	while(true) {
 	    	// TODO: Should we check if packet is corrupted??
 	    	// Receive SYN
-    		this.lastValidPacketReceived = this.internalReceive(Flag.SYN, true);
+    		try {
+    			this.lastValidPacketReceived = this.internalReceive(Flag.SYN, true);
+    		} catch (SocketTimeoutException e) {
+    			continue;
+    		}
 		    this.lastValidPacketReceived.setDest_port(getNextPortNumber());
 		    ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
 		    return conn;
