@@ -49,6 +49,41 @@ public class XmlSerializerX extends XmlSerializer {
 		return new User(name, username, password, email, date, phone);
 	}
 	
+	private Element userToXmlElement(User user) {
+		Element element = new Element(User.NAME_PROPERTY_CLASSTYPE);
+		
+		Element firstname = new Element(User.NAME_PROPERTY_FIRSTNAME);
+		Element surname = new Element(User.NAME_PROPERTY_SURNAME);
+		firstname.appendChild(user.getFirstname());
+		surname.appendChild(user.getSurname());
+		
+		Element usern = new Element(User.NAME_PROPERTY_USERNAME);
+		usern.appendChild(user.getUsername());
+		
+		Element pwd = new Element(User.NAME_PROPERTY_PASSWORD);
+		pwd.appendChild(user.getPassword());
+		
+		Element email = new Element(User.NAME_PROPERTY_EMAIL);
+		email.appendChild(user.getEmail());
+		
+		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, java.util.Locale.US);
+		Element dateOfBirth = new Element(User.NAME_PROPERTY_DATE_OF_BIRTH);
+		dateOfBirth.appendChild(format.format(user.getDateOfBirth()));
+
+		Element phone = new Element (User.NAME_PROPERTY_PHONE);
+		phone.appendChild("" + user.getPhone());
+		
+		//link fields to object
+		element.appendChild(firstname);
+		element.appendChild(surname);
+		element.appendChild(usern);
+		element.appendChild(pwd);
+		element.appendChild(email);
+		element.appendChild(dateOfBirth);
+		element.appendChild(phone);
+		return element;
+	}
+	
 	//can't access the private method in super class
 	private Date parseDate(String date) throws ParseException {
 		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, java.util.Locale.US);
