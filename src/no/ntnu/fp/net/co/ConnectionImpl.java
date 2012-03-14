@@ -4,15 +4,24 @@
 package no.ntnu.fp.net.co;
 
 import java.io.EOFException;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
+import java.util.TimerTask;
+
+import sun.net.InetAddressCachePolicy;
 
 import no.ntnu.fp.net.admin.Log;
 import no.ntnu.fp.net.cl.ClException;
@@ -33,7 +42,7 @@ import no.ntnu.fp.net.cl.KtnDatagram.Flag;
  * @see no.ntnu.fp.net.co.Connection
  * @see no.ntnu.fp.net.cl.ClSocket
  */
-public class ConnectionImpl extends AbstractConnection implements Runnable {
+public class ConnectionImpl extends AbstractConnection {
 
     /** Keeps track of the used ports for each server port. */
     private static Map<Integer, Boolean> usedPorts = Collections.synchronizedMap(new HashMap<Integer, Boolean>());
@@ -55,20 +64,50 @@ public class ConnectionImpl extends AbstractConnection implements Runnable {
 //    	throw new RuntimeException("NOT IMPLEMENTED");
     }
     
-    public ConnectionImpl(KtnDatagram packet) {
+    /**
+     * 
+     * 
+     * @param packet
+     * @throws ConnectException
+     * @throws IOException
+     */
+    public ConnectionImpl(KtnDatagram packet) throws ConnectException, IOException {
     	this.myPort = packet.getDest_port();
     	this.remotePort = packet.getSrc_port();
     	this.remoteAddress = packet.getSrc_addr();
     	this.lastValidPacketReceived = packet;
+    	
+    	// Send SYN-ACK
+    	sendAck(this.lastValidPacketReceived, true);
+    	this.state = State.SYN_RCVD;
+    	// Wait for ACK
+    	this.lastValidPacketReceived = receiveAck();
+    	if(this.lastValidPacketReceived.getFlag() != Flag.ACK) {
+    		this.state = State.CLOSED;
+    		throw new ConnectException("Did not receive ACK for sent SYN-ACK");
+    	}
+    	this.state = State.ESTABLISHED;
     }
 
-    private String getIPv4Address() {
+    public String getIPv4Address() {
         try {
-            return InetAddress.getLocalHost().getHostAddress();
+        	Enumeration<NetworkInterface> networkInterfaces = java.net.NetworkInterface.getNetworkInterfaces();
+        	while(networkInterfaces.hasMoreElements()){
+				Enumeration<InetAddress> networkAddresses = networkInterfaces.nextElement().getInetAddresses();
+				while(networkAddresses.hasMoreElements()){
+					String address = networkAddresses.nextElement().getHostAddress();
+					if(address.contains(".") && !address.equals("127.0.0.1")){
+						return address;
+					}
+				}
+        	}
+        	return InetAddress.getLocalHost().getHostAddress();
         }
         catch (UnknownHostException e) {
-            return "127.0.0.1";
-        }
+        	return "127.0.0.1";
+        } catch (SocketException e) {
+        	return "127.0.0.1";
+		}
     }
 
     /**
@@ -89,6 +128,7 @@ public class ConnectionImpl extends AbstractConnection implements Runnable {
     	this.remoteAddress = remoteAddress.getHostAddress();
     	this.remotePort = remotePort;
         KtnDatagram synPacket = constructInternalPacket(Flag.SYN);
+        synPacket.setSrc_addr(getIPv4Address());
         // TODO: Should we check if packet is corrupted??
         this.state = State.SYN_SENT;
         this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
@@ -108,14 +148,19 @@ public class ConnectionImpl extends AbstractConnection implements Runnable {
     }
     
     public static void main(String[] args) {
-		Connection c = new ConnectionImpl(1337);
+		ConnectionImpl c = new ConnectionImpl(1337);
 		try {
-			Connection con = c.accept();
-			con.send("test");
-			con.receive();
-		} catch (Exception e) {
-			
+			System.out.println("Trying to connect on port 1337");
+			c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
+			System.out.println("Connection established!");
+		} catch (SocketTimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
+		System.out.println("Finished!");
 	}
     
     /**
@@ -125,18 +170,16 @@ public class ConnectionImpl extends AbstractConnection implements Runnable {
      * @see Connection#accept()
      */
     public Connection accept() throws IOException, SocketTimeoutException {
-    	// TODO: Should we check if packet is corrupted??
-    	// Receive SYN
-    	this.lastValidPacketReceived = this.receivePacket(true);
-    	if(this.lastValidPacketReceived.getFlag() != Flag.SYN) {
-    		throw new IOException("Received packet did not contain SYN flag");
+    	while(true) {
+	    	// TODO: Should we check if packet is corrupted??
+	    	// Receive SYN
+	    	this.lastValidPacketReceived = this.receivePacket(true);
+	    	if(this.lastValidPacketReceived.getFlag() == Flag.SYN) {
+		    	this.lastValidPacketReceived.setDest_port(getNextPortNumber());
+		    	ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
+		    	return conn;
+	    	}
     	}
-    	this.lastValidPacketReceived.setSrc_port(getNextPortNumber());
-    	ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
-    	Thread t = new Thread(conn);
-    	t.start();
-    	return conn;
-    	//throw new RuntimeException("NOT IMPLEMENTED");
     }
 
     /**
@@ -189,16 +232,5 @@ public class ConnectionImpl extends AbstractConnection implements Runnable {
         throw new RuntimeException("NOT IMPLEMENTED");
     }
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-		// Send SYN-ACK
-		try {
-			sendAck(this.lastValidPacketReceived, true);
-			this.lastValidPacketReceived = receiveAck();
-		} catch(Exception e) {
-			this.state = State.CLOSED;
-		}
-		// Wait for ACK
-	}
 }
+
