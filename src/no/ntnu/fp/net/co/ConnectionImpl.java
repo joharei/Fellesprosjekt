@@ -178,6 +178,12 @@ public class ConnectionImpl extends AbstractConnection {
         KtnDatagram synPacket = constructInternalPacket(Flag.SYN);
         synPacket.setSrc_addr(getIPv4Address());
         // TODO: Should we check if packet is corrupted??
+        try {
+			simplySendPacket(synPacket);
+		} catch (ClException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         this.state = State.SYN_SENT;
         this.lastValidPacketReceived = internalReceiveAck(true);
         sendAck(this.lastValidPacketReceived, false);
@@ -220,10 +226,10 @@ public class ConnectionImpl extends AbstractConnection {
     	throw new IOException("Out of ports!");
     }
     
-    public static void serverMain() {
-    	ConnectionImpl c = new ConnectionImpl(1337);
+    public static void serverMain(int port) {
+    	ConnectionImpl c = new ConnectionImpl(port);
     	try {
-    		System.out.println("Listening on port 1337");
+    		System.out.println("Listening on port " + port);
     		Connection con = c.accept();
     		System.out.println("Connection established! " + con.toString());
     	} catch (SocketTimeoutException e) {
@@ -236,12 +242,12 @@ public class ConnectionImpl extends AbstractConnection {
     	System.out.println("Closed");
     }
     
-    public static void clientMain() {
-    	ConnectionImpl c = new ConnectionImpl(1337);
-    	System.out.println(c.getIPv4Address());
+    public static void clientMain(String address, int port) {
+    	ConnectionImpl c = new ConnectionImpl(INITIAL_PORT - 1);
+    	System.out.println("Your IP-address is: " + c.getIPv4Address());
     	try {
-    		System.out.println("Trying to connect on port 1337");
-    		c.connect(Inet4Address.getByName("78.91.13.73"), 1337);
+    		System.out.println("Trying to connect to " + address + " on port " + port);
+    		c.connect(Inet4Address.getByName(address), port);
     		System.out.println("Connection established!");
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
@@ -256,9 +262,30 @@ public class ConnectionImpl extends AbstractConnection {
     public static void main(String[] args) {
 //    	fixLogDirectory();
     	initPortNumbers();
-//    	serverMain();
-//    	clientMain();
+//    	serverMain(1337);
+    	// Stian IP
+    	clientMain("78.91.13.73", 1337);
+    	// Bjørn Arve IP
+//    	clientMain("78.91.36.121", 1337);
+    	
+//    	ConnectionImpl c = new ConnectionImpl(1338);
+//    	c.testSimplySend("78.91.36.121", 1337);
 	}
+    
+    public void testSimplySend(String ip, int port) {
+    	KtnDatagram packet = constructInternalPacket(Flag.SYN);
+//    	packet.setDest_addr(ip);
+//    	packet.setDest_port(port);
+    	try {
+			simplySendPacket(packet);
+		} catch (ClException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
     
     /**
      * Listen for, and accept, incoming connections.
