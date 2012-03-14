@@ -20,7 +20,7 @@ public class Week {
 		this.appointments = appointments;
 	}
 
-	int getWeekNumber() {
+	public int getWeekNumber() {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(startDate);
 		return cal.get(Calendar.WEEK_OF_YEAR);
