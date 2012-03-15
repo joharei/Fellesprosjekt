@@ -17,7 +17,6 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Timer;
@@ -52,11 +51,9 @@ public class ConnectionImpl extends AbstractConnection {
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
     private final static int RETRIES = 5;
-    private final static int WINDOWS_SIZE = 5;
-    
+
     private static boolean shouldInitPortNumbers = true;
     
-    private List<KtnDatagram> unackedPackets;
     //Testing the A2 framework
     private KtnDatagram datagram;
     /**
@@ -255,9 +252,6 @@ public class ConnectionImpl extends AbstractConnection {
     		System.out.println("Connection established! " + con.toString());
     		while(true){
     			String msg = con.receive();
-    			if(msg.equals("quit")){
-    				break;
-    			}
     			System.out.println("Message: " + msg);
     		}
     	} catch (SocketTimeoutException e) {
@@ -281,11 +275,12 @@ public class ConnectionImpl extends AbstractConnection {
     		while(true){
     			System.out.print("Type something to send: ");
 	    		String msg = scanner.nextLine();
-	    		c.send(msg);
 	    		if (msg.equals("quit")){
 	    			break;
 	    		}
+	    		c.send(msg);
     		}
+    		System.out.println("Closing...");
     		c.close();
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
@@ -362,10 +357,8 @@ public class ConnectionImpl extends AbstractConnection {
     	packet.setChecksum(packet.calculateChecksum());
     	KtnDatagram ack;
     	do {
-	    	ack = sendDataPacketWithRetransmit(packet);
+    		ack = sendDataPacketWithRetransmit(packet);
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
-    	
-//        throw new RuntimeException("NOT IMPLEMENTED");
     }
 
     /**
@@ -378,16 +371,22 @@ public class ConnectionImpl extends AbstractConnection {
      */
     public String receive() throws ConnectException, IOException {
     	while(this.state == State.ESTABLISHED) {
-	    	KtnDatagram packet = receivePacket(false);
-	    	if(packet.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1 || !isValid(packet)) {
-	    		System.out.println("Corrupted or unexpected package!");
-	    		sendAck(this.lastValidPacketReceived, false);
-	    	} else {
-	    		this.lastValidPacketReceived = packet;
-	    		sendAck(this.lastValidPacketReceived, false);
-	    		return packet.getPayload().toString();
+	    	try{
+	    		KtnDatagram packet = receivePacket(false);
+	    		if(packet.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1 || !isValid(packet)) {
+	    			System.out.println("Corrupted or unexpected package!");
+	    			sendAck(this.lastValidPacketReceived, false);
+	    		} else {
+	    			this.lastValidPacketReceived = packet;
+	    			sendAck(this.lastValidPacketReceived, false);
+	    			return packet.getPayload().toString();
+	    		}
+	    	}catch (EOFException e){
+	    		serverClose();
+	    		return null;
 	    	}
     	}
+    	
     	throw new IOException("Connection died while waiting for packet!");
     }
 
@@ -398,11 +397,69 @@ public class ConnectionImpl extends AbstractConnection {
      */
     public void close() throws IOException {
     	KtnDatagram fin = constructInternalPacket(Flag.FIN);
-    	KtnDatagram ack = sendDataPacketWithRetransmit(fin);
-    	
-    	if (ack.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1)
-    	sendAck(receivePacket(false), false);
+    	KtnDatagram ack = null;
+    	do {
+	    	do {
+	    		try {
+					simplySendPacket(fin);
+				} catch (ClException e) {
+					// TODO Auto-generated catch block
+					continue;
+				}
+	    		ack = receiveAck();
+	    	}while(ack == null || ack.getSeq_nr() != fin.getSeq_nr());
+	    	this.lastValidPacketReceived = ack;
+	    	try{
+	    		fin = internalReceive(Flag.FIN,true);
+	    		System.out.println("FIN sequence number: " + fin.getSeq_nr());
+	    		System.out.println("ACK som sjekkes: " + ack.getAck());
+	    		if (fin.getSeq_nr() == ack.getAck() + 1){
+	    			break;
+	    		}
+	    	}catch (SocketTimeoutException e){
+	    		continue;
+	    	}
+    	}while(true);
+    	while(true){
+	    	sendAck(fin, false);
+	    	try{
+	    		fin = internalReceive(Flag.FIN, true);
+	    	}catch (SocketTimeoutException e){
+	    		this.state = State.CLOSED;
+	    		break;
+	    	}
+    	}
 //        throw new RuntimeException("NOT IMPLEMENTED");
+    }
+    
+    public void serverClose(){
+    	try {
+			if (disconnectRequest.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1){
+				sendAck(this.lastValidPacketReceived, false);
+				return;
+			}
+    		sendAck(disconnectRequest, false);
+    		KtnDatagram fin = constructInternalPacket(Flag.FIN);
+    		KtnDatagram ack = null;
+    		while(true){
+    			if (ack != null && fin.getSeq_nr() == ack.getSeq_nr()){
+    				this.state = State.CLOSED;
+    				break;
+    			}
+	    		simplySendPacket(fin);
+	    		ack = receiveAck();
+    		}
+    		
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			System.out.println("Could not send FIN!");;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     /**
