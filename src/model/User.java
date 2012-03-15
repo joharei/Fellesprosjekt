@@ -3,7 +3,6 @@ package model;
 import java.util.ArrayList;
 import java.util.Date;
 
-import no.ntnu.fp.model.Person;
 
 public class User {
 	private String firstname, surname, username, email, password;
