@@ -164,7 +164,7 @@ public class AppointmentGui extends JPanel{
 		@Override
 		public void focusLost(FocusEvent e) {
 			// TODO Auto-generated method stub
-			
+			placeField1.setText("Type or click button");
 		}
 		
 	}
