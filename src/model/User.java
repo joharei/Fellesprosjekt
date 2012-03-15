@@ -134,4 +134,16 @@ public class User {
 	public String getEmail() {
 		 return this.email;
 	}
+	
+	public String toString() {
+		String s = "===BEGIN USER===" + 
+		"\nName: " + getName() +
+		"\nUsername: " + getUsername() +
+		"\nPassword: " + getPassword() +
+		"\nEmail: " + getEmail() +
+		"\nBirthdate: " + getDateOfBirth() +
+		"\nPhone number: " + getPhone() +
+		"\n===END USER===";
+		return s;
+	}
 }
