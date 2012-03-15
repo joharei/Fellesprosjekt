@@ -17,6 +17,7 @@ import java.net.UnknownHostException;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Timer;
@@ -51,9 +52,11 @@ public class ConnectionImpl extends AbstractConnection {
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
     private final static int RETRIES = 5;
+    private final static int WINDOWS_SIZE = 5;
     
     private static boolean shouldInitPortNumbers = true;
     
+    private List<KtnDatagram> unackedPackets;
     //Testing the A2 framework
     private KtnDatagram datagram;
     /**
@@ -89,7 +92,7 @@ public class ConnectionImpl extends AbstractConnection {
     	sendAck(this.lastValidPacketReceived, true);
     	this.state = State.SYN_RCVD;
     	// Wait for ACK
-    	this.lastValidPacketReceived = internalReceiveAck(false);
+    	this.lastValidPacketReceived = internalReceiveAck(false, this.lastValidPacketReceived);
     	this.state = State.ESTABLISHED;
     	
 //    	this.lastValidPacketReceived = receiveAck();
@@ -129,7 +132,7 @@ public class ConnectionImpl extends AbstractConnection {
 		}
     }
 
-    public KtnDatagram internalReceiveAck(boolean synAck) throws SocketTimeoutException {
+    public KtnDatagram internalReceiveAck(boolean synAck, KtnDatagram packetToAck) throws SocketTimeoutException {
     	KtnDatagram temp;
     	for (int i = 0; i < RETRIES; i++) {
     		System.out.println("Waiting for ACK");
@@ -137,7 +140,10 @@ public class ConnectionImpl extends AbstractConnection {
 				temp = receiveAck();
 				if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
 					return temp;
-				}
+				} 
+//				else if (packetToAck.getSeq_nr() != temp.getSeq_nr()){
+//					
+//				}
 			} catch (EOFException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -195,7 +201,7 @@ public class ConnectionImpl extends AbstractConnection {
 			e.printStackTrace();
 		}
         this.state = State.SYN_SENT;
-        this.lastValidPacketReceived = internalReceiveAck(true);
+        this.lastValidPacketReceived = internalReceiveAck(true, synPacket);
         this.remotePort = this.lastValidPacketReceived.getSrc_port();
         sendAck(this.lastValidPacketReceived, false);
         this.state = State.ESTABLISHED;
@@ -275,11 +281,12 @@ public class ConnectionImpl extends AbstractConnection {
     		while(true){
     			System.out.print("Type something to send: ");
 	    		String msg = scanner.nextLine();
+	    		c.send(msg);
 	    		if (msg.equals("quit")){
 	    			break;
 	    		}
-	    		c.send(msg);
     		}
+    		c.close();
     	} catch (SocketTimeoutException e) {
     		// TODO Auto-generated catch block
     		e.printStackTrace();
@@ -294,7 +301,7 @@ public class ConnectionImpl extends AbstractConnection {
 //    	fixLogDirectory();
 //    	serverMain(1337);
     	// Stian IP
-    	clientMain("78.91.13.73", 1337);
+//    	clientMain("78.91.13.73", 1337);
     	// Bj�rn Arve IP
 //    	clientMain("78.91.36.121", 1337);
     	
@@ -390,7 +397,12 @@ public class ConnectionImpl extends AbstractConnection {
      * @see Connection#close()
      */
     public void close() throws IOException {
-        throw new RuntimeException("NOT IMPLEMENTED");
+    	KtnDatagram fin = constructInternalPacket(Flag.FIN);
+    	KtnDatagram ack = sendDataPacketWithRetransmit(fin);
+    	
+    	if (ack.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1)
+    	sendAck(receivePacket(false), false);
+//        throw new RuntimeException("NOT IMPLEMENTED");
     }
 
     /**
@@ -403,8 +415,6 @@ public class ConnectionImpl extends AbstractConnection {
      */
     protected boolean isValid(KtnDatagram packet) {
     	return packet.getChecksum() == packet.calculateChecksum();
-    	
-//        throw new RuntimeException("NOT IMPLEMENTED");
     }
 
 }
