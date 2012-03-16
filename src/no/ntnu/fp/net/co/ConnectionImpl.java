@@ -135,6 +135,11 @@ public class ConnectionImpl extends AbstractConnection {
     		System.out.println("Waiting for ACK");
     		try {
 				temp = receiveAck();
+				if(temp == null) {
+					System.out.println("ACK was null");
+				} else {
+					System.out.println("Received packet with flag: " + temp.getFlag().toString() + " and seq.number: " + temp.getSeq_nr());
+				}
 				if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
 					return temp;
 				} 
@@ -398,7 +403,7 @@ public class ConnectionImpl extends AbstractConnection {
     public void close() throws IOException {
     	KtnDatagram fin = constructInternalPacket(Flag.FIN);
     	KtnDatagram ack = null;
-    	do {
+    	while(true) {
 	    	do {
 	    		try {
 					simplySendPacket(fin);
@@ -406,8 +411,9 @@ public class ConnectionImpl extends AbstractConnection {
 					// TODO Auto-generated catch block
 					continue;
 				}
-	    		ack = receiveAck();
-	    	}while(ack == null || ack.getSeq_nr() != fin.getSeq_nr());
+				System.out.println("Waiting for ACK with seq.number = " + fin.getSeq_nr());
+	    		ack = internalReceiveAck(false, fin);
+	    	} while(ack == null || ack.getAck() != fin.getSeq_nr());
 	    	this.lastValidPacketReceived = ack;
 	    	try{
 	    		fin = internalReceive(Flag.FIN,true);
@@ -419,7 +425,7 @@ public class ConnectionImpl extends AbstractConnection {
 	    	}catch (SocketTimeoutException e){
 	    		continue;
 	    	}
-    	}while(true);
+    	}
     	while(true){
 	    	sendAck(fin, false);
 	    	try{
