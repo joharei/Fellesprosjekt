@@ -414,6 +414,7 @@ public class ConnectionImpl extends AbstractConnection {
 	    	}
     	}
     	while(true){
+    		boolean b = false;
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
 	    		fin = internalReceive(Flag.FIN, true);
@@ -422,6 +423,10 @@ public class ConnectionImpl extends AbstractConnection {
 	    		continue;
 	    	}
 	    	catch (SocketTimeoutException e){
+	    		if(!b) {
+	    			b = true;
+	    			continue;
+	    		}
 	    		this.state = State.CLOSED;
 	    		break;
 	    	}
@@ -444,14 +449,14 @@ public class ConnectionImpl extends AbstractConnection {
     					this.state = State.CLOSED;
     					break;
     				}
-    				try {
-    					System.out.println("STARTING WAIT");
-						wait(1000);
-						System.out.println("ENDING WAIT");
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+//    				try {
+//    					System.out.println("STARTING WAIT");
+//						wait(1000);
+//						System.out.println("ENDING WAIT");
+//					} catch (InterruptedException e1) {
+//						// TODO Auto-generated catch block
+//						e1.printStackTrace();
+//					}
     				simplySendPacket(fin);
     				try {
     					ack = internalReceiveAck(false, fin);
