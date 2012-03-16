@@ -7,8 +7,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
-import no.ntnu.fp.model.Person;
-import no.ntnu.fp.model.Project;
 import no.ntnu.fp.model.XmlSerializer;
 import nu.xom.Document;
 import nu.xom.Element;
