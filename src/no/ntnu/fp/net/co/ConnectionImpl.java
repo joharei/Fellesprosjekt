@@ -152,6 +152,9 @@ public class ConnectionImpl extends AbstractConnection {
     public KtnDatagram internalReceive(Flag flag, boolean internal) throws EOFException, IOException {
     	KtnDatagram temp = null;
     	for (int i = 0; i < RETRIES; i++) {
+    		if(flag == Flag.FIN) {
+    			System.out.println("Waiting for FIN");
+    		}
     		temp = receivePacket(internal);
 			if(temp != null && temp.getFlag() == flag) {
 				return temp;
