@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +51,7 @@ public class ConnectionImpl extends AbstractConnection {
     
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
+    // TODO 5 er kanskje litt mye? Den venter leeeeeeeeeeenge med aa lukke connection til slutt.
     private final static int RETRIES = 5;
 
     private static boolean shouldInitPortNumbers = true;
@@ -251,7 +253,7 @@ public class ConnectionImpl extends AbstractConnection {
     		e.printStackTrace();
     	} catch (IOException e) {
     		// TODO Auto-generated catch block
-    		e.printStackTrace();
+//    		e.printStackTrace();
     	}
     	System.out.println("Closed");
     }
@@ -362,6 +364,10 @@ public class ConnectionImpl extends AbstractConnection {
      * @see AbstractConnection#sendAck(KtnDatagram, boolean)
      */
     public String receive() throws ConnectException, IOException {
+    	if(this.state != State.ESTABLISHED) {
+    		throw new IOException("Connection is closed!");
+    	}
+    	boolean shouldThrowException = true;
     	while(this.state == State.ESTABLISHED) {
 	    	try{
 	    		KtnDatagram packet = receivePacket(false);
@@ -375,11 +381,13 @@ public class ConnectionImpl extends AbstractConnection {
 	    		}
 	    	}catch (EOFException e){
 	    		serverClose();
-	    		return null;
+	    		shouldThrowException = false;
 	    	}
     	}
-    	
-    	throw new IOException("Connection died while waiting for packet!");
+    	if(shouldThrowException) {
+    		throw new IOException("Connection died while waiting for packet!");
+    	}
+    	return null;
     }
 
     /**
@@ -403,6 +411,8 @@ public class ConnectionImpl extends AbstractConnection {
 	    	} while(ack == null || ack.getAck() != fin.getSeq_nr());
 	    	this.lastValidPacketReceived = ack;
 	    	try{
+//	    		System.out.println("Waiting for FIN on port: " + this.myPort);
+//	    		System.out.println("Starting to receive: " + new Date().getTime());
 	    		fin = internalReceive(Flag.FIN, true);
 	    	}
 	    	catch (EOFException e) {
@@ -415,30 +425,26 @@ public class ConnectionImpl extends AbstractConnection {
     	}
     	while(true){
     		boolean b = false;
-//    		synchronized (this) {
-//	    		try {
-//	    			System.out.println("STARTING WAIT");
-//	    			wait(1000);
-//	    			System.out.println("ENDING WAIT");
-//	    		} catch (InterruptedException e1) {
-//	    			// TODO Auto-generated catch block
-//	    			e1.printStackTrace();
-//	    		}
-//    		}
+    		synchronized (this) {
+	    		try {
+	    			System.out.println("STARTING WAIT");
+	    			wait(200);
+	    			System.out.println("ENDING WAIT");
+	    		} catch (InterruptedException e1) {
+	    			// TODO Auto-generated catch block
+	    			e1.printStackTrace();
+	    		}
+    		}
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
-	    		fin = internalReceive(Flag.FIN, false);
+	    		fin = internalReceive(Flag.FIN, true);
 	    	}
 	    	catch (EOFException e) {
 	    		continue;
 	    	}
 	    	catch (SocketTimeoutException e){
-	    		if(!b) {
-	    			b = true;
-	    			continue;
-	    		}
 	    		this.state = State.CLOSED;
-	    		break;
+	    		return;
 	    	}
     	}
 //        throw new RuntimeException("NOT IMPLEMENTED");
@@ -451,17 +457,43 @@ public class ConnectionImpl extends AbstractConnection {
     				sendAck(this.lastValidPacketReceived, false);
     				return;
     			}
+    			synchronized (this) {
+    				try {
+    					System.out.println("STARTING WAIT");
+    					wait(200);
+    					System.out.println("ENDING WAIT");
+    				} catch (InterruptedException e1) {
+    					// TODO Auto-generated catch block
+    					e1.printStackTrace();
+    				}
+    			}
     			sendAck(disconnectRequest, false);
     			KtnDatagram fin = constructInternalPacket(Flag.FIN);
     			KtnDatagram ack = null;
     			while(true){
-    				if (ack != null && fin.getSeq_nr() == ack.getSeq_nr()){
+    				if (ack != null && fin.getSeq_nr() == ack.getAck()){
     					this.state = State.CLOSED;
-    					break;
+    					System.out.println("SHOULD BE DISCONNECTED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    					return;
+    				} else if(ack != null) {
+    					System.out.println("FIN seq.number = " + fin.getSeq_nr());
+    					System.out.println("ACK = " + ack.getAck());
     				}
+    				synchronized (this) {
+    		    		try {
+    		    			System.out.println("STARTING WAIT");
+    		    			wait(200);
+    		    			System.out.println("ENDING WAIT");
+    		    		} catch (InterruptedException e1) {
+    		    			// TODO Auto-generated catch block
+    		    			e1.printStackTrace();
+    		    		}
+    	    		}
+    				System.out.println("Sending FIN: " + new Date().getTime());
     				simplySendPacket(fin);
     				try {
     					ack = internalReceiveAck(false, fin);
+    					continue;
     				} catch (EOFException e) {
     					continue;
     				}
