@@ -9,13 +9,23 @@ public class Week {
 	private ArrayList<Appointment> appointments;
 	private int weekNumber;
 	
+	//constants
+	public static final String NAME_PROPERTY_CLASSTYPE = "week";
+	public static final String NAME_PROPERTY_START_DATE = "sdate";
+	public static final String NAME_PROPERTY_END_DATE = "edate";
+	public static final String NAME_PROPERTY_APPOINTMENTS = "appointments";
+	public static final String NAME_PROPERTY_WEEK_NUMBER = "weeknb";
+	
 	//testing method
 	public static void main(String[] args) {
 		Calendar c = Calendar.getInstance();
 		c.set(2012, 2, 12);
 		Date start = c.getTime();
-		System.out.println(start);
-		new Week(start);
+		System.out.println("Week starts on: " + start);
+		Week week = new Week(start);
+		Date end = week.getEndDate();
+		System.out.println("Week ends on: " + end);
+		System.out.println("The week number is: " + week.getWeekNumber());
 	}
 	
 	/**Create a week of correct duration
@@ -29,10 +39,16 @@ public class Week {
 		if (d.get(Calendar.DAY_OF_WEEK) != Calendar.MONDAY) {
 			throw new IllegalArgumentException("Chosen day is not a monday!");
 		}
+		//find the duration of the week and when to set the end date
 		int maxday = d.getActualMaximum(Calendar.DAY_OF_WEEK);
 		d.set(Calendar.DAY_OF_WEEK, maxday + 1);
 		this.endDate = d.getTime();
-		this.weekNumber = calcWeekNumber(startDate);
+		int[] val = validateWeekNumber();
+		if (val[0] == 1) {
+			this.weekNumber = val[1];
+		} else {
+			throw new RuntimeException("Computed week is invalid, different week numbers!");
+		}
 		this.appointments = new ArrayList<Appointment>();
 	}
 	
@@ -81,6 +97,26 @@ public class Week {
 			throw new IllegalArgumentException("Given dates belong to different weeks");
 		}
 	}
+	
+	/**
+	 * Checks whether the week numbers of the start
+	 * and end date of the week matches.
+	 * @return An int array where the first element represents
+	 * a boolean and the following two are the start and end week
+	 * numbers. 
+	 */
+	private int[] validateWeekNumber() {
+		int wn1 = calcWeekNumber(this.getStartDate());
+		int wn2 = calcWeekNumber(this.getEndDate());
+		int bool = (int) (wn1 == wn2 ? 1 : 0);
+		return new int[] {
+				bool, wn1, wn2
+		};
+	}
+	
+//	private boolean validateWeekNumber() {
+//		return (calcWeekNumber(this.getStartDate()) == calcWeekNumber(this.getEndDate()));
+//	}
 
 	/**
 	 * Get the correct week number for the specified date

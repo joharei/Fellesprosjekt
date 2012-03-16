@@ -11,6 +11,9 @@ public class User {
 	private ArrayList<Week> weekModels;
 	private int phone;
 	private boolean isOnline;
+	private boolean isDeleted;
+	
+	//constants
 	public final static String NAME_PROPERTY_CLASSTYPE = "user";
 	public final static String NAME_PROPERTY_FIRSTNAME = "fname";
 	public final static String NAME_PROPERTY_SURNAME = "sname";
@@ -19,6 +22,7 @@ public class User {
 	public final static String NAME_PROPERTY_EMAIL = "email";
 	public final static String NAME_PROPERTY_PHONE = "phone";
 	public final static String NAME_PROPERTY_DATE_OF_BIRTH = "date";
+	public final static String NAME_PROPERTY_DELETED = "del";
 	
 	/**
 	 * Creates a user without a password.
@@ -144,5 +148,13 @@ public class User {
 		"\nPhone number: " + getPhone() +
 		"\n===END USER===";
 		return s;
+	}
+
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
+	public boolean isDeleted() {
+		return isDeleted;
 	}
 }

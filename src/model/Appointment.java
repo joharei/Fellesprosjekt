@@ -8,6 +8,17 @@ public class Appointment {
 	private Room room;
 	private int id;
 	private User owner;
+	private boolean isDeleted;
+	
+	//constants
+	public static final String NAME_PROPERTY_CLASSTYPE = "appointment";
+	public static final String NAME_PROPERTY_DATE = "date";
+	public static final String NAME_PROPERTY_START_TIME = "stime";
+	public static final String NAME_PROPERTY_END_TIME = "etime";
+	public static final String NAME_PROPERTY_DESCRIPTION = "descr";
+	public static final String NAME_PROPERTY_LOCATION = "loc";
+	public static final String NAME_PROPERTY_ROOM = "room";
+	public static final String NAME_PROPERTY_DELETED = "deleted";
 	
 	public Date getDate() {
 		return date;
@@ -56,5 +67,11 @@ public class Appointment {
 	}
 	public void setOwner(User owner) {
 		this.owner = owner;
+	}
+	public void setDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+	public boolean isDeleted() {
+		return isDeleted;
 	}
 }
