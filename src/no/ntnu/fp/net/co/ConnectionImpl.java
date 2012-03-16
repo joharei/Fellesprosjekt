@@ -157,21 +157,13 @@ public class ConnectionImpl extends AbstractConnection {
     	throw new SocketTimeoutException();
     }
     
-    public KtnDatagram internalReceive(Flag flag, boolean internal) throws SocketTimeoutException {
+    public KtnDatagram internalReceive(Flag flag, boolean internal) throws SocketTimeoutException, EOFException, IOException {
     	KtnDatagram temp;
     	for (int i = 0; i < RETRIES; i++) {
-			try {
-				temp = receivePacket(internal);
-				if(temp != null && temp.getFlag() == flag) {
-					return temp;
-				} 
-			} catch (EOFException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			temp = receivePacket(internal);
+			if(temp != null && temp.getFlag() == flag) {
+				return temp;
+			} 
 		}
     	throw new SocketTimeoutException();
     }
@@ -417,22 +409,24 @@ public class ConnectionImpl extends AbstractConnection {
 	    	this.lastValidPacketReceived = ack;
 	    	try{
 	    		fin = internalReceive(Flag.FIN,true);
-	    		System.out.println("FIN sequence number: " + fin.getSeq_nr());
-	    		System.out.println("ACK som sjekkes: " + ack.getAck());
-	    		if (fin.getSeq_nr() == ack.getAck() + 1){
-	    			break;
-	    		}
-	    	}catch (SocketTimeoutException e){
+	    	}
+	    	catch (EOFException e){
+	    		System.out.println("Received FIN as planned!");
+	    		break;
+	    	}
+	    	catch (SocketTimeoutException e){
 	    		continue;
 	    	}
     	}
     	while(true){
-	    	sendAck(fin, false);
+	    	sendAck(this.disconnectRequest, false);
 	    	try{
 	    		fin = internalReceive(Flag.FIN, true);
 	    	}catch (SocketTimeoutException e){
 	    		this.state = State.CLOSED;
 	    		break;
+	    	}catch (EOFException e){
+	    		continue;
 	    	}
     	}
 //        throw new RuntimeException("NOT IMPLEMENTED");
@@ -453,7 +447,7 @@ public class ConnectionImpl extends AbstractConnection {
     				break;
     			}
 	    		simplySendPacket(fin);
-	    		ack = receiveAck();
+	    		ack = internalReceiveAck(false, fin);
     		}
     		
 		} catch (ConnectException e) {
