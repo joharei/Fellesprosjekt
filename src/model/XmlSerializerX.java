@@ -136,7 +136,6 @@ public class XmlSerializerX extends XmlSerializer {
 		if (element != null) {
 			phone = Integer.parseInt(element.getValue());
 		}
-		
 		return new User(firstname, surname, username, password, email, date, phone);
 	}
 	

@@ -4,6 +4,11 @@ public class Room {
 	private int id, capacity;
 	private String name;
 	
+	//constants
+	public static final String NAME_PROPERTY_CLASSTYPE = "room";
+	public static final String NAME_PROPERTY_ID = "id";
+	public static final String NAME_PROPERTY_NAME = "name";
+	
 	/**
 	 * Create a room with the following specification.
 	 * @param id

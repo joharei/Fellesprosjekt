@@ -9,6 +9,13 @@ public class Week {
 	private ArrayList<Appointment> appointments;
 	private int weekNumber;
 	
+	//constants
+	public static final String NAME_PROPERTY_CLASSTYPE = "week";
+	public static final String NAME_PROPERTY_START_DATE = "sdate";
+	public static final String NAME_PROPERTY_END_DATE = "edate";
+	public static final String NAME_PROPERTY_APPOINTMENTS = "appointments";
+	public static final String NAME_PROPERTY_WEEK_NUMBER = "weeknb";
+	
 	//testing method
 	public static void main(String[] args) {
 		Calendar c = Calendar.getInstance();

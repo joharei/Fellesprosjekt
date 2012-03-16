@@ -6,6 +6,13 @@ public class Notification {
 	private int id;
 	private User triggeredBy;
 	
+	//constants
+	public static final String NAME_PROPERTY_CLASSTYPE = "notification";
+	public static final String NAME_PROPERTY_INVITATION = "invitation";
+	public static final String NAME_PROPERTY_TYPE = "type";
+	public static final String NAME_PROPERTY_ID = "id";
+	public static final String NAME_PROPERTY_TRIGGERED_BY = "triggeredBy";
+	
 	public Invitation getInvitation() {
 		return invitation;
 	}
