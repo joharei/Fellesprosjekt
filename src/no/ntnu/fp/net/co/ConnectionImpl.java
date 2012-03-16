@@ -402,6 +402,7 @@ public class ConnectionImpl extends AbstractConnection {
 	    	do {
 	    		try {
 					simplySendPacket(fin);
+					this.state = State.FIN_WAIT_1;
 				} catch (ClException e) {
 					// TODO Auto-generated catch block
 					continue;
@@ -424,7 +425,6 @@ public class ConnectionImpl extends AbstractConnection {
 	    	}
     	}
     	while(true){
-    		boolean b = false;
     		synchronized (this) {
 	    		try {
 	    			System.out.println("STARTING WAIT");
@@ -437,6 +437,7 @@ public class ConnectionImpl extends AbstractConnection {
     		}
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
+	    		this.state = State.CLOSE_WAIT;
 	    		fin = internalReceive(Flag.FIN, true);
 	    	}
 	    	catch (EOFException e) {
