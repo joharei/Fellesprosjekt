@@ -129,46 +129,30 @@ public class ConnectionImpl extends AbstractConnection {
 		}
     }
 
-    public KtnDatagram internalReceiveAck(boolean synAck, KtnDatagram packetToAck) throws SocketTimeoutException {
+    public KtnDatagram internalReceiveAck(boolean synAck, KtnDatagram packetToAck) throws EOFException, IOException {
     	KtnDatagram temp;
     	for (int i = 0; i < RETRIES; i++) {
     		System.out.println("Waiting for ACK");
-    		try {
-				temp = receiveAck();
-				if(temp == null) {
-					System.out.println("ACK was null");
-				} else {
-					System.out.println("Received packet with flag: " + temp.getFlag().toString() + " and seq.number: " + temp.getSeq_nr());
-				}
-				if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
-					return temp;
-				} 
+    		temp = receiveAck();
+    		if(temp == null) {
+    			System.out.println("ACK was null");
+    		} else {
+    			System.out.println("Received packet with flag: " + temp.getFlag().toString() + " and seq.number: " + temp.getSeq_nr());
+    		}
+    		if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
+    			return temp;
+    		} 
 //				else if (packetToAck.getSeq_nr() != temp.getSeq_nr()){
 //					
 //				}
-			} catch (EOFException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
     	}
     	throw new SocketTimeoutException();
     }
     
-    public KtnDatagram internalReceive(Flag flag, boolean internal) throws SocketTimeoutException {
+    public KtnDatagram internalReceive(Flag flag, boolean internal) throws EOFException, IOException {
     	KtnDatagram temp = null;
     	for (int i = 0; i < RETRIES; i++) {
-    			try {
-					temp = receivePacket(internal);
-				} catch (EOFException e) {
-					return this.disconnectRequest;
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-    		
+    		temp = receivePacket(internal);
 			if(temp != null && temp.getFlag() == flag) {
 				return temp;
 			} 
@@ -417,6 +401,8 @@ public class ConnectionImpl extends AbstractConnection {
 	    	this.lastValidPacketReceived = ack;
 	    	try{
 	    		fin = internalReceive(Flag.FIN,true);
+	    	}
+	    	catch (EOFException e) {
 	    		break;
 	    	}
 	    	catch (SocketTimeoutException e){
@@ -427,8 +413,11 @@ public class ConnectionImpl extends AbstractConnection {
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
 	    		fin = internalReceive(Flag.FIN, true);
+	    	}
+	    	catch (EOFException e) {
 	    		continue;
-	    	}catch (SocketTimeoutException e){
+	    	}
+	    	catch (SocketTimeoutException e){
 	    		this.state = State.CLOSED;
 	    		break;
 	    	}
@@ -437,33 +426,38 @@ public class ConnectionImpl extends AbstractConnection {
     }
     
     public void serverClose(){
-    	try {
-			if (disconnectRequest.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1){
-				sendAck(this.lastValidPacketReceived, false);
-				return;
-			}
-    		sendAck(disconnectRequest, false);
-    		KtnDatagram fin = constructInternalPacket(Flag.FIN);
-    		KtnDatagram ack = null;
-    		while(true){
-    			if (ack != null && fin.getSeq_nr() == ack.getSeq_nr()){
-    				this.state = State.CLOSED;
-    				break;
+    	while(true) {
+    		try {
+    			if (disconnectRequest.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1){
+    				sendAck(this.lastValidPacketReceived, false);
+    				return;
     			}
-	    		simplySendPacket(fin);
-	    		ack = internalReceiveAck(false, fin);
+    			sendAck(disconnectRequest, false);
+    			KtnDatagram fin = constructInternalPacket(Flag.FIN);
+    			KtnDatagram ack = null;
+    			while(true){
+    				if (ack != null && fin.getSeq_nr() == ack.getSeq_nr()){
+    					this.state = State.CLOSED;
+    					break;
+    				}
+    				simplySendPacket(fin);
+    				try {
+    					ack = internalReceiveAck(false, fin);
+    				} catch (EOFException e) {
+    					continue;
+    				}
+    			}
+    		} catch (ConnectException e) {
+    			// TODO Auto-generated catch block
+    			System.out.println("Could not send FIN!");;
+    		} catch (IOException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		} catch (ClException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
     		}
-    		
-		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
-			System.out.println("Could not send FIN!");;
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ClException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+    	}
     }
 
     /**
