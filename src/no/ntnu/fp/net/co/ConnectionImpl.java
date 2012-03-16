@@ -406,6 +406,7 @@ public class ConnectionImpl extends AbstractConnection {
 	    		fin = internalReceive(Flag.FIN,true);
 	    	}
 	    	catch (EOFException e) {
+	    		System.out.println("RECEIVED FIN!");
 	    		break;
 	    	}
 	    	catch (SocketTimeoutException e){
@@ -428,7 +429,7 @@ public class ConnectionImpl extends AbstractConnection {
 //        throw new RuntimeException("NOT IMPLEMENTED");
     }
     
-    public void serverClose(){
+    public synchronized void serverClose(){
     	while(true) {
     		try {
     			if (disconnectRequest.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1){
@@ -443,6 +444,14 @@ public class ConnectionImpl extends AbstractConnection {
     					this.state = State.CLOSED;
     					break;
     				}
+    				try {
+    					System.out.println("STARTING WAIT");
+						wait(1000);
+						System.out.println("ENDING WAIT");
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
     				simplySendPacket(fin);
     				try {
     					ack = internalReceiveAck(false, fin);
