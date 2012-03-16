@@ -403,7 +403,7 @@ public class ConnectionImpl extends AbstractConnection {
 	    	} while(ack == null || ack.getAck() != fin.getSeq_nr());
 	    	this.lastValidPacketReceived = ack;
 	    	try{
-	    		fin = internalReceive(Flag.FIN, false);
+	    		fin = internalReceive(Flag.FIN, true);
 	    	}
 	    	catch (EOFException e) {
 	    		System.out.println("RECEIVED FIN!");
@@ -415,9 +415,19 @@ public class ConnectionImpl extends AbstractConnection {
     	}
     	while(true){
     		boolean b = false;
+//    		synchronized (this) {
+//	    		try {
+//	    			System.out.println("STARTING WAIT");
+//	    			wait(1000);
+//	    			System.out.println("ENDING WAIT");
+//	    		} catch (InterruptedException e1) {
+//	    			// TODO Auto-generated catch block
+//	    			e1.printStackTrace();
+//	    		}
+//    		}
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
-	    		fin = internalReceive(Flag.FIN, true);
+	    		fin = internalReceive(Flag.FIN, false);
 	    	}
 	    	catch (EOFException e) {
 	    		continue;
@@ -434,7 +444,7 @@ public class ConnectionImpl extends AbstractConnection {
 //        throw new RuntimeException("NOT IMPLEMENTED");
     }
     
-    public synchronized void serverClose(){
+    public void serverClose(){
     	while(true) {
     		try {
     			if (disconnectRequest.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1){
@@ -449,14 +459,6 @@ public class ConnectionImpl extends AbstractConnection {
     					this.state = State.CLOSED;
     					break;
     				}
-//    				try {
-//    					System.out.println("STARTING WAIT");
-//						wait(1000);
-//						System.out.println("ENDING WAIT");
-//					} catch (InterruptedException e1) {
-//						// TODO Auto-generated catch block
-//						e1.printStackTrace();
-//					}
     				simplySendPacket(fin);
     				try {
     					ack = internalReceiveAck(false, fin);
