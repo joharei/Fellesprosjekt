@@ -157,14 +157,22 @@ public class ConnectionImpl extends AbstractConnection {
     	throw new SocketTimeoutException();
     }
     
-    public KtnDatagram internalReceive(Flag flag, boolean internal) throws SocketTimeoutException, EOFException, IOException {
-    	KtnDatagram temp;
+    public KtnDatagram internalReceive(Flag flag, boolean internal) throws SocketTimeoutException {
+    	KtnDatagram temp = null;
     	for (int i = 0; i < RETRIES; i++) {
-			temp = receivePacket(internal);
+    			try {
+					temp = receivePacket(internal);
+				} catch (EOFException e) {
+					return this.disconnectRequest;
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+    		
 			if(temp != null && temp.getFlag() == flag) {
 				return temp;
 			} 
-		}
+    	}
     	throw new SocketTimeoutException();
     }
     
@@ -409,9 +417,6 @@ public class ConnectionImpl extends AbstractConnection {
 	    	this.lastValidPacketReceived = ack;
 	    	try{
 	    		fin = internalReceive(Flag.FIN,true);
-	    	}
-	    	catch (EOFException e){
-	    		System.out.println("Received FIN as planned!");
 	    		break;
 	    	}
 	    	catch (SocketTimeoutException e){
@@ -422,11 +427,10 @@ public class ConnectionImpl extends AbstractConnection {
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
 	    		fin = internalReceive(Flag.FIN, true);
+	    		continue;
 	    	}catch (SocketTimeoutException e){
 	    		this.state = State.CLOSED;
 	    		break;
-	    	}catch (EOFException e){
-	    		continue;
 	    	}
     	}
 //        throw new RuntimeException("NOT IMPLEMENTED");
