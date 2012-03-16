@@ -403,7 +403,7 @@ public class ConnectionImpl extends AbstractConnection {
 	    	} while(ack == null || ack.getAck() != fin.getSeq_nr());
 	    	this.lastValidPacketReceived = ack;
 	    	try{
-	    		fin = internalReceive(Flag.FIN,true);
+	    		fin = internalReceive(Flag.FIN, false);
 	    	}
 	    	catch (EOFException e) {
 	    		System.out.println("RECEIVED FIN!");
