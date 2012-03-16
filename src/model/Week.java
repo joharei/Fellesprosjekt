@@ -1,5 +1,6 @@
 package model;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -8,6 +9,7 @@ public class Week {
 	private Date startDate, endDate;
 	private ArrayList<Appointment> appointments;
 	private int weekNumber;
+	private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "week";
@@ -15,6 +17,10 @@ public class Week {
 	public static final String NAME_PROPERTY_END_DATE = "edate";
 	public static final String NAME_PROPERTY_APPOINTMENTS = "appointments";
 	public static final String NAME_PROPERTY_WEEK_NUMBER = "weeknb";
+	
+	public static DateFormat getDateFormat() {
+		return (DateFormat) dateFormat.clone();
+	}
 	
 	//testing method
 	public static void main(String[] args) {

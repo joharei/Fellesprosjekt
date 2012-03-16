@@ -8,6 +8,7 @@ public class Room {
 	public static final String NAME_PROPERTY_CLASSTYPE = "room";
 	public static final String NAME_PROPERTY_ID = "id";
 	public static final String NAME_PROPERTY_NAME = "name";
+	public static final String NAME_PROPERTY_CAPACITY = "cap";
 	
 	/**
 	 * Create a room with the following specification.

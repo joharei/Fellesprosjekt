@@ -1,5 +1,6 @@
 package model;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -12,6 +13,7 @@ public class User {
 	private int phone;
 	private boolean isOnline;
 	private boolean isDeleted;
+	private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 	
 	//constants
 	public final static String NAME_PROPERTY_CLASSTYPE = "user";
@@ -144,7 +146,7 @@ public class User {
 		"\nUsername: " + getUsername() +
 		"\nPassword: " + getPassword() +
 		"\nEmail: " + getEmail() +
-		"\nBirthdate: " + getDateOfBirth() +
+		"\nBirthdate: " + getDateFormat().format(getDateOfBirth()) +
 		"\nPhone number: " + getPhone() +
 		"\n===END USER===";
 		return s;
@@ -156,5 +158,9 @@ public class User {
 
 	public boolean isDeleted() {
 		return isDeleted;
+	}
+	
+	public static DateFormat getDateFormat() {
+		return (DateFormat) dateFormat.clone();
 	}
 }

@@ -24,6 +24,7 @@ public class XmlSerializerX extends XmlSerializer {
 	}
 	
 	//testing constructor
+	@SuppressWarnings("rawtypes")
 	private XmlSerializerX(ArrayList list, SaveableClass type) {
 		Document doc = buildXml(list, type);
 		System.out.println("Xml string:\n" + doc.toXML());
@@ -45,6 +46,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * @return Arraylist with the created objects.
 	 * @throws ParseException
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private ArrayList readXml(Document xmlDoc) throws ParseException {
 		ArrayList addedObj = new ArrayList();
 		Element root = xmlDoc.getRootElement();
@@ -79,14 +81,21 @@ public class XmlSerializerX extends XmlSerializer {
 	 * @param classType The correct SaveableClass enum for the object type
 	 * @return Xml document
 	 */
-	private Document buildXml(ArrayList list, SaveableClass classType) {
+	@SuppressWarnings("rawtypes")
+	public Document buildXml(ArrayList list, SaveableClass classType) {
+		Iterator it = list.iterator();
 		Element root = new Element("" + classType);
 		switch (classType) {
 			case User : {
-				@SuppressWarnings("unchecked")
-				Iterator it = list.iterator();
 				while (it.hasNext()) {
 					Element element = userToXmlElement((User) it.next());
+					root.appendChild(element);
+				}
+				break;
+			}
+			case Week : {
+				while (it.hasNext()) {
+					Element element = weekToXmlElement((Week) it.next());
 					root.appendChild(element);
 				}
 				break;
@@ -98,6 +107,8 @@ public class XmlSerializerX extends XmlSerializer {
 		return new Document(root);
 	}
 	
+	
+
 	/**
 	 * Copied from XmlSerializer and modified for fields; creates a user from the xml element
 	 * @param userElement
@@ -130,7 +141,8 @@ public class XmlSerializerX extends XmlSerializer {
 		}
 		element = userElement.getFirstChildElement(User.NAME_PROPERTY_DATE_OF_BIRTH);
 		if (element != null) {
-			date = parseDate(element.getValue());
+			DateFormat format = User.getDateFormat();
+			date = format.parse(element.getValue());
 		}
 		element = userElement.getFirstChildElement(User.NAME_PROPERTY_PHONE);
 		if (element != null) {
@@ -179,9 +191,97 @@ public class XmlSerializerX extends XmlSerializer {
 		return element;
 	}
 	
-	//can't access the private method in super class
-	private Date parseDate(String date) throws ParseException {
-		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, java.util.Locale.US);
-		return format.parse(date);
+	private Element weekToXmlElement(Week week) {
+		DateFormat dformat = Week.getDateFormat();
+		Element weekElement = new Element(Week.NAME_PROPERTY_CLASSTYPE);
+		Element start = new Element(Week.NAME_PROPERTY_START_DATE);
+		start.appendChild(dformat.format(week.getStartDate()));
+		
+		Element end = new Element(Week.NAME_PROPERTY_END_DATE);
+		end.appendChild(dformat.format(week.getEndDate()));
+		
+		//add meetings/appointments
+		Element appGrouping = new Element("" + SaveableClass.Appointment);
+		ArrayList<Appointment> appointments = week.getAppointments();
+		if (!appointments.isEmpty()) {
+			Iterator<Appointment> it = appointments.iterator();
+			while (it.hasNext()) {
+				appGrouping.appendChild(appointmentToXmlElement(it.next()));
+			}
+		}
+		
+		weekElement.appendChild(start);
+		weekElement.appendChild(end);
+		weekElement.appendChild(appGrouping);
+		return null;
+	}
+	
+	/**
+	 * Turn a room into a Xml element
+	 */
+	private Element roomToXmlElement(Room room) {
+		Element roomElement = new Element(Room.NAME_PROPERTY_CLASSTYPE);
+		
+		Element id = new Element(Room.NAME_PROPERTY_ID);
+		id.appendChild("" + room.getId());
+		
+		Element name = new Element(Room.NAME_PROPERTY_NAME);
+		name.appendChild(room.getName());
+		
+		Element capacity = new Element(Room.NAME_PROPERTY_CAPACITY);
+		capacity.appendChild("" + room.getCapacity());
+		
+		roomElement.appendChild(id);
+		roomElement.appendChild(name);
+		roomElement.appendChild(capacity);
+		
+		return roomElement;
+	}
+	
+	private Element appointmentToXmlElement(Appointment event) {
+		// TODO: Håndter møter
+		DateFormat dformat = event.getDateFormat();
+		DateFormat tformat = event.getTimeformat();
+		Element appElement = new Element(Appointment.NAME_PROPERTY_CLASSTYPE);
+		
+		Element date = new Element(Appointment.NAME_PROPERTY_DATE); 
+		date.appendChild(dformat.format(event.getDate()));
+		
+		Element start = new Element(Appointment.NAME_PROPERTY_START_TIME);
+		start.appendChild(tformat.format(event.getStartTime()));
+		
+		Element end = new Element(Appointment.NAME_PROPERTY_END_TIME);
+		end.appendChild(tformat.format(event.getEndTime()));
+		
+		Element desc = new Element(Appointment.NAME_PROPERTY_DESCRIPTION);
+		desc.appendChild(event.getDescription());
+		
+		Element loc = new Element(Appointment.NAME_PROPERTY_LOCATION);
+		loc.appendChild(event.getLocation());
+		
+		Element room = new Element(Appointment.NAME_PROPERTY_ROOM);
+		room.appendChild(roomToXmlElement(event.getRoom()));
+		
+		Element id = new Element(Appointment.NAME_PROPERTY_ID);
+		id.appendChild("" + event.getId());
+		
+		Element owner = new Element(Appointment.NAME_PROPERTY_OWNER);
+		//TODO: Legg til selve brukeren, evt en forenklet versjon?
+		owner.appendChild(event.getOwner().getName());
+		
+		Element delFlag = new Element(Appointment.NAME_PROPERTY_DELETED);
+		delFlag.appendChild("" + event.isDeleted());
+		
+		appElement.appendChild(date);
+		appElement.appendChild(start);
+		appElement.appendChild(end);
+		appElement.appendChild(desc);
+		appElement.appendChild(loc);
+		appElement.appendChild(room);
+		appElement.appendChild(id);
+		appElement.appendChild(owner);
+		appElement.appendChild(delFlag);
+		
+		return appElement;
 	}
 }

@@ -1,5 +1,6 @@
 package model;
 
+import java.text.DateFormat;
 import java.util.Date;
 
 public class Appointment {
@@ -9,6 +10,8 @@ public class Appointment {
 	private int id;
 	private User owner;
 	private boolean isDeleted;
+	private DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+	private DateFormat timeformat = DateFormat.getTimeInstance(DateFormat.SHORT);
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "appointment";
@@ -18,6 +21,8 @@ public class Appointment {
 	public static final String NAME_PROPERTY_DESCRIPTION = "descr";
 	public static final String NAME_PROPERTY_LOCATION = "loc";
 	public static final String NAME_PROPERTY_ROOM = "room";
+	public static final String NAME_PROPERTY_ID = "id";
+	public static final String NAME_PROPERTY_OWNER = "owner";
 	public static final String NAME_PROPERTY_DELETED = "deleted";
 	
 	public Date getDate() {
@@ -73,5 +78,13 @@ public class Appointment {
 	}
 	public boolean isDeleted() {
 		return isDeleted;
+	}
+	
+	public DateFormat getDateFormat() {
+		return (DateFormat) dateFormat.clone();
+	}
+
+	public DateFormat getTimeformat() {
+		return (DateFormat) timeformat.clone();
 	}
 }
