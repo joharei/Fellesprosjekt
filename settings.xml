@@ -3,9 +3,9 @@
   <errors>true</errors>
   <loss>0</loss>
   <delay>0</delay>
-  <ghost>0</ghost>
+  <ghost>0.9</ghost>
   <payload>0</payload>
-  <header>0.9</header>
+  <header>0</header>
   <onlydata>true</onlydata>
   <serverAddress>localhost</serverAddress>
   <serverport>10500</serverport>
