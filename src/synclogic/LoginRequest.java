@@ -10,7 +10,6 @@ public class LoginRequest {
 	public static final String NAME_PROPERTY_USERNAME = "username";
 	public static final String NAME_PROPERTY_PASSWORD = "password";
 	public static final String NAME_PROPERTY_LOGIN_ACCEPTED = "loginAccepted";
-	public static final String NAME_PROPERTY_WEEK_NUMBER = "weeknb";
 	
 	public LoginRequest(String username, String password) {
 		this.username = username;
