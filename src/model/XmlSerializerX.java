@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 import synclogic.SynchronizationUnit;
 
+import no.ntnu.fp.model.Person;
 import no.ntnu.fp.model.XmlSerializer;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -77,12 +78,18 @@ public class XmlSerializerX extends XmlSerializer {
 		}
 	}
 	
-	public static String toXml(Object obj) {
+	public static String toXml(Object obj, SaveableClass type) {
 		return null;
 	}
 	
 	public static Object toObject(String xml) {
 		return null;
+	}
+	
+	private Document toDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
+		nu.xom.Builder parser = new nu.xom.Builder(false);
+		nu.xom.Document doc = parser.build(xml, "");
+		return doc;
 	}
 	
 	/**
