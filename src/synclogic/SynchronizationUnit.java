@@ -31,7 +31,7 @@ public abstract class SynchronizationUnit {
 	 */
 	public Object getObjectFromID(SaveableClass c, String id) {
 		for (SyncListener l : this.listeners) {
-			if(l.getSaveableClass() == c && l.getObjectID() == id) {
+			if(l.getSaveableClass() == c && l.getObjectID().equals(id)) {
 				return l;
 			}
 		}
