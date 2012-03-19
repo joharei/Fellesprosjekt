@@ -13,6 +13,13 @@ public class Notification {
 	public static final String NAME_PROPERTY_ID = "id";
 	public static final String NAME_PROPERTY_TRIGGERED_BY = "triggeredBy";
 	
+	public Notification(Invitation invitation, NotificationType type, int id, User triggeredBy){
+		setInvitation(invitation);
+		setType(type);
+		setId(id);
+		setTriggeredBy(triggeredBy);
+	}
+	
 	public Invitation getInvitation() {
 		return invitation;
 	}
