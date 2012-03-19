@@ -2,6 +2,7 @@ package synclogic;
 
 import java.util.ArrayList;
 import java.util.List;
+import model.SaveableClass;
 
 public abstract class SynchronizationUnit {
 
@@ -20,4 +21,6 @@ public abstract class SynchronizationUnit {
 	}
 	
 	public abstract void addToSendQueue(Object o);
+	
+	public abstract Object getObjectFromID(SaveableClass c, String id);
 }
