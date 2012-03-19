@@ -52,7 +52,7 @@ public class ConnectionImpl extends AbstractConnection {
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
     // TODO 5 er kanskje litt mye? Den venter leeeeeeeeeeenge med aa lukke connection til slutt.
-    private final static int RETRIES = 5;
+    private final static int RETRIES = 2;
 
     private static boolean shouldInitPortNumbers = true;
     
@@ -349,16 +349,21 @@ public class ConnectionImpl extends AbstractConnection {
     public void send(String msg) throws ConnectException, IOException {
     	KtnDatagram packet = constructDataPacket(msg);
     	packet.setChecksum(packet.calculateChecksum());
-    	KtnDatagram ack;
+    	KtnDatagram ack = null;
     	do {
 //    		ack = sendDataPacketWithRetransmit(packet);
     		try {
 				simplySendPacket(packet);
+				ack = internalReceiveAck(false, packet);
 			} catch (ClException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+//				e.printStackTrace();
+				ack = null;
+				System.out.println("Header error! Resending..");
+				continue;
+			} catch (SocketTimeoutException e) {
+				ack = null;
 			}
-    		ack = internalReceiveAck(false, packet);
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
     }
 
