@@ -3,6 +3,7 @@ package synclogic;
 public class LoginRequest {
 
 	private String username, password;
+	private boolean loginAccepted;
 	
 	public LoginRequest(String username, String password) {
 		this.username = username;
@@ -13,7 +14,15 @@ public class LoginRequest {
 		return this.username;
 	}
 	
-	public String getPaString() {
+	public String getPassword() {
 		return this.password;
+	}
+	
+	public void setLoginAccepted(boolean b) {
+		this.loginAccepted = b;
+	}
+	
+	public boolean getLoginAccepted() {
+		return this.loginAccepted;
 	}
 }
