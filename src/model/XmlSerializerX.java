@@ -9,13 +9,14 @@ import java.util.Iterator;
 
 import synclogic.SynchronizationUnit;
 
+import no.ntnu.fp.model.Person;
 import no.ntnu.fp.model.XmlSerializer;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 
 public class XmlSerializerX extends XmlSerializer {
-	SynchronizationUnit syncUnit;//TODO: Add to class diagram
+	static SynchronizationUnit syncUnit;//TODO: Add to class diagram
 	
 	public static void main(String[] args) {
 		//test for users
@@ -64,18 +65,31 @@ public class XmlSerializerX extends XmlSerializer {
 				}
 				return addedObj;
 			}
+			case Week : {
+				Elements weeks = root.getChildElements(Week.NAME_PROPERTY_CLASSTYPE);
+				for (int i = 0; i < weeks.size(); i++) {
+					Element weekElement = weeks.get(i);
+					addedObj.add(assembleWeek(weekElement));
+				}
+			}
 			default: {
 				throw new ParseException("Unrecognized object type!", 0);
 			}
 		}
 	}
 	
-	public Document toXml(Object obj) {
+	public static String toXml(Object obj, SaveableClass type) {
 		return null;
 	}
 	
-	public Object toObject(Document xml) {
+	public static Object toObject(String xml) {
 		return null;
+	}
+	
+	private Document toDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
+		nu.xom.Builder parser = new nu.xom.Builder(false);
+		nu.xom.Document doc = parser.build(xml, "");
+		return doc;
 	}
 	
 	/**
@@ -215,7 +229,36 @@ public class XmlSerializerX extends XmlSerializer {
 		weekElement.appendChild(start);
 		weekElement.appendChild(end);
 		weekElement.appendChild(appGrouping);
-		return null;
+		return weekElement;
+	}
+	
+	/**
+	 * Create a week model from the Xml element
+	 * @throws ParseException
+	 */
+	private Week assembleWeek(Element weekElement) throws ParseException {
+		Date start = null, end = null;
+		ArrayList<Appointment> appointments = new ArrayList<Appointment>();
+		
+		DateFormat dformat = Week.getDateFormat();
+		Element e = weekElement.getFirstChildElement(Week.NAME_PROPERTY_START_DATE);
+		if (e != null) {
+			start = dformat.parse(e.getValue());
+		}
+		
+		e = weekElement.getFirstChildElement(Week.NAME_PROPERTY_END_DATE);
+		if (e != null) {
+			end = dformat.parse(e.getValue());
+		}
+				
+		e = weekElement.getFirstChildElement(Week.NAME_PROPERTY_APPOINTMENTS);
+		if (e != null) {
+			Elements apps = e.getChildElements();
+			for (int i = 0; i < e.getChildCount(); i++) {
+				appointments.add(assembleAppointment(apps.get(i)));
+			}
+		}
+		return new Week(start, end, appointments);
 	}
 	
 	/**

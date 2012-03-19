@@ -475,6 +475,8 @@ public class ConnectionImpl extends AbstractConnection {
     			while(true){
     				if (ack != null && fin.getSeq_nr() == ack.getAck()){
     					this.state = State.CLOSED;
+    					// TODO: Sjekk at porten faktisk blir frigjort!
+    					ConnectionImpl.usedPorts.put(this.myPort, false);
     					return;
     				}
     				synchronized (this) {
