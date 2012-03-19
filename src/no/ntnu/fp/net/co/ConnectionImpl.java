@@ -134,7 +134,7 @@ public class ConnectionImpl extends AbstractConnection {
     public KtnDatagram internalReceiveAck(boolean synAck, KtnDatagram packetToAck) throws EOFException, IOException {
     	KtnDatagram temp;
     	for (int i = 0; i < RETRIES; i++) {
-    		System.out.println("Waiting for ACK");
+    		System.out.println("Waiting for ACK: " + i);
     		temp = receiveAck();
     		if(temp == null) {
     			System.out.println("ACK was null");
@@ -217,13 +217,28 @@ public class ConnectionImpl extends AbstractConnection {
     	if(!log.isDirectory()) {
     		log.mkdir();
     	}
-    	File logFile = new File("Log/logfile.txt");
-    	if(!logFile.exists()) {
-    		try {
-				logFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+    	String name = "logfile";
+    	String path = "Log/" + name + ".txt";
+    	File logFile = new File(path);
+    	int counter = 0;
+    	String newName = "";
+    	while(logFile.exists()) {
+    		name = path.substring(4, path.length() - 4);
+    		newName = "Log/" + name + ++counter + ".txt";
+    		logFile = new File(newName);
+    	}
+    	File ordFile = new File(path);
+    	if(ordFile.exists() ) {
+    		if(ordFile.length() == 0) {
+    			return;
+    		}
+    		ordFile.renameTo(logFile);
+    		ordFile = new File(path);
+    	}
+    	try {
+    		ordFile.createNewFile();
+    	} catch (IOException e) {
+    		e.printStackTrace();
     	}
     }
     
@@ -272,7 +287,12 @@ public class ConnectionImpl extends AbstractConnection {
 	    		if (msg.equals("quit")){
 	    			break;
 	    		}
-	    		c.send(msg);
+	    		try {
+	    			c.send(msg);
+	    		} catch(SocketTimeoutException e) {
+	    			System.out.println(e);
+	    			System.out.println("Could not send packet, please try again!");
+	    		}
     		}
     		System.out.println("Closing...");
     		c.close();
@@ -346,13 +366,19 @@ public class ConnectionImpl extends AbstractConnection {
      * @see AbstractConnection#sendDataPacketWithRetransmit(KtnDatagram)
      * @see no.ntnu.fp.net.co.Connection#send(String)
      */
-    public void send(String msg) throws ConnectException, IOException {
+    public void send(String msg) throws ConnectException, IOException, SocketTimeoutException {
+    	int timeoutCounter = 0;
+    	KtnDatagram ack = null;
     	KtnDatagram packet = constructDataPacket(msg);
     	packet.setChecksum(packet.calculateChecksum());
-    	KtnDatagram ack = null;
     	do {
+    		if(timeoutCounter > RETRIES * 2) {
+    			throw new SocketTimeoutException();
+    		}
 //    		ack = sendDataPacketWithRetransmit(packet);
     		try {
+    			System.out.println("STATE: " + this.state.toString());
+    			this.
 				simplySendPacket(packet);
 				ack = internalReceiveAck(false, packet);
 			} catch (ClException e) {
@@ -364,6 +390,7 @@ public class ConnectionImpl extends AbstractConnection {
 			} catch (SocketTimeoutException e) {
 				ack = null;
 			}
+			timeoutCounter++;
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
     }
 
