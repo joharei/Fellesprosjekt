@@ -380,7 +380,7 @@ public class ConnectionImpl extends AbstractConnection {
     		throw new IOException("Connection is closed!");
     	}
     	boolean shouldThrowException = true;
-    	while(this.state == State.ESTABLISHED) {
+    	while(this.state == State.ESTABLISHED)  {
 	    	try{
 	    		KtnDatagram packet = receivePacket(false);
 	    		if(packet.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1 || !isValid(packet)) {
