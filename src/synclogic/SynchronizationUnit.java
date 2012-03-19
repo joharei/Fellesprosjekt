@@ -20,7 +20,7 @@ public abstract class SynchronizationUnit {
 		this.listeners.remove(sl);
 	}
 	
-	public abstract void addToSendQueue(Object o);
+	public abstract void addToSendQueue(String o);
 	
 	/**
 	 * Returns the object defined by the given class and ID. Returns null if not found.
