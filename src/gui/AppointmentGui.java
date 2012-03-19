@@ -33,14 +33,14 @@ public class AppointmentGui extends JPanel{
 	private JLabel dateSelect, startTime, endTime, description, place;
 	private JTextArea descriptionField;
 	private JComboBox startTimeField, endTimeField, placeField2;
-	private JButton create, cancel;
+	protected JButton create, cancel;
 	private JTextField placeField1;
 	private JScrollPane descriptionScroll;
 	
 	private JDateChooser calIcon;
 	
-	private GridBagConstraints gb;
-	private GridBagLayout gbLayout;
+	protected GridBagConstraints gb;
+	protected GridBagLayout gbLayout;
 	
 	public AppointmentGui() {
 		
