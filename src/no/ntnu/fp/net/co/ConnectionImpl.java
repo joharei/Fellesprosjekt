@@ -402,7 +402,6 @@ public class ConnectionImpl extends AbstractConnection {
 	    	do {
 	    		try {
 					simplySendPacket(fin);
-					this.state = State.FIN_WAIT_1;
 				} catch (ClException e) {
 					// TODO Auto-generated catch block
 					continue;
