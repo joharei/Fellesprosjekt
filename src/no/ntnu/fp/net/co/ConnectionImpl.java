@@ -351,7 +351,14 @@ public class ConnectionImpl extends AbstractConnection {
     	packet.setChecksum(packet.calculateChecksum());
     	KtnDatagram ack;
     	do {
-    		ack = sendDataPacketWithRetransmit(packet);
+//    		ack = sendDataPacketWithRetransmit(packet);
+    		try {
+				simplySendPacket(packet);
+			} catch (ClException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		ack = internalReceiveAck(false, packet);
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
     }
 
@@ -376,6 +383,14 @@ public class ConnectionImpl extends AbstractConnection {
 	    			sendAck(this.lastValidPacketReceived, false);
 	    		} else {
 	    			this.lastValidPacketReceived = packet;
+	    			synchronized (this) {
+	    				try {
+							wait(200);
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
 	    			sendAck(this.lastValidPacketReceived, false);
 	    			return packet.getPayload().toString();
 	    		}
