@@ -2,8 +2,8 @@
 <root>
   <errors>true</errors>
   <loss>0</loss>
-  <delay>0</delay>
-  <ghost>50</ghost>
+  <delay>50</delay>
+  <ghost>0</ghost>
   <payload>0</payload>
   <header>0</header>
   <onlydata>true</onlydata>
