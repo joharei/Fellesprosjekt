@@ -8,7 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import model.SaveableClass;
 import model.User;
+import model.XmlSerializerX;
 import no.ntnu.fp.net.co.Connection;
 import no.ntnu.fp.net.co.ConnectionImpl;
 import nu.xom.Document;
@@ -16,8 +18,6 @@ import nu.xom.Document;
 public class ServerSynchronizationUnit extends SynchronizationUnit {
 
 	private Queue<Document> sendQueue, receiveQueue;
-//	private List<Connection> connections;
-//	private List<User> activeUsers;
 	private Map<Connection, User> activeUserConnections;
 	private DatabaseUnit dbUnit;
 	/**
@@ -54,6 +54,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	}
 	
 	private void startUserSession(Connection con) {
-		
+		LoginRequest loginRequest = XmlSerializerX.toObject(con.receive());
+		User user = (User) getObjectFromID(SaveableClass.User, loginRequest.getUsername());
 	}
+
 }

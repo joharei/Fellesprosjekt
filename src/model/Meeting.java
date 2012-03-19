@@ -1,8 +1,15 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Meeting extends Appointment {
+	public Meeting(Date date, Date startTime, Date endTime, String description,
+			String location, Room room, int id, User owner, boolean isDeleted) {
+		super(date, startTime, endTime, description, location, room, id, owner,
+				isDeleted);
+	}
+
 	private ArrayList<User> participants;
 	private ArrayList<Invitation> invitations;
 	

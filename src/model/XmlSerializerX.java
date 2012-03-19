@@ -7,12 +7,16 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 
+import synclogic.SynchronizationUnit;
+
+import no.ntnu.fp.model.Person;
 import no.ntnu.fp.model.XmlSerializer;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
 
 public class XmlSerializerX extends XmlSerializer {
+	static SynchronizationUnit syncUnit;//TODO: Add to class diagram
 	
 	public static void main(String[] args) {
 		//test for users
@@ -61,18 +65,31 @@ public class XmlSerializerX extends XmlSerializer {
 				}
 				return addedObj;
 			}
+			case Week : {
+				Elements weeks = root.getChildElements(Week.NAME_PROPERTY_CLASSTYPE);
+				for (int i = 0; i < weeks.size(); i++) {
+					Element weekElement = weeks.get(i);
+					addedObj.add(assembleWeek(weekElement));
+				}
+			}
 			default: {
 				throw new ParseException("Unrecognized object type!", 0);
 			}
 		}
 	}
 	
-	public Document toXml(Object obj) {
+	public static String toXml(Object obj, SaveableClass type) {
 		return null;
 	}
 	
-	public Object toObject(Document xml) {
+	public static Object toObject(String xml) {
 		return null;
+	}
+	
+	private Document toDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
+		nu.xom.Builder parser = new nu.xom.Builder(false);
+		nu.xom.Document doc = parser.build(xml, "");
+		return doc;
 	}
 	
 	/**
@@ -111,8 +128,6 @@ public class XmlSerializerX extends XmlSerializer {
 
 	/**
 	 * Copied from XmlSerializer and modified for fields; creates a user from the xml element
-	 * @param userElement
-	 * @return
 	 * @throws ParseException
 	 */
 	private User assembleUser(Element userElement) throws ParseException {
@@ -153,8 +168,6 @@ public class XmlSerializerX extends XmlSerializer {
 	
 	/**
 	 * Turn a user object into a Xml element
-	 * @param user
-	 * @return
 	 */
 	private Element userToXmlElement(User user) {
 		Element element = new Element(User.NAME_PROPERTY_CLASSTYPE);
@@ -191,6 +204,9 @@ public class XmlSerializerX extends XmlSerializer {
 		return element;
 	}
 	
+	/**
+	 * Turn a week object into a Xml element
+	 */
 	private Element weekToXmlElement(Week week) {
 		DateFormat dformat = Week.getDateFormat();
 		Element weekElement = new Element(Week.NAME_PROPERTY_CLASSTYPE);
@@ -213,7 +229,36 @@ public class XmlSerializerX extends XmlSerializer {
 		weekElement.appendChild(start);
 		weekElement.appendChild(end);
 		weekElement.appendChild(appGrouping);
-		return null;
+		return weekElement;
+	}
+	
+	/**
+	 * Create a week model from the Xml element
+	 * @throws ParseException
+	 */
+	private Week assembleWeek(Element weekElement) throws ParseException {
+		Date start = null, end = null;
+		ArrayList<Appointment> appointments = new ArrayList<Appointment>();
+		
+		DateFormat dformat = Week.getDateFormat();
+		Element e = weekElement.getFirstChildElement(Week.NAME_PROPERTY_START_DATE);
+		if (e != null) {
+			start = dformat.parse(e.getValue());
+		}
+		
+		e = weekElement.getFirstChildElement(Week.NAME_PROPERTY_END_DATE);
+		if (e != null) {
+			end = dformat.parse(e.getValue());
+		}
+				
+		e = weekElement.getFirstChildElement(Week.NAME_PROPERTY_APPOINTMENTS);
+		if (e != null) {
+			Elements apps = e.getChildElements();
+			for (int i = 0; i < e.getChildCount(); i++) {
+				appointments.add(assembleAppointment(apps.get(i)));
+			}
+		}
+		return new Week(start, end, appointments);
 	}
 	
 	/**
@@ -238,8 +283,31 @@ public class XmlSerializerX extends XmlSerializer {
 		return roomElement;
 	}
 	
+	/**
+	 * Turn a room in Xml form into an object
+	 */
+	private Room assembleRoom(Element roomElement) {
+		int id = 0, capacity = 0;
+		String name = null;
+		Element e = roomElement.getFirstChildElement(Room.NAME_PROPERTY_ID);
+		if (e != null) {
+			id = Integer.parseInt(e.getValue());
+		}
+		e = roomElement.getFirstChildElement(Room.NAME_PROPERTY_NAME);
+		if (e != null) {
+			name = e.getValue();
+		}
+		e = roomElement.getFirstChildElement(Room.NAME_PROPERTY_CAPACITY);
+		if (e != null) {
+			capacity = Integer.parseInt(e.getValue());
+		}
+		return new Room(id, name, capacity);
+	}
+	
+	/**
+	 * Turn an appointment or meeting into a Xml element
+	 */
 	private Element appointmentToXmlElement(Appointment event) {
-		// TODO: Håndter møter
 		DateFormat dformat = event.getDateFormat();
 		DateFormat tformat = event.getTimeformat();
 		Element appElement = new Element(Appointment.NAME_PROPERTY_CLASSTYPE);
@@ -266,11 +334,11 @@ public class XmlSerializerX extends XmlSerializer {
 		id.appendChild("" + event.getId());
 		
 		Element owner = new Element(Appointment.NAME_PROPERTY_OWNER);
-		//TODO: Legg til selve brukeren, evt en forenklet versjon?
-		owner.appendChild(event.getOwner().getName());
+		owner.appendChild(userToXmlElement(event.getOwner()));
 		
 		Element delFlag = new Element(Appointment.NAME_PROPERTY_DELETED);
 		delFlag.appendChild("" + event.isDeleted());
+		
 		
 		appElement.appendChild(date);
 		appElement.appendChild(start);
@@ -282,6 +350,156 @@ public class XmlSerializerX extends XmlSerializer {
 		appElement.appendChild(owner);
 		appElement.appendChild(delFlag);
 		
+		//Handle meetings
+		if (event instanceof Meeting) {
+			Meeting meeting = (Meeting) event;
+			Element participantGrouping = new Element(Meeting.NAME_PROPERTY_PARTICIPANTS);
+			ArrayList<User> users = meeting.getParticipants();
+			Iterator<User> it = users.iterator();
+			while (it.hasNext()) {
+				participantGrouping.appendChild(userToXmlElement(it.next()));
+			}
+			appElement.appendChild(participantGrouping);
+			
+			Element invitationGrouping = new Element(Meeting.NAME_PROPERTY_INVITATIONS);
+			ArrayList<Invitation> invs = meeting.getInvitations();
+			Iterator<Invitation> it2 = invs.iterator();
+			while (it2.hasNext()) {
+				invitationGrouping.appendChild(invitationToXmlElement(it2.next()));
+			}
+			appElement.appendChild(invitationGrouping);
+		}
 		return appElement;
+	}
+	
+	/**
+	 * Create a meeting or appointment from their respective elements
+	 * @throws ParseException
+	 */
+	private Appointment assembleAppointment(Element appElement) throws ParseException {
+		Date date = null, start = null, end = null;
+		String desc = null, loc = null;
+		Room room = null;
+		User owner = null;
+		int id = 0;
+		boolean delFlag = false;
+		
+		Element e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DATE);
+		if (e != null) {
+			DateFormat dFormat = Appointment.getDateFormat();
+			date = dFormat.parse(e.getValue());
+		}
+		
+		DateFormat tFormat = Appointment.getTimeformat();
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_START_TIME);
+		if (e != null) {
+			start = tFormat.parse(e.getValue());
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_END_TIME);
+		if (e != null) {
+			end = tFormat.parse(e.getValue());
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DESCRIPTION);
+		if (e != null) {
+			desc = e.getValue();
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_LOCATION);
+		if (e != null) {
+			loc = e.getValue();
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_ROOM);
+		if (e != null) {
+			room = assembleRoom(e);
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_OWNER);
+		if (e != null) {
+			owner = assembleUser(e);
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_ID);
+		if (e != null) {
+			id = Integer.parseInt(e.getValue());
+		}
+		
+		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DELETED);
+		if (e != null) {
+			delFlag = Boolean.parseBoolean(e.getValue());
+		}
+		
+		//Handle meetings
+		if (SaveableClass.valueOf(appElement.getLocalName()) == SaveableClass.Meeting) {
+			ArrayList<User> participants = new ArrayList<User>();
+			ArrayList<Invitation> invs = new ArrayList<Invitation>();
+			
+			e = appElement.getFirstChildElement(Meeting.NAME_PROPERTY_PARTICIPANTS);
+			if (e != null) {
+				int count = e.getChildCount();
+				Elements users = e.getChildElements();
+				for (int i = 0; i < count; i++) {
+					participants.add(assembleUser(users.get(i)));
+				}
+			}
+			
+			e = appElement.getFirstChildElement(Meeting.NAME_PROPERTY_INVITATIONS);
+			if (e != null) {
+				int count = e.getChildCount();
+				Elements invites = e.getChildElements();
+				for (int i = 0; i < count; i++) {
+					invs.add(assembleInvitation(invites.get(i)));
+				}
+			}
+			Meeting m = new Meeting(date, start, end, desc, loc, room, id, owner, delFlag);
+			m.setParticipants(participants);
+			m.setInvitations(invs);
+			return m;
+		}
+		return new Appointment(date, start, end, desc, loc, room, id, owner, delFlag);
+	}
+	
+	/**
+	 * Turns an invitation into a Xml element
+	 * @param inv
+	 */
+	private Element invitationToXmlElement(Invitation inv) {
+		Element invElement = new Element(Invitation.NAME_PROPERTY_CLASSTYPE);
+		
+		Element status = new Element(Invitation.NAME_PROPERTY_STATUS);
+		status.appendChild("" + inv.getStatus());
+		invElement.appendChild(status);
+		
+		//meeting id only
+		Element meeting = new Element(Invitation.NAME_PROPERTY_MEETING);
+		meeting.appendChild("" + inv.getMeeting().getId());
+		invElement.appendChild(meeting);
+		
+		return invElement;
+	}
+	
+	/**
+	 * Create an invitation object from a Xml element.
+	 * Uses the synchronization unit to retrieve the meeting
+	 * based on the meeting id.
+	 */
+	private Invitation assembleInvitation(Element invElement) {
+		InvitationStatus status = null;
+		Meeting meeting = null;
+		
+		Element e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_STATUS);
+		if (e != null) {
+			status = InvitationStatus.valueOf(e.getValue());
+		}
+		
+		e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_MEETING);
+		if (e != null) {
+			String meetingID = e.getValue();
+			meeting = (Meeting) syncUnit.getObjectFromID(SaveableClass.Meeting, meetingID);
+		}
+		
+		return new Invitation(status, meeting);
 	}
 }

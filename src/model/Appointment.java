@@ -10,8 +10,8 @@ public class Appointment {
 	private int id;
 	private User owner;
 	private boolean isDeleted;
-	private DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	private DateFormat timeformat = DateFormat.getTimeInstance(DateFormat.SHORT);
+	private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+	private static DateFormat timeformat = DateFormat.getTimeInstance(DateFormat.SHORT);
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "appointment";
@@ -24,6 +24,19 @@ public class Appointment {
 	public static final String NAME_PROPERTY_ID = "id";
 	public static final String NAME_PROPERTY_OWNER = "owner";
 	public static final String NAME_PROPERTY_DELETED = "deleted";
+	
+	public Appointment(Date date, Date startTime, Date endTime, String description,
+			String location, Room room, int id, User owner, boolean isDeleted) {
+		setDate(date);
+		setStartTime(startTime);
+		setEndTime(endTime);
+		setDescription(description);
+		setLocation(location);
+		setRoom(room);
+		setId(id);
+		setOwner(owner);
+		setDeleted(isDeleted);
+	}
 	
 	public Date getDate() {
 		return date;
@@ -80,11 +93,11 @@ public class Appointment {
 		return isDeleted;
 	}
 	
-	public DateFormat getDateFormat() {
+	public static DateFormat getDateFormat() {
 		return (DateFormat) dateFormat.clone();
 	}
 
-	public DateFormat getTimeformat() {
+	public static DateFormat getTimeformat() {
 		return (DateFormat) timeformat.clone();
 	}
 }
