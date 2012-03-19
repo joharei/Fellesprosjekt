@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
   <errors>true</errors>
-  <loss>0</loss>
-  <delay>50</delay>
+  <loss>50</loss>
+  <delay>0</delay>
   <ghost>0</ghost>
   <payload>0</payload>
   <header>0</header>
