@@ -20,6 +20,10 @@ public abstract class SynchronizationUnit {
 		this.listeners.remove(sl);
 	}
 	
+	/**
+	 * Adds a message to the send queue and sends it whenever possible.
+	 * @param o		The message to send
+	 */
 	public abstract void addToSendQueue(String o);
 	
 	/**

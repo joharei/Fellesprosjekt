@@ -41,6 +41,14 @@ public class User {
 		weekModels = new ArrayList<Week>();
 	}
 	
+	public User(String firstname, String surname, String username, String password) {
+		setName(firstname, surname);
+		setUsername(username);
+		setPassword(password);
+		notifications = new ArrayList<Notification>();
+		weekModels = new ArrayList<Week>();
+	}
+	
 	/**
 	 * Create a user with a saved password.
 	 * Used for logged in user on client or on server.
@@ -54,6 +62,14 @@ public class User {
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
+	}
+	
+	public void addWeekModel(Week week) {
+		weekModels.add(week);
+	}
+	
+	public void addNotification(Notification notification) {
+		notifications.add(notification);
 	}
 	
 	public void setName(String n1, String n2) {
