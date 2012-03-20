@@ -356,6 +356,8 @@ public class ConnectionImpl extends AbstractConnection {
 			}
 			timeoutCounter++;
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
+    	// La til dette den 20.03:14.37
+    	this.lastValidPacketReceived = ack;
     }
 
     /**
