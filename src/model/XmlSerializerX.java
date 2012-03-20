@@ -1,30 +1,44 @@
 package model;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
+import synclogic.LoginRequest;
 import synclogic.SynchronizationUnit;
 
-import no.ntnu.fp.model.Person;
 import no.ntnu.fp.model.XmlSerializer;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.Elements;
+import nu.xom.ParsingException;
 
 public class XmlSerializerX extends XmlSerializer {
 	static SynchronizationUnit syncUnit;//TODO: Add to class diagram
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException, ParseException, ParsingException {
 		//test for users
-		ArrayList<User> list = new ArrayList<User>();
-		list.add(new User("Kalle", "Kanin", "lovebunny666", "b@c.af", Calendar.getInstance().getTime(), 22445588));
-		list.add(new User("Donald", "Duck", "ducky", "d@d.ab", Calendar.getInstance().getTime(), 42445588));
-		list.add(new User("Onkel", "Skrue", "richie", "s@r.ab", Calendar.getInstance().getTime(), 22445598));
-		new XmlSerializerX(list, SaveableClass.User);
+//		list.add(new User("Kalle", "Kanin", "lovebunny666", "b@c.af", Calendar.getInstance().getTime(), 22445588));
+//		list.add(new User("Donald", "Duck", "ducky", "d@d.ab", Calendar.getInstance().getTime(), 42445588));
+		User user = new User("Onkel", "Skrue", "richie", "1234a", "s@r.ab", Calendar.getInstance().getTime(), 22445598);
+		String xml = toXml(user, SaveableClass.User);
+		System.out.println(xml);
+		User user2 = (User) toObject(xml);
+		System.out.println(user2.toString());
+		
+		LoginRequest lr = new LoginRequest(user.getUsername(), user.getPassword());
+		lr.setLoginAccepted(true);
+		xml = toXml(lr, SaveableClass.LoginRequest);
+		System.out.println(xml);
+		LoginRequest lr2 = (LoginRequest) toObject(xml);
+		System.out.println("Uname: " + lr2.getUsername());
+		System.out.println("Password: " + lr2.getPassword());
+		System.out.println("Accepted: " + lr2.getLoginAccepted());
 	}
 	
 	//testing constructor
@@ -51,7 +65,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * @throws ParseException
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private ArrayList readXml(Document xmlDoc) throws ParseException {
+	private static ArrayList readXml(Document xmlDoc) throws ParseException {
 		ArrayList addedObj = new ArrayList();
 		Element root = xmlDoc.getRootElement();
 		SaveableClass objType = SaveableClass.valueOf(root.getLocalName());
@@ -79,14 +93,45 @@ public class XmlSerializerX extends XmlSerializer {
 	}
 	
 	public static String toXml(Object obj, SaveableClass type) {
-		return null;
+		if (obj instanceof List) {
+			//handle list
+			throw new IllegalArgumentException("List handling not yet supported");
+		} else {
+			//handle single object
+			switch (type) {
+				case User : {
+					Element userE = userToXmlElement((User) obj);
+					return userE.toXML();
+				}
+				case LoginRequest : {
+					Element loginE = loginRequestToXmlElement((LoginRequest) obj);
+					return loginE.toXML();
+				}
+				default : {
+					throw new IllegalArgumentException("Unsupported object type (see SaveableClass, may be around the corner)!");
+				}
+			}
+		}
 	}
 	
-	public static Object toObject(String xml) {
-		return null;
+	public static Object toObject(String xml) throws IOException, ParseException, ParsingException {
+		Document xmldoc = stringToDocument(xml);
+		Element root = xmldoc.getRootElement();
+		SaveableClass objType = SaveableClass.valueOf(root.getLocalName());
+		switch(objType) {
+			case User : {
+				return assembleUser(root);
+			}
+			case LoginRequest : {
+				return assembleLoginRequest(root);
+			}
+			default : {
+				throw new ParsingException("Unidentified object type met during parsing");
+			}
+		}
 	}
 	
-	private Document toDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
+	private static Document stringToDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
 		nu.xom.Builder parser = new nu.xom.Builder(false);
 		nu.xom.Document doc = parser.build(xml, "");
 		return doc;
@@ -99,7 +144,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * @return Xml document
 	 */
 	@SuppressWarnings("rawtypes")
-	public Document buildXml(ArrayList list, SaveableClass classType) {
+	public static Document buildXml(ArrayList list, SaveableClass classType) {
 		Iterator it = list.iterator();
 		Element root = new Element("" + classType);
 		switch (classType) {
@@ -124,13 +169,57 @@ public class XmlSerializerX extends XmlSerializer {
 		return new Document(root);
 	}
 	
-	
+	/**
+	 * Create a login request from a Xml element
+	 */
+	private static LoginRequest assembleLoginRequest(Element lrElement) {
+		String username = null, password = null;
+		boolean accepted = false;
+
+		Element e = lrElement.getFirstChildElement(LoginRequest.NAME_PROPERTY_USERNAME);
+		if (e != null) {
+			username = e.getValue();
+		}
+		
+		e = lrElement.getFirstChildElement(LoginRequest.NAME_PROPERTY_PASSWORD);
+		if (e != null) {
+			password = e.getValue();
+		}
+		
+		e = lrElement.getFirstChildElement(LoginRequest.NAME_PROPERTY_LOGIN_ACCEPTED);
+		if (e != null) {
+			accepted = Boolean.parseBoolean(e.getValue());
+		}
+		LoginRequest lr = new LoginRequest(username, password);
+		lr.setLoginAccepted(accepted);
+		return lr;
+	}
+
+	/**
+	 * Turn a LoginRequest into a Xml element.
+	 */
+	private static Element loginRequestToXmlElement(LoginRequest logreq) {
+		Element lrElement = new Element("" + SaveableClass.LoginRequest);
+		
+		Element username = new Element(LoginRequest.NAME_PROPERTY_USERNAME);
+		username.appendChild(logreq.getUsername());
+		lrElement.appendChild(username);
+		
+		Element password = new Element(LoginRequest.NAME_PROPERTY_PASSWORD);
+		password.appendChild(logreq.getPassword());
+		lrElement.appendChild(password);
+		
+		Element accepted = new Element(LoginRequest.NAME_PROPERTY_LOGIN_ACCEPTED);
+		accepted.appendChild("" + logreq.getLoginAccepted());
+		lrElement.appendChild(accepted);
+		return lrElement;
+	}
 
 	/**
 	 * Copied from XmlSerializer and modified for fields; creates a user from the xml element
 	 * @throws ParseException
 	 */
-	private User assembleUser(Element userElement) throws ParseException {
+	private static User assembleUser(Element userElement) throws ParseException {
 		String firstname = null, surname = null, username = null, password = null, email = null;
 		Date date = null;
 		int phone = 0;
@@ -157,6 +246,7 @@ public class XmlSerializerX extends XmlSerializer {
 		element = userElement.getFirstChildElement(User.NAME_PROPERTY_DATE_OF_BIRTH);
 		if (element != null) {
 			DateFormat format = User.getDateFormat();
+			System.out.println("Date: " + element.getValue());
 			date = format.parse(element.getValue());
 		}
 		element = userElement.getFirstChildElement(User.NAME_PROPERTY_PHONE);
@@ -169,8 +259,8 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Turn a user object into a Xml element
 	 */
-	private Element userToXmlElement(User user) {
-		Element element = new Element(User.NAME_PROPERTY_CLASSTYPE);
+	private static Element userToXmlElement(User user) {
+		Element element = new Element("" + SaveableClass.User);
 		
 		Element firstname = new Element(User.NAME_PROPERTY_FIRSTNAME);
 		Element surname = new Element(User.NAME_PROPERTY_SURNAME);
@@ -186,9 +276,9 @@ public class XmlSerializerX extends XmlSerializer {
 		Element email = new Element(User.NAME_PROPERTY_EMAIL);
 		email.appendChild(user.getEmail());
 		
-		DateFormat format = DateFormat.getDateInstance(DateFormat.MEDIUM, java.util.Locale.US);
+		DateFormat dformat = User.getDateFormat();
 		Element dateOfBirth = new Element(User.NAME_PROPERTY_DATE_OF_BIRTH);
-		dateOfBirth.appendChild(format.format(user.getDateOfBirth()));
+		dateOfBirth.appendChild(dformat.format(user.getDateOfBirth()));
 
 		Element phone = new Element (User.NAME_PROPERTY_PHONE);
 		phone.appendChild("" + user.getPhone());
@@ -207,7 +297,7 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Turn a week object into a Xml element
 	 */
-	private Element weekToXmlElement(Week week) {
+	private static Element weekToXmlElement(Week week) {
 		DateFormat dformat = Week.getDateFormat();
 		Element weekElement = new Element(Week.NAME_PROPERTY_CLASSTYPE);
 		Element start = new Element(Week.NAME_PROPERTY_START_DATE);
@@ -236,7 +326,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Create a week model from the Xml element
 	 * @throws ParseException
 	 */
-	private Week assembleWeek(Element weekElement) throws ParseException {
+	private static Week assembleWeek(Element weekElement) throws ParseException {
 		Date start = null, end = null;
 		ArrayList<Appointment> appointments = new ArrayList<Appointment>();
 		
@@ -264,7 +354,7 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Turn a room into a Xml element
 	 */
-	private Element roomToXmlElement(Room room) {
+	private static Element roomToXmlElement(Room room) {
 		Element roomElement = new Element(Room.NAME_PROPERTY_CLASSTYPE);
 		
 		Element id = new Element(Room.NAME_PROPERTY_ID);
@@ -286,7 +376,7 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Turn a room in Xml form into an object
 	 */
-	private Room assembleRoom(Element roomElement) {
+	private static Room assembleRoom(Element roomElement) {
 		int id = 0, capacity = 0;
 		String name = null;
 		Element e = roomElement.getFirstChildElement(Room.NAME_PROPERTY_ID);
@@ -307,9 +397,9 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Turn an appointment or meeting into a Xml element
 	 */
-	private Element appointmentToXmlElement(Appointment event) {
-		DateFormat dformat = event.getDateFormat();
-		DateFormat tformat = event.getTimeformat();
+	private static Element appointmentToXmlElement(Appointment event) {
+		DateFormat dformat = Appointment.getDateFormat();
+		DateFormat tformat = Appointment.getTimeformat();
 		Element appElement = new Element(Appointment.NAME_PROPERTY_CLASSTYPE);
 		
 		Element date = new Element(Appointment.NAME_PROPERTY_DATE); 
@@ -376,7 +466,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Create a meeting or appointment from their respective elements
 	 * @throws ParseException
 	 */
-	private Appointment assembleAppointment(Element appElement) throws ParseException {
+	private static Appointment assembleAppointment(Element appElement) throws ParseException {
 		Date date = null, start = null, end = null;
 		String desc = null, loc = null;
 		Room room = null;
@@ -465,7 +555,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Turns an invitation into a Xml element
 	 * @param inv
 	 */
-	private Element invitationToXmlElement(Invitation inv) {
+	private static Element invitationToXmlElement(Invitation inv) {
 		Element invElement = new Element(Invitation.NAME_PROPERTY_CLASSTYPE);
 		
 		Element status = new Element(Invitation.NAME_PROPERTY_STATUS);
@@ -485,7 +575,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Uses the synchronization unit to retrieve the meeting
 	 * based on the meeting id.
 	 */
-	private Invitation assembleInvitation(Element invElement) {
+	private static Invitation assembleInvitation(Element invElement) {
 		InvitationStatus status = null;
 		Meeting meeting = null;
 		

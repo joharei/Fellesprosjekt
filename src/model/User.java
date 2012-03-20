@@ -1,6 +1,7 @@
 package model;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -13,8 +14,8 @@ public class User {
 	private int phone;
 	private boolean isOnline;
 	private boolean isDeleted;
-	private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
 	//constants
 	public final static String NAME_PROPERTY_CLASSTYPE = "user";
 	public final static String NAME_PROPERTY_FIRSTNAME = "fname";
