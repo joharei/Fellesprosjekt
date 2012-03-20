@@ -27,6 +27,22 @@ public abstract class SynchronizationUnit {
 	public abstract void addToSendQueue(String o);
 	
 	/**
+	 * Returns the first object that matches the given class and id. Null if not found.
+	 * 
+	 * @param c		The object's class
+	 * @param id	The object's ID
+	 * @return		The matching object, or null of no matching object was found
+	 */
+	public SyncListener getObjectFromID(SaveableClass c, String id) {
+		List<SyncListener> objects = getObjectsFromID(c, id);
+		if(objects.isEmpty()) {
+			return null;
+		} else {
+			return objects.get(0);
+		}
+	}
+	
+	/**
 	 * Returns the object defined by the given class and ID in a List. Returns null if not found.
 	 * If id is null, all objects of the given class will be returned in a list.
 	 * 
