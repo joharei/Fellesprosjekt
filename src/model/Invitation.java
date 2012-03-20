@@ -4,6 +4,7 @@ public class Invitation {
 	private InvitationStatus status;
 	private Meeting meeting;
 	private User invitee;//TODO: Update class diagram
+	private String id;
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "invitation";
@@ -28,12 +29,12 @@ public class Invitation {
 		setInvitee(invitee);
 	}
 	
-	/**
-	 * Get the invitation ID.
-	 * @return String in the following format: "username|meetingID"
-	 */
+	public void setID(String id) {
+		this.id = id;
+	}
+	
 	public String getID() {
-		return ("" + invitee.getUsername() + "|" + meeting.getId());
+		return this.id;
 	}
 	
 	public void setStatus(InvitationStatus status) {
