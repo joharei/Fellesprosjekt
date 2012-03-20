@@ -24,17 +24,23 @@ public abstract class SynchronizationUnit {
 	
 	/**
 	 * Returns the object defined by the given class and ID. Returns null if not found.
+	 * If id is null, all objects of the given class will be returned
 	 * 
-	 * @param c		The objects class
-	 * @param id	The objects ID
+	 * @param c		The object's class
+	 * @param id	The object's ID, or null if all objects of the given class is requested
 	 * @return		The object, or null if not found
 	 */
 	public Object getObjectFromID(SaveableClass c, String id) {
+		List<Object> objects = new ArrayList<Object>();
 		for (SyncListener l : this.listeners) {
-			if(l.getSaveableClass() == c && l.getObjectID().equals(id)) {
+			if(id == null) {
+				if(l.getSaveableClass() == c) {
+					objects.add(c);
+				}
+			} else if(l.getSaveableClass() == c && l.getObjectID().equals(id)) {
 				return l;
 			}
 		}
-		return null;
+		return objects.isEmpty() ? null : objects;
 	}
 }
