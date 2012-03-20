@@ -29,6 +29,8 @@ public class User implements SyncListener {
 	public final static String NAME_PROPERTY_DATE_OF_BIRTH = "date";
 	public final static String NAME_PROPERTY_DELETED = "del";
 	
+	//TODO: Property change support
+	
 	/**
 	 * Creates a user without a password.
 	 * Typically used for instancing other users than the logged in user on clients.
@@ -167,6 +169,7 @@ public class User implements SyncListener {
 		"\nEmail: " + getEmail() +
 		"\nBirthdate: " + getDateFormat().format(getDateOfBirth()) +
 		"\nPhone number: " + getPhone() +
+		"\nDeleted: " + isDeleted() +
 		"\n===END USER===";
 		return s;
 	}
@@ -188,10 +191,18 @@ public class User implements SyncListener {
 		if (!classType.equals(getSaveableClass())) {
 			throw new IllegalArgumentException("Wrong classtype received");
 		}
-		User newuser = (User) newVersion;
+		User updated = (User) newVersion;
 		System.out.println("Update received!");
 		System.out.println("Old user: " + this.toString());
-		System.out.println("Updated user: " + newuser.toString());
+		System.out.println("Updated user: " + updated.toString());
+		
+		setFirstname(updated.getFirstname());
+		setSurname(updated.getSurname());
+		setEmail(updated.getEmail());
+		setPassword(updated.getPassword());
+		setPhone(updated.getPhone());
+		setDateOfBirth(updated.getDateOfBirth());
+		setDeleted(updated.isDeleted());
 	}
 
 	@Override
