@@ -162,9 +162,10 @@ public class XmlSerializerX extends XmlSerializer {
 		Document xmldoc = stringToDocument(xml);
 		Element root = xmldoc.getRootElement();
 		String rootName = root.getLocalName();
-		String prefix = rootName.substring(0, 3);
-		if (prefix.charAt(3) == ':') {
-			if (prefix.equalsIgnoreCase("grp:")) {
+//		String prefix = rootName.substring(0, 3);
+//		if (prefix.charAt(3) == ':') {
+		if (rootName.startsWith("grp:")) {
+//			if (prefix.equalsIgnoreCase("grp:")) {
 				//indicates a list of objects
 //				String realRootName = rootName.substring(4);
 				Elements list = root.getChildElements();
@@ -174,9 +175,9 @@ public class XmlSerializerX extends XmlSerializer {
 					objs.add(toObject(e.toXML()));
 				}
 				return objs;
-			} else {
-				throw new ParsingException("Invalid prefix, only 'grp:' and no prefix is allowed");
-			}
+//			} else {
+//				throw new ParsingException("Invalid prefix, only 'grp:' and no prefix is allowed");
+//			}
 		} else {
 			SaveableClass objType = SaveableClass.valueOf(rootName);
 			switch(objType) {

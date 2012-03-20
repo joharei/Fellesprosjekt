@@ -5,8 +5,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import synclogic.SyncListener;
 
-public class User {
+
+public class User implements SyncListener {
 	private String firstname, surname, username, email, password;
 	private Date dateOfBirth;
 	private ArrayList<Notification> notifications;
@@ -179,5 +181,26 @@ public class User {
 	
 	public static DateFormat getDateFormat() {
 		return (DateFormat) dateFormat.clone();
+	}
+
+	@Override
+	public void fire(SaveableClass classType, Object newVersion) {
+		if (!classType.equals(getSaveableClass())) {
+			throw new IllegalArgumentException("Wrong classtype received");
+		}
+		User newuser = (User) newVersion;
+		System.out.println("Update received!");
+		System.out.println("Old user: " + this.toString());
+		System.out.println("Updated user: " + newuser.toString());
+	}
+
+	@Override
+	public SaveableClass getSaveableClass() {
+		return SaveableClass.User;
+	}
+
+	@Override
+	public String getObjectID() {
+		return getUsername();
 	}
 }
