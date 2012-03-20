@@ -28,6 +28,14 @@ public class Invitation {
 		setInvitee(invitee);
 	}
 	
+	/**
+	 * Get the invitation ID.
+	 * @return String in the following format: "username|meetingID"
+	 */
+	public String getID() {
+		return ("" + invitee.getUsername() + "|" + meeting.getId());
+	}
+	
 	public void setStatus(InvitationStatus status) {
 		this.status = status;
 	}
