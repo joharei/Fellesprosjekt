@@ -92,41 +92,124 @@ public class XmlSerializerX extends XmlSerializer {
 		}
 	}
 	
+	/**
+	 * Turn a list of objects of the same type or a single object
+	 * into a Xml string. Supported objects can be found in the
+	 * SaveableClass class.
+	 */
+	@SuppressWarnings("rawtypes")
 	public static String toXml(Object obj, SaveableClass type) {
 		if (obj instanceof List) {
 			//handle list
-			throw new IllegalArgumentException("List handling not yet supported");
+			List list = (List) obj;
+			Element root = new Element("grp:" + type);
+			Iterator it = list.iterator();
+			while (it.hasNext()) {
+				root.appendChild(singleObjToElement(it.hasNext(), type));
+			}
+			return root.toXML();
 		} else {
 			//handle single object
-			switch (type) {
-				case User : {
-					Element userE = userToXmlElement((User) obj);
-					return userE.toXML();
-				}
-				case LoginRequest : {
-					Element loginE = loginRequestToXmlElement((LoginRequest) obj);
-					return loginE.toXML();
-				}
-				default : {
-					throw new IllegalArgumentException("Unsupported object type (see SaveableClass, may be around the corner)!");
-				}
+			return singleObjToElement(obj, type).toXML();
+		}
+	}
+
+	private static Element singleObjToElement(Object obj, SaveableClass type) {
+		switch (type) {
+			case User : {
+				return userToXmlElement((User) obj);
+			}
+			case Null : {
+				Element n = new Element("" + SaveableClass.Null);
+//					n.appendChild("null");
+				return n;
+			}
+			case LoginRequest : {
+				return loginRequestToXmlElement((LoginRequest) obj);
+			}
+			case Week : {
+				return weekToXmlElement((Week) obj);
+			}
+			case Appointment : {
+				return appointmentToXmlElement((Appointment) obj);
+			}
+			case Meeting : {
+				return appointmentToXmlElement((Meeting) obj);
+			}
+			case Room : {
+				return roomToXmlElement((Room) obj);
+			}
+			case Invitation : {
+				return invitationToXmlElement((Invitation) obj);
+			}
+			case Notification : {
+				return notificationToXmlElement((Notification) obj);
+			}
+			default : {
+				throw new IllegalArgumentException("Unsupported object type (see SaveableClass, may be around the corner)!");
 			}
 		}
 	}
 	
+	
+	/**
+	 * Get an object or a list of objects parsed from the Xml String.
+	 * @throws IOException
+	 * @throws ParseException
+	 * @throws ParsingException
+	 */
 	public static Object toObject(String xml) throws IOException, ParseException, ParsingException {
 		Document xmldoc = stringToDocument(xml);
 		Element root = xmldoc.getRootElement();
-		SaveableClass objType = SaveableClass.valueOf(root.getLocalName());
-		switch(objType) {
-			case User : {
-				return assembleUser(root);
+		String rootName = root.getLocalName();
+		String prefix = rootName.substring(0, 3);
+		if (prefix.charAt(3) == ':') {
+			if (prefix.equalsIgnoreCase("grp:")) {
+				//indicates a list of objects
+//				String realRootName = rootName.substring(4);
+				Elements list = root.getChildElements();
+				ArrayList<Object> objs = new ArrayList<Object>();
+				for (int i = 0; i < list.size(); i++) {
+					Element e = list.get(i);
+					objs.add(toObject(e.toXML()));
+				}
+				return objs;
+			} else {
+				throw new ParsingException("Invalid prefix, only 'grp:' and no prefix is allowed");
 			}
-			case LoginRequest : {
-				return assembleLoginRequest(root);
-			}
-			default : {
-				throw new ParsingException("Unidentified object type met during parsing");
+		} else {
+			SaveableClass objType = SaveableClass.valueOf(rootName);
+			switch(objType) {
+				case User : {
+					return assembleUser(root);
+				}
+				case LoginRequest : {
+					return assembleLoginRequest(root);
+				}
+				case Week : {
+					return assembleWeek(root);
+				}
+				case Appointment : {
+					return assembleAppointment(root);
+				}
+				case Meeting : {
+					return assembleAppointment(root);
+				}
+				case Notification : {
+					return assembleNotification(root);
+				}
+				case Invitation : {
+					return assembleInvitation(root);
+				}
+				case Room : {
+					return assembleRoom(root);
+				}
+				case Null : {
+					return null;
+				}
+				default : {
+					throw new ParsingException("Unidentified object type met during parsing");
+				}
 			}
 		}
 	}
@@ -299,7 +382,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 */
 	private static Element weekToXmlElement(Week week) {
 		DateFormat dformat = Week.getDateFormat();
-		Element weekElement = new Element(Week.NAME_PROPERTY_CLASSTYPE);
+		Element weekElement = new Element("" + SaveableClass.Week);
 		Element start = new Element(Week.NAME_PROPERTY_START_DATE);
 		start.appendChild(dformat.format(week.getStartDate()));
 		
@@ -355,7 +438,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Turn a room into a Xml element
 	 */
 	private static Element roomToXmlElement(Room room) {
-		Element roomElement = new Element(Room.NAME_PROPERTY_CLASSTYPE);
+		Element roomElement = new Element("" + SaveableClass.Room);
 		
 		Element id = new Element(Room.NAME_PROPERTY_ID);
 		id.appendChild("" + room.getId());
@@ -400,7 +483,13 @@ public class XmlSerializerX extends XmlSerializer {
 	private static Element appointmentToXmlElement(Appointment event) {
 		DateFormat dformat = Appointment.getDateFormat();
 		DateFormat tformat = Appointment.getTimeformat();
-		Element appElement = new Element(Appointment.NAME_PROPERTY_CLASSTYPE);
+		Element appElement;
+		//handle both meetings and appointments 
+		if (event instanceof Meeting) {
+			appElement = new Element("" + SaveableClass.Meeting);
+		} else {
+			appElement = new Element("" + SaveableClass.Appointment);
+		}
 		
 		Element date = new Element(Appointment.NAME_PROPERTY_DATE); 
 		date.appendChild(dformat.format(event.getDate()));
@@ -556,7 +645,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * @param inv
 	 */
 	private static Element invitationToXmlElement(Invitation inv) {
-		Element invElement = new Element(Invitation.NAME_PROPERTY_CLASSTYPE);
+		Element invElement = new Element("" + SaveableClass.Invitation);
 		
 		Element status = new Element(Invitation.NAME_PROPERTY_STATUS);
 		status.appendChild("" + inv.getStatus());
@@ -591,5 +680,67 @@ public class XmlSerializerX extends XmlSerializer {
 		}
 		
 		return new Invitation(status, meeting);
+	}
+	
+	/**
+	 * Turn a Notification object into a Xml element,
+	 * the associated User who triggered the notification
+	 * and Invitation is included as well.
+	 */
+	private static Element notificationToXmlElement(Notification notif) {
+		Element notifE = new Element("" + SaveableClass.Notification);
+		
+		Element inv = new Element(Notification.NAME_PROPERTY_INVITATION);
+		inv.appendChild(invitationToXmlElement(notif.getInvitation()));
+		notifE.appendChild(inv);
+		
+		Element type = new Element(Notification.NAME_PROPERTY_TYPE);
+		type.appendChild("" + notif.getType());
+		notifE.appendChild(type);
+		
+		Element id = new Element(Notification.NAME_PROPERTY_ID);
+		id.appendChild(notif.getId());
+		notifE.appendChild(id);
+		
+		Element tBy = new Element(Notification.NAME_PROPERTY_TRIGGERED_BY);
+		tBy.appendChild(userToXmlElement(notif.getTriggeredBy()));
+		notifE.appendChild(tBy);
+		
+		return notifE;
+	}
+	
+	/**
+	 * Create a Notification from a Xml element. It contains the source user
+	 * as well as the related Invitation.
+	 * @throws ParseException
+	 */
+	private static Notification assembleNotification(Element notifE) throws ParseException {
+		Invitation inv = null;
+		NotificationType type = null;
+		int id = 0;
+		User tBy = null;
+		
+		Element e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_INVITATION);
+		if (e != null) {
+			inv = assembleInvitation(e);
+		}
+		
+		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TYPE);
+		if (e != null) {
+			type = NotificationType.valueOf(e.getValue());
+		}
+		
+		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_ID);
+		if (e != null) {
+			id = Integer.parseInt(e.getValue());
+		}
+		
+		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TRIGGERED_BY);
+		if (e != null) {
+			tBy = assembleUser(e);
+		}
+		
+		Notification notif = new Notification(inv, type, id, tBy);
+		return notif;
 	}
 }
