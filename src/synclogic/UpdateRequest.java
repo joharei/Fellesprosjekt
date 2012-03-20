@@ -15,6 +15,10 @@ public class UpdateRequest {
 		this.objects.add(o);
 	}
 	
+	public void addAllObjects(List<SyncListener> objects) {
+		this.objects.addAll(objects);
+	}
+	
 	public int size() {
 		return objects.size();
 	}
@@ -22,4 +26,5 @@ public class UpdateRequest {
 	public SyncListener getObject(int i) {
 		return this.objects.get(i);
 	}
+	
 }
