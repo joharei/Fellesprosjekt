@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.Properties;
 
 import model.Appointment;
@@ -74,11 +76,69 @@ public class DatabaseUnit {
 		}
 	//	conn.close();
 	}
+	
+	public static ArrayList<Object> loadUser() throws SQLException{
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM User");
+		ArrayList<Object> userArray = new ArrayList<Object>();
+		while(rs.next()){
+			String Username = rs.getString("Username");
+			String Password = rs.getString("Password");
+			String Email = rs.getString("Email");
+			Date date = rs.getDate("DateOfBirth");
+			int Phone = rs.getInt("Phone");
+			String Surname = rs.getString("Surname");
+			String Firstname = rs.getString("Firstname");
+			int deleted = rs.getInt("Deleted");
+			User user = new User(Firstname, Surname, Username,Password, Email, date, Phone);
+			userArray.add(user);
+		}
+		return userArray;
+	}
+	
+	public static ArrayList<Object> loadRoom() throws SQLException{
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM Room");
+		ArrayList<Object> roomArray = new ArrayList<Object>();
+		while(rs.next()){
+			int RoomID = rs.getInt("RoomID");
+			String RoomName = rs.getString("Name");
+			int Capacity = rs.getInt("Capacity");
+			Room room = new Room(RoomID, RoomName, Capacity);
+			roomArray.add(room);
+		}
 		
-		
-		//sjekke om objekte ligger i databasen  object instance of User
-		//hvis ja: oppdater databasen med ny informasjon om objectet
-		//hvis nei: Legge til det nye objektet i databasen
+		return roomArray;
+	}
+	
+	public static ArrayList<Object> loadNotification() throws SQLException{
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM Notification");
+		ArrayList<Object> notificationArray = new ArrayList<Object>();
+		while(rs.next()){
+			int NotificationID = rs.getInt("NotificationID");
+			int type = rs.getInt("type");
+			String TriggeredBy = rs.getString("TriggeredBy");
+			int EventID = rs.getInt("EventID");
+			
+		}
+		return notificationArray;
+	}
+
+	
+	public static ArrayList<Object> loadInvitation() throws SQLException{
+		Statement stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery("SELECT * FROM Invitation");
+		ArrayList<Object> invitationArray = new ArrayList<Object>();
+		while(rs.next()){
+			int status = rs.getInt("Status");
+			String Username =rs.getString("Username");
+			int EventID = rs.getInt("EventID");
+			
+		}
+		return invitationArray;
+	}
+	
 	
 	public void load(){
 		//når servern starter så hentes alle objektene ut fra databasen og lage objektene som ligger i databasen 
