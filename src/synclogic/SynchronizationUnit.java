@@ -23,22 +23,23 @@ public abstract class SynchronizationUnit {
 	public abstract void addToSendQueue(String o);
 	
 	/**
-	 * Returns the object defined by the given class and ID. Returns null if not found.
-	 * If id is null, all objects of the given class will be returned
+	 * Returns the object defined by the given class and ID in a List. Returns null if not found.
+	 * If id is null, all objects of the given class will be returned in a list.
 	 * 
 	 * @param c		The object's class
 	 * @param id	The object's ID, or null if all objects of the given class is requested
-	 * @return		The object, or null if not found
+	 * @return		The object(s) in a list, or null if no matching element was found
 	 */
-	public Object getObjectFromID(SaveableClass c, String id) {
-		List<Object> objects = new ArrayList<Object>();
+	public List<SyncListener> getObjectsFromID(SaveableClass c, String id) {
+		List<SyncListener> objects = new ArrayList<SyncListener>();
 		for (SyncListener l : this.listeners) {
 			if(id == null) {
 				if(l.getSaveableClass() == c) {
-					objects.add(c);
+					objects.add(l);
 				}
 			} else if(l.getSaveableClass() == c && l.getObjectID().equals(id)) {
-				return l;
+				objects.add(l);
+				return objects;
 			}
 		}
 		return objects.isEmpty() ? null : objects;
