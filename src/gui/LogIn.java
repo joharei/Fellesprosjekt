@@ -1,17 +1,12 @@
 package gui;
 
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,12 +14,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
-import javax.swing.plaf.synth.Region;
 
 import synclogic.ClientSynchronizationUnit;
 
 public class LogIn extends JFrame{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JTextField usernameField;
 	private JPasswordField passwordField;
 	private JLabel username, password, logInPhoto;
@@ -41,7 +39,7 @@ public class LogIn extends JFrame{
 	 */
 	
 	public LogIn(){
-		
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		subPanel = new JPanel();
 		
