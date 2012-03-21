@@ -1,5 +1,7 @@
 package model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeSupport;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -10,6 +12,7 @@ public class Week {
 	private ArrayList<Appointment> appointments;
 	private int weekNumber;
 	private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
+	private PropertyChangeSupport pcs;
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "week";
@@ -56,6 +59,7 @@ public class Week {
 			throw new RuntimeException("Computed week is invalid, different week numbers!");
 		}
 		this.appointments = new ArrayList<Appointment>();
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**Create a week of correct duration with the
@@ -76,6 +80,7 @@ public class Week {
 		this.endDate = d.getTime();
 		this.weekNumber = calcWeekNumber(startDate);
 		this.appointments = appointments;
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -88,6 +93,7 @@ public class Week {
 		if (weekNumber != calcWeekNumber(endDate)) {
 			throw new IllegalArgumentException("Given dates belong to different weeks");
 		}
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -102,6 +108,7 @@ public class Week {
 		if (weekNumber != calcWeekNumber(endDate)) {
 			throw new IllegalArgumentException("Given dates belong to different weeks");
 		}
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -154,14 +161,20 @@ public class Week {
 	}
 	
 	public void setAppointments(ArrayList<Appointment> appointments) {
+		ArrayList<Appointment> old = getAppointments();
 		this.appointments = appointments;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_APPOINTMENTS, old, getAppointments()));
 	}
 	
 	public void addAppointment(Appointment app) {
+		ArrayList<Appointment> old = getAppointments();
 		this.appointments.add(app);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_APPOINTMENTS, old, getAppointments()));
 	}
 	
 	public void removeAppointment(Appointment app) {
+		ArrayList<Appointment> old = getAppointments();
 		this.appointments.remove(app);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_APPOINTMENTS, old, getAppointments()));
 	}
 }

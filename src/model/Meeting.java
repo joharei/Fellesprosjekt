@@ -1,5 +1,7 @@
 package model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -8,11 +10,13 @@ public class Meeting extends Appointment {
 			String location, Room room, int id, User owner, boolean isDeleted) {
 		super(date, startTime, endTime, description, location, room, id, owner,
 				isDeleted);
+		pcs = new PropertyChangeSupport(this);
 	}
 
 	private ArrayList<User> participants;
 	private ArrayList<String> invitationIDs;
 	private ArrayList<String> usersToInvite;
+	private PropertyChangeSupport pcs;
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "meeting";
@@ -21,32 +25,44 @@ public class Meeting extends Appointment {
 	public static final String NAME_PROPERTY_USERS_TO_INVITE = "userstoinvite";
 	
 	public void addParticipant(User participant) {
+		ArrayList<User> old = getParticipants();
 		this.participants.add(participant);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PARTICIPANTS, old, getParticipants()));
 	}
 	
 	public void removeParticipant(User participant) {
+		ArrayList<User> old = getParticipants();
 		this.participants.remove(participant);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PARTICIPANTS, old, getParticipants()));
 	}
 	
 	public void setParticipants(ArrayList<User> participants) {
+		ArrayList<User> old = getParticipants();
 		this.participants = participants;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PARTICIPANTS, old, getParticipants()));
 	}
-	
-	public void addInvitation(Invitation inv) {
-		this.invitationIDs.add(inv.getID());
-	}
-	
-	public void removeInvitation(Invitation inv) {
-		this.invitationIDs.remove(inv.getID());
-	}
-	
 	@SuppressWarnings("unchecked")
 	public ArrayList<User> getParticipants() {
 		return (ArrayList<User>) participants.clone();
 	}
+	
+	public void addInvitation(Invitation inv) {
+		ArrayList<String> old = getInvitations();
+		this.invitationIDs.add(inv.getID());
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
+	}
+	
+	public void removeInvitation(Invitation inv) {
+		ArrayList<String> old = getInvitations();
+		this.invitationIDs.remove(inv.getID());
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
+	}
+	
 
 	public void setInvitations(ArrayList<String> invitationIDs) {
+		ArrayList<String> old = getInvitations();
 		this.invitationIDs = invitationIDs;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -69,7 +85,9 @@ public class Meeting extends Appointment {
 	}
 
 	public void setUsersToInvite(ArrayList<String> usersToInvite) {
+		ArrayList<String> old = getUsersToInvite();
 		this.usersToInvite = usersToInvite;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_USERS_TO_INVITE, old, getUsersToInvite()));
 	}
 
 	public ArrayList<String> getUsersToInvite() {

@@ -1,10 +1,14 @@
 package model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeSupport;
+
 import synclogic.SyncListener;
 
 public class Room implements SyncListener {
 	private int id, capacity;
 	private String name;
+	private PropertyChangeSupport pcs;
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "room";
@@ -22,25 +26,32 @@ public class Room implements SyncListener {
 		this.id = id;
 		this.name = name;
 		this.capacity = capacity;
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public int getId() {
 		return id;
 	}
 	public void setId(int id) {
+		int old = getId();
 		this.id = id;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_ID, old, getId()));
 	}
 	public int getCapacity() {
 		return capacity;
 	}
 	public void setCapacity(int capacity) {
+		int old = getCapacity();
 		this.capacity = capacity;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_CAPACITY, old, getCapacity()));
 	}
 	public String getName() {
 		return name;
 	}
 	public void setName(String name) {
+		String old = getName();
 		this.name = name;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_NAME, old, getName()));
 	}
 
 	@Override

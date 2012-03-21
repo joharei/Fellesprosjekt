@@ -34,6 +34,7 @@ public class User implements SyncListener {
 	public final static String NAME_PROPERTY_DELETED = "del";
 	public final static String NAME_PROPERTY_SUBSCRIBES_TO = "substo";
 	public final static String NAME_PROPERTY_IS_ONLINE = "isonline";
+	public final static String NAME_PROPERTY_WEEK_MODELS = "weeks";
 	
 	/**
 	 * Creates a user without a password.
@@ -76,7 +77,9 @@ public class User implements SyncListener {
 	}
 	
 	public void addWeekModel(Week week) {
+		ArrayList<Week> old = getWeekModels();
 		weekModels.add(week);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_WEEK_MODELS, old, week));
 	}
 	
 	public void addNotification(Notification notification) {
@@ -113,7 +116,7 @@ public class User implements SyncListener {
 	}
 
 	public void setDateOfBirth(Date date) {
-		Date old = date;
+		Date old = getDateOfBirth();
 		this.dateOfBirth = date;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_DATE_OF_BIRTH, old, date));
 	}
@@ -123,13 +126,13 @@ public class User implements SyncListener {
 	}
 
 	private void setEmail(String email) {
-		String old = email;
+		String old = getEmail();
 		this.email = email;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_EMAIL, old, email));
 	}
 
 	private void setPassword(String password) {
-		String old = password;
+		String old = getPassword();
 		this.password = password;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PASSWORD, old, password));
 	}
@@ -159,7 +162,7 @@ public class User implements SyncListener {
 	}
 	
 	public void setOnline(boolean isOnline) {
-		boolean old = isOnline;
+		boolean old = isOnline();
 		this.isOnline = isOnline;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_IS_ONLINE, old, isOnline));
 	}
@@ -174,7 +177,7 @@ public class User implements SyncListener {
 	}
 	
 	private void setPhone(int phone) {
-		int old = phone;
+		int old = getPhone();
 		this.phone = phone;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PHONE, old, phone));
 	}
