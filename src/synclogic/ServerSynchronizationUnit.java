@@ -1,6 +1,7 @@
 package synclogic;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,7 +32,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 */
 	private Connection connection;
 	
-	public ServerSynchronizationUnit() {
+	public ServerSynchronizationUnit() throws ConnectException {
 		super();
 		this.updatedButNotSavedObjects = new ArrayList<SyncListener>();
 		this.activeUserConnections = new ArrayList<ClientHandler>();
@@ -119,9 +120,10 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * Checks if the given update is valid
 	 * 
 	 * @param update	The update to check
+	 * @param original	The original. Null if update is a new object
 	 * @return			True if the update is valid. False if not
 	 */
-	public boolean isValidUpdate(SyncListener update) {
+	public boolean isValidUpdate(SyncListener update, SyncListener original) {
 		// TODO
 		throw new RuntimeException("NOT YET IMPLEMENTED!");
 	}
@@ -149,6 +151,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			Notification newNot = new Notification(newInv, NotificationType.INVITATION_RECEIVED, dbUnit.getNewKey(SaveableClass.Notification), m.getOwner());
 			this.addListener(newNot);
 			userToInvite.addNotification(newNot);
+			// TODO: Er det greit aa sende bare notificationen, eller maa jeg legge den i User og sende User paa nytt?
 			this.getClientHandler(userToInvite).addToSendQueue(newNot);
 			m.addInvitation(newInv);
 		}
@@ -161,9 +164,13 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		switch(o.getSaveableClass()) {
 		case Meeting:
 			// Ikke generell
+			((Meeting) o).setId(this.dbUnit.getNewKey(SaveableClass.Meeting));
 			sendMeetingInvitations((Meeting) o);
 		case Appointment:
 			// Ikke generell
+			if(o.getSaveableClass() == SaveableClass.Appointment) {
+				((Appointment) o).setId(this.dbUnit.getNewKey(SaveableClass.Appointment));
+			}
 			Appointment a = (Appointment) o;
 			User owner = a.getOwner();
 			List<User> users = this.getActiveUsers();
@@ -178,10 +185,10 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		}
 	}
 	
-	public static void main(String[] args) {
-		ConnectionImpl.fixLogDirectory();
-		ServerSynchronizationUnit ssu = new ServerSynchronizationUnit();
-		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
-		ssu.listenForUserConnections(1337);
-	}
+//	public static void main(String[] args) {
+//		ConnectionImpl.fixLogDirectory();
+//		ServerSynchronizationUnit ssu = new ServerSynchronizationUnit();
+//		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
+//		ssu.listenForUserConnections(1337);
+//	}
 }

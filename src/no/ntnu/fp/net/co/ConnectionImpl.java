@@ -5,7 +5,6 @@ package no.ntnu.fp.net.co;
 
 import java.io.EOFException;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.Inet4Address;
@@ -15,17 +14,10 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import sun.net.InetAddressCachePolicy;
-
-import no.ntnu.fp.net.admin.Log;
 import no.ntnu.fp.net.cl.ClException;
 import no.ntnu.fp.net.cl.ClSocket;
 import no.ntnu.fp.net.cl.KtnDatagram;
@@ -51,7 +43,7 @@ public class ConnectionImpl extends AbstractConnection {
     
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
-    private final static int RETRIES = 2;
+    private final static int RETRIES = 1;
 
     private static boolean shouldInitPortNumbers = true;
     
@@ -68,7 +60,6 @@ public class ConnectionImpl extends AbstractConnection {
     	this.myAddress = getIPv4Address();
     	datagram = new KtnDatagram();
     	this.myPort = myPort;
-//    	throw new RuntimeException("NOT IMPLEMENTED");
     }
     
     /**
