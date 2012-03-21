@@ -1,11 +1,7 @@
 package synclogic;
 
-import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import no.ntnu.fp.net.co.Connection;
 import model.Invitation;
@@ -135,6 +131,8 @@ public class ClientHandler implements Runnable {
 					// TODO Maa ogsaa gaa inn i alle referansene i objektet for aa oppdatere disse!!!!!!!!!!
 					switch(o.getSaveableClass()) {
 					case Meeting:
+						// TODO: BEHANDLE DELETED
+						// TODO: Hvis meeting har forandret tidspunkt maa alle inviterte faa notification
 						Meeting originalM = (Meeting) original;
 						Meeting m = (Meeting) o;
 						// Invite new users
@@ -172,7 +170,13 @@ public class ClientHandler implements Runnable {
 						break;
 					case Notification:
 						// TODO: Behandle svar paa invitation!!!!!!!!
-						
+						Notification newNot = (Notification) o;
+						Notification oldNot = (Notification) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.Notification, newNot.getObjectID());
+						if(newNot.getInvitation().getStatus() != oldNot.getInvitation().getStatus()) {
+//							if(newNot.getInvitation().getStatus() == )
+//							Notification notToSend = new N
+//							oldNot.getInvitation().fire(SaveableClass.Invitation, newNot.getInvitation());
+						}
 						break;
 					case User:
 						// TODO: Hvis ny user blir subscribet to, maa dennes appointments sendes
