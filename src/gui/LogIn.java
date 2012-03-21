@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -17,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JProgressBar;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
@@ -39,7 +41,7 @@ public class LogIn extends JFrame implements WindowListener{
 	private JPanel subPanel;
 	private Icon icon = UIManager.getIcon("OptionPane.errorIcon");
 	private ImageIcon logIn = new ImageIcon(getClass().getResource("art/logIn/login.png"));
-	
+	private JProgressBar current;
 	/**
 	 * @param args
 	 */
@@ -51,6 +53,16 @@ public class LogIn extends JFrame implements WindowListener{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		subPanel = new JPanel();
+		/*
+		 * 
+		 * Glemte hva du viste meg før du dro for å lage den progressbar greia. 
+		 * Lette litt rundt omkring på nettet, men fant ikke noe særlig. Lykke til :)
+		 * Sees på fredag :)
+		 * 
+		 * Magnus
+		 * 
+		 * 
+		 */
 		
 		//main layout
 		gbLayoutMain = new GridBagLayout();
