@@ -2,7 +2,10 @@ package synclogic;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import model.Appointment;
 import model.SaveableClass;
+import model.User;
 
 public abstract class SynchronizationUnit {
 
@@ -73,5 +76,20 @@ public abstract class SynchronizationUnit {
 	 * @param newObject	The new object
 	 * @return			True if a matching object was found. False if not
 	 */
-	public abstract boolean fire(SaveableClass c, String objectID, SyncListener newObject);
+	public boolean fire(SaveableClass c, String objectID, SyncListener newObject){
+		SyncListener oldObject = this.getObjectFromID(c, objectID);
+		if(oldObject == null) {
+			return false;
+		} else {
+			oldObject.fire(oldObject.getSaveableClass(), newObject);
+			return true;
+		}
+	}
+	 /**
+	  * Should be called if the received object does not exist (getObjectFromID returns null), 
+	  * because fire cannot be used then.
+	  * 
+	  * @param o	The received object
+	  */
+	public abstract void addObject(SyncListener o);
 }

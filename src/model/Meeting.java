@@ -12,11 +12,13 @@ public class Meeting extends Appointment {
 
 	private ArrayList<User> participants;
 	private ArrayList<Invitation> invitations;
+	private ArrayList<String> usersToInvite;
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "meeting";
 	public static final String NAME_PROPERTY_PARTICIPANTS = "participants";
 	public static final String NAME_PROPERTY_INVITATIONS = "invitations";
+	public static final String NAME_PROPERTY_USERS_TO_INVITE = "userstoinvite";
 	
 	public void addParticipant(User participant) {
 		this.participants.add(participant);
@@ -64,6 +66,14 @@ public class Meeting extends Appointment {
 	@Override
 	public SaveableClass getSaveableClass() {
 		return SaveableClass.Meeting;
+	}
+
+	public void setUsersToInvite(ArrayList<String> usersToInvite) {
+		this.usersToInvite = usersToInvite;
+	}
+
+	public ArrayList<String> getUsersToInvite() {
+		return usersToInvite;
 	}
 
 //	@Override
