@@ -65,6 +65,7 @@ public class User implements SyncListener {
 	 * Used for logged in user on client or on server.
 	 */
 	public User(String firstname, String surname, String username, String password, String email, Date dateOfBirth, int phone) {
+		pcs = new PropertyChangeSupport(this);
 		setName(firstname, surname);
 		setDateOfBirth(dateOfBirth);
 		setEmail(email);
@@ -73,7 +74,6 @@ public class User implements SyncListener {
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public void addWeekModel(Week week) {
