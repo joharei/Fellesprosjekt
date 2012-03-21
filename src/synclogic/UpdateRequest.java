@@ -5,17 +5,17 @@ import java.util.List;
 
 public class UpdateRequest {
 
-	private List<SyncListener> objects;
+	private List<Object> objects;
 	
 	public UpdateRequest() {
-		this.objects = new ArrayList<SyncListener>();
+		this.objects = new ArrayList<Object>();
 	}
 	
-	public void addObject(SyncListener o) {
+	public void addObject(Object o) {
 		this.objects.add(o);
 	}
 	
-	public void addAllObjects(List<SyncListener> objects) {
+	public void addAllObjects(List<Object> objects) {
 		this.objects.addAll(objects);
 	}
 	
@@ -23,7 +23,7 @@ public class UpdateRequest {
 		return objects.size();
 	}
 	
-	public SyncListener getObject(int i) {
+	public Object getObject(int i) {
 		return this.objects.get(i);
 	}
 	
