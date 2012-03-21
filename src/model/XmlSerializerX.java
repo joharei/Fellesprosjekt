@@ -9,8 +9,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
-
 import synclogic.LoginRequest;
 import synclogic.SynchronizationUnit;
 
@@ -592,7 +590,7 @@ public class XmlSerializerX extends XmlSerializer {
 		Room room = null;
 		
 		User owner = null;
-		int id = 0;
+		String id = null;
 		boolean delFlag = false;
 		
 		Element e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DATE);
@@ -634,7 +632,7 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_ID);
 		if (e != null) {
-			id = Integer.parseInt(e.getValue());
+			id = e.getValue();
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DELETED);
@@ -769,7 +767,7 @@ public class XmlSerializerX extends XmlSerializer {
 	private static Notification assembleNotification(Element notifE) throws ParseException {
 		Invitation inv = null;
 		NotificationType type = null;
-		int id = 0;
+		String id = null;
 		User tBy = null;
 		
 		Element e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_INVITATION);
@@ -784,7 +782,7 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_ID);
 		if (e != null) {
-			id = Integer.parseInt(e.getValue());
+			id = e.getValue();
 		}
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TRIGGERED_BY);
