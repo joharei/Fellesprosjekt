@@ -85,6 +85,11 @@ public abstract class SynchronizationUnit {
 			return true;
 		}
 	}
-	
+	 /**
+	  * Should be called if the received object does not exist (getObjectFromID returns null), 
+	  * because fire cannot be used then.
+	  * 
+	  * @param o	The received object
+	  */
 	public abstract void addObject(SyncListener o);
 }
