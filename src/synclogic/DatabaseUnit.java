@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.List;
-
-import com.sun.corba.se.impl.orbutil.concurrent.Sync;
-
 import model.Appointment;
 import model.Invitation;
 import model.InvitationStatus;
@@ -95,7 +92,8 @@ public class DatabaseUnit {
 		}
 	//	conn.close();
 	}
-
+//gå igjennom alle objektene i lista og oppdater databasen etter hvilket objekt det er
+//husk listene participants, invitationID, subscribesTo
 	public static ArrayList<User> loadUser() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM User");
@@ -221,6 +219,17 @@ public class DatabaseUnit {
 				invitationArray.add(invitation);
 				break;	
 			}
+			case 3:{
+				Invitation invitation = new Invitation(InvitationStatus.REVOKED, (Meeting)(eventArray.get(index)),(Integer.toString(invitationID)));
+				invitationArray.add(invitation);
+				break;	
+			}
+			case 4:{
+				Invitation invitation = new Invitation(InvitationStatus.NOT_ANSWERED_TIME_CHANGED, (Meeting)(eventArray.get(index)),(Integer.toString(invitationID)));
+				invitationArray.add(invitation);
+				break;	
+
+			}
 			default:
 				break;
 			}			
@@ -280,6 +289,24 @@ public class DatabaseUnit {
 				}
 				case 3:{
 					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.INVITATION_REJECTED, (Integer.toString(notificationID)), userArray.get(userIndex));
+					(userArray.get(i)).addNotification(not);
+					notificationArray.add(not);
+					break;				
+				}
+				case 4:{
+					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.INVITATION_REVOKED, (Integer.toString(notificationID)), userArray.get(userIndex));
+					(userArray.get(i)).addNotification(not);
+					notificationArray.add(not);
+					break;				
+				}
+				case 5:{
+					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.MEETING_TIME_CHANGED, (Integer.toString(notificationID)), userArray.get(userIndex));
+					(userArray.get(i)).addNotification(not);
+					notificationArray.add(not);
+					break;				
+				}
+				case 6:{
+					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.MEETING_CHANGE_REJECTED, (Integer.toString(notificationID)), userArray.get(userIndex));
 					(userArray.get(i)).addNotification(not);
 					notificationArray.add(not);
 					break;				
@@ -421,13 +448,11 @@ public class DatabaseUnit {
 				
 	} 
 	
-	public static void main(String[] args) {
-
-
-	}
-	
 	public void closeConnection() throws SQLException{
 		conn.close();
 	}
-
+	
+	public static void main(String[] args) {
+	}
 }
+	
