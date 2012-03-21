@@ -79,7 +79,8 @@ public class GUILoggInInfo extends JPanel{
 	public String getName(){
 		String info="Magnus Kongshem";//midlertidig for testing av GUI
 		//hent opp info fra Logg inn siden
+		String info2 = XCal.usernameField.getText();
 		
-		return info;
+		return info2;
 	}
 }

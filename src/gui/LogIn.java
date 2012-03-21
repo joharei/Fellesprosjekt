@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.net.ConnectException;
 
 import javax.swing.Icon;
@@ -20,13 +22,13 @@ import javax.swing.UIManager;
 
 import synclogic.ClientSynchronizationUnit;
 
-public class LogIn extends JFrame{
+public class LogIn extends JFrame implements WindowListener{
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JTextField usernameField;
+	//private JTextField usernameField;
 	private JPasswordField passwordField;
 	private JLabel username, password, logInPhoto;
 	private GridBagConstraints gridMain, gridSlave;
@@ -76,37 +78,37 @@ public class LogIn extends JFrame{
 		Font font2 = new Font("Helvetica LT Condensed", Font.PLAIN, 20);
 		
 		
+		//errorLabel
+		nameError = new JLabel();
+		nameError.setIcon(icon);
+		nameError.setText("Invalid username and/or password");
+		gridSlave.gridx=1;
+		gridSlave.gridy=0;
+		nameError.setVisible(false);
+		subPanel.add(nameError,gridSlave);
 		//username 
 		username = new JLabel("Username: ");
 		username.setFont(font1);
 		gridSlave.gridx = 0;
-		gridSlave.gridy = 0;
+		gridSlave.gridy = 1;
 		gridSlave.insets = new Insets(0, 50, 0, 0);
 		subPanel.add(username, gridSlave);
 		
 		//username field
-		usernameField = new JTextField();
-		usernameField.setFont(font2);
+		XCal.usernameField = new JTextField();
+		XCal.usernameField.setFont(font2);
 		gridSlave.gridx = 1;
-		gridSlave.gridy = 0;
+		gridSlave.gridy = 1;
 		gridSlave.insets = new Insets(0, 0, 0, 0);
-		usernameField.setColumns(20);
-		subPanel.add(usernameField, gridSlave);
+		XCal.usernameField.setColumns(20);
+		subPanel.add(XCal.usernameField, gridSlave);
 		
-		//errorLabel
-		nameError = new JLabel();
-		nameError.setIcon(icon);
-		nameError.setText("Ugyldig navn");
-		gridSlave.gridx=2;
-		gridSlave.gridy=2;
-		nameError.setVisible(false);
-		add(nameError,gridSlave);
 		
 		//password
 		password = new JLabel("Password: ");
 		password.setFont(font1);
 		gridSlave.gridx = 0;
-		gridSlave.gridy = 1;
+		gridSlave.gridy = 2;
 		gridSlave.insets = new Insets(0, 50, 0, 0);
 		subPanel.add(password, gridSlave);
 		
@@ -114,7 +116,7 @@ public class LogIn extends JFrame{
 		passwordField = new JPasswordField();
 		passwordField.setFont(font2);
 		gridSlave.gridx = 1;
-		gridSlave.gridy = 1;
+		gridSlave.gridy = 2;
 		gridSlave.insets = new Insets(0, 0, 0, 0);
 		passwordField.setColumns(20);
 		subPanel.add(passwordField, gridSlave);
@@ -124,7 +126,7 @@ public class LogIn extends JFrame{
 		logInButton = new JButton("Log In");
 		logInButton.setFont(font1);
 		gridSlave.gridx = 1;
-		gridSlave.gridy = 2;
+		gridSlave.gridy = 3;
 		gridSlave.insets = new Insets(10, 220, 0, 0);
 		subPanel.add(logInButton, gridSlave);
 		
@@ -141,7 +143,7 @@ public class LogIn extends JFrame{
 					passord+=c;
 				}
 				try {
-					if(XCal.getCSU().logIn(usernameField.getText(), passord)==false){
+					if(XCal.getCSU().logIn(XCal.usernameField.getText(), passord)==false){
 						System.out.println("feil brukernavn eller passord");
 						nameError.setVisible(true);
 						
@@ -160,6 +162,48 @@ public class LogIn extends JFrame{
 				
 			}
 		});
+	}
+
+	@Override
+	public void windowOpened(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent e) {
+		// TODO Auto-generated method stub
+		XCal.getCSU().disconnect();
+	}
+
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 

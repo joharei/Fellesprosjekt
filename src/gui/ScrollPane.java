@@ -11,7 +11,7 @@ public class ScrollPane extends JScrollPane{
 	public ScrollPane(){
 		super(new GUICalender());
 		setVisible(true);
-		setPreferredSize(new Dimension(500,300));
+		setPreferredSize(new Dimension(500,350));
 		
 	}
 }

@@ -163,13 +163,13 @@ public class AppointmentGui extends JDialog{
 		cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("goes back");
-				setVisible(false);
+				dispose();
 			}
 		});
 		create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("goes back");
-				setVisible(false);
+				dispose();
 			}
 		});
 	}

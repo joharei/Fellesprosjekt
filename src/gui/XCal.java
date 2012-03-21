@@ -3,12 +3,14 @@ package gui;
 
 import java.awt.Dimension;
 
+import javax.swing.JTextField;
+
 import synclogic.ClientSynchronizationUnit;
 
 public class XCal {
 	
 	private static ClientSynchronizationUnit CSU;
-	
+	static JTextField usernameField;
 	public static void main(String[] args) {
 		CSU=new ClientSynchronizationUnit();
 		LogIn logIn = new LogIn();
