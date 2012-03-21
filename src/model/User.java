@@ -16,6 +16,7 @@ public class User implements SyncListener {
 	private int phone;
 	private boolean isOnline;
 	private boolean isDeleted;
+	private ArrayList<User> subscribesTo = new ArrayList<User>();
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	//constants
@@ -28,6 +29,9 @@ public class User implements SyncListener {
 	public final static String NAME_PROPERTY_PHONE = "phone";
 	public final static String NAME_PROPERTY_DATE_OF_BIRTH = "date";
 	public final static String NAME_PROPERTY_DELETED = "del";
+	public final static String NAME_PROPERTY_SUBSCRIBES_TO = "substo";
+	
+	//TODO: Property change support
 	
 	/**
 	 * Creates a user without a password.
@@ -167,6 +171,8 @@ public class User implements SyncListener {
 		"\nEmail: " + getEmail() +
 		"\nBirthdate: " + getDateFormat().format(getDateOfBirth()) +
 		"\nPhone number: " + getPhone() +
+		"\nSubscribes to: " + getSubscribesTo() +
+		"\nDeleted: " + isDeleted() +
 		"\n===END USER===";
 		return s;
 	}
@@ -188,10 +194,19 @@ public class User implements SyncListener {
 		if (!classType.equals(getSaveableClass())) {
 			throw new IllegalArgumentException("Wrong classtype received");
 		}
-		User newuser = (User) newVersion;
+		User updated = (User) newVersion;
 		System.out.println("Update received!");
 		System.out.println("Old user: " + this.toString());
-		System.out.println("Updated user: " + newuser.toString());
+		System.out.println("Updated user: " + updated.toString());
+		
+		setFirstname(updated.getFirstname());
+		setSurname(updated.getSurname());
+		setEmail(updated.getEmail());
+		setPassword(updated.getPassword());
+		setPhone(updated.getPhone());
+		setDateOfBirth(updated.getDateOfBirth());
+		setDeleted(updated.isDeleted());
+		setSubscribesTo(updated.getSubscribesTo());
 	}
 
 	@Override
@@ -202,5 +217,22 @@ public class User implements SyncListener {
 	@Override
 	public String getObjectID() {
 		return getUsername();
+	}
+	
+	public void addSubscription(User target) {
+		this.subscribesTo.add(target);
+	}
+	
+	public void removeSubscription(User target) {
+		this.subscribesTo.remove(target);
+	}
+
+	public void setSubscribesTo(ArrayList<User> subscribesTo) {
+		this.subscribesTo = subscribesTo;
+	}
+
+	@SuppressWarnings("unchecked")
+	public ArrayList<User> getSubscribesTo() {
+		return (ArrayList<User>) subscribesTo.clone();
 	}
 }

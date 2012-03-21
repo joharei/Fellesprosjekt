@@ -51,4 +51,24 @@ public class Meeting extends Appointment {
 	public ArrayList<Invitation> getInvitations() {
 		return (ArrayList<Invitation>) invitations.clone();
 	}
+
+	@Override
+	public void fire(SaveableClass classType, Object newVersion) {
+		super.fire(classType, newVersion);
+		Meeting meet = (Meeting) newVersion;
+		setParticipants(meet.getParticipants());
+		setInvitations(meet.getInvitations());
+		System.out.println("Meeting changed");
+	}
+
+	@Override
+	public SaveableClass getSaveableClass() {
+		return SaveableClass.Meeting;
+	}
+
+//	@Override
+//	public String getObjectID() {
+//		return super.getObjectID();
+//	}
+	
 }

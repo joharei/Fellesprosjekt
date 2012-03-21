@@ -9,5 +9,6 @@ public enum SaveableClass {
 	Room,
 	User,
 	Week,
-	Null;
+	Null,
+	UpdateRequest;
 }

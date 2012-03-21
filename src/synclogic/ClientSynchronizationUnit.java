@@ -76,34 +76,16 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	}
 	
 	/**
-	 * Sets up a connection to a remote instance and logs in the username
-	 * @param username		The username to log in
-	 * @param password		The password that belongs to the username
+	 * Sets up a connection to a server
 	 * @param ipAddress		The IP address for the server to connect to
 	 * @param port			The port to connect to
 	 */
-	public void connectToServer(String username, String password, String ipAddress, int port){
+	public void connectToServer(String ipAddress, int port){
 		// TODO: Should the port really be 9999?
 		this.connection = new ConnectionImpl(9999);
 		try {
 			this.connection.connect(InetAddress.getByName(ipAddress), port);
-			this.loginRequest = new LoginRequest(username, password);
 			internalWait(50);
-			this.connection.send(XmlSerializerX.toXml(this.loginRequest, SaveableClass.LoginRequest));
-			
-			try {
-				System.out.println("Waiting for login respons.........................");
-				LoginRequest respons = (LoginRequest) XmlSerializerX.toObject(this.connection.receive());
-				System.out.println(respons.getLoginAccepted());
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ParsingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
 		} catch (SocketTimeoutException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -111,6 +93,32 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Logs in the user
+	 * @param username		The username to log in
+	 * @param password		The password that belongs to the username
+	 */
+	public void logIn(String username, String password){
+		this.loginRequest = new LoginRequest(username, password);
+		try {
+			this.connection.send(XmlSerializerX.toXml(this.loginRequest, SaveableClass.LoginRequest));
+			LoginRequest respons = (LoginRequest) XmlSerializerX.toObject(this.connection.receive());
+			System.out.println(respons.getLoginAccepted());
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParsingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -140,7 +148,8 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	
 	public static void main(String[] args){
 		ClientSynchronizationUnit syncUnit = new ClientSynchronizationUnit();
-		syncUnit.connectToServer("joharei", "1234", "78.91.83.49", 1337);
+		syncUnit.connectToServer("78.91.83.49", 1337);
+		syncUnit.logIn("joharei", "1234");
 //		for (int i = 0; i<10; i++){
 //			syncUnit.addToSendQueue("Element " + i);
 //		}

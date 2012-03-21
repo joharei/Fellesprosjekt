@@ -64,4 +64,14 @@ public abstract class SynchronizationUnit {
 		}
 		return objects.isEmpty() ? null : objects;
 	}
+	
+	/**
+	 * Notifies the changed object, telling it to 'clone' the newObject
+	 * 
+	 * @param c			The object's class
+	 * @param objectID	The object's ID
+	 * @param newObject	The new object
+	 * @return			True if a matching object was found. False if not
+	 */
+	public abstract boolean fire(SaveableClass c, String objectID, SyncListener newObject);
 }

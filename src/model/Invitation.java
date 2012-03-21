@@ -1,6 +1,8 @@
 package model;
 
-public class Invitation {
+import synclogic.SyncListener;
+
+public class Invitation implements SyncListener {
 	private InvitationStatus status;
 	private Meeting meeting;
 	private User invitee;//TODO: Update class diagram
@@ -49,5 +51,25 @@ public class Invitation {
 
 	public User getInvitee() {
 		return invitee;
+	}
+
+	@Override
+	public void fire(SaveableClass classType, Object newVersion) {
+		Invitation inv = (Invitation) newVersion;
+		setID(inv.getID());
+		setInvitee(inv.getInvitee());
+		setMeeting(inv.getMeeting());
+		setStatus(inv.getStatus());
+		System.out.println("Invitation updated!");
+	}
+
+	@Override
+	public SaveableClass getSaveableClass() {
+		return SaveableClass.Invitation;
+	}
+
+	@Override
+	public String getObjectID() {
+		return getID();
 	}
 }

@@ -306,6 +306,7 @@ public class XmlSerializerX extends XmlSerializer {
 	private static User assembleUser(Element userElement) throws ParseException {
 		String firstname = null, surname = null, username = null, password = null, email = null;
 		Date date = null;
+		ArrayList<User> subscribesTo = new ArrayList<User>();
 		int phone = 0;
 		Element element = userElement.getFirstChildElement(User.NAME_PROPERTY_FIRSTNAME);
 		if (element != null) {
@@ -337,7 +338,16 @@ public class XmlSerializerX extends XmlSerializer {
 		if (element != null) {
 			phone = Integer.parseInt(element.getValue());
 		}
-		return new User(firstname, surname, username, password, email, date, phone);
+		element = userElement.getFirstChildElement(User.NAME_PROPERTY_SUBSCRIBES_TO);
+		if (element != null) {
+			Elements els = element.getChildElements();
+			for (int i = 0; i < els.size(); i++) {
+				subscribesTo.add(assembleUser(els.get(i)));
+			}
+		}
+		User u = new User(firstname, surname, username, password, email, date, phone);
+		u.setSubscribesTo(subscribesTo);
+		return u;
 	}
 	
 	/**
@@ -364,8 +374,15 @@ public class XmlSerializerX extends XmlSerializer {
 		Element dateOfBirth = new Element(User.NAME_PROPERTY_DATE_OF_BIRTH);
 		dateOfBirth.appendChild(dformat.format(user.getDateOfBirth()));
 
-		Element phone = new Element (User.NAME_PROPERTY_PHONE);
+		Element phone = new Element(User.NAME_PROPERTY_PHONE);
 		phone.appendChild("" + user.getPhone());
+		
+		Element subs = new Element(User.NAME_PROPERTY_SUBSCRIBES_TO);
+		ArrayList<User> list = user.getSubscribesTo();
+		Iterator<User> it = list.iterator();
+		while (it.hasNext()) {
+			subs.appendChild(userToXmlElement(it.next()));
+		}
 		
 		//link fields to object
 		element.appendChild(firstname);
@@ -375,6 +392,7 @@ public class XmlSerializerX extends XmlSerializer {
 		element.appendChild(email);
 		element.appendChild(dateOfBirth);
 		element.appendChild(phone);
+		element.appendChild(subs);
 		return element;
 	}
 	
