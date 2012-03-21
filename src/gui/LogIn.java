@@ -39,13 +39,6 @@ public class LogIn extends JFrame{
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		LogIn logIn = new LogIn();
-		logIn.pack();
-		logIn.setVisible(true);
-		
-	}
 	
 	public LogIn(){
 		
