@@ -11,7 +11,7 @@ public class Meeting extends Appointment {
 	}
 
 	private ArrayList<User> participants;
-	private ArrayList<Invitation> invitations;
+	private ArrayList<String> invitationIDs;
 	private ArrayList<String> usersToInvite;
 	
 	//constants
@@ -33,11 +33,11 @@ public class Meeting extends Appointment {
 	}
 	
 	public void addInvitation(Invitation inv) {
-		this.invitations.add(inv);
+		this.invitationIDs.add(inv.getID());
 	}
 	
 	public void removeInvitation(Invitation inv) {
-		this.invitations.remove(inv);
+		this.invitationIDs.remove(inv.getID());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -45,13 +45,13 @@ public class Meeting extends Appointment {
 		return (ArrayList<User>) participants.clone();
 	}
 
-	public void setInvitations(ArrayList<Invitation> invitations) {
-		this.invitations = invitations;
+	public void setInvitations(ArrayList<String> invitationIDs) {
+		this.invitationIDs = invitationIDs;
 	}
 
 	@SuppressWarnings("unchecked")
-	public ArrayList<Invitation> getInvitations() {
-		return (ArrayList<Invitation>) invitations.clone();
+	public ArrayList<String> getInvitations() {
+		return (ArrayList<String>) invitationIDs.clone();
 	}
 
 	@Override
