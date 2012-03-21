@@ -1,5 +1,7 @@
 package model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeSupport;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,6 +20,7 @@ public class User implements SyncListener {
 	private boolean isDeleted;
 	private ArrayList<User> subscribesTo = new ArrayList<User>();
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private PropertyChangeSupport pcs;
 
 	//constants
 	public final static String NAME_PROPERTY_CLASSTYPE = "user";
@@ -30,8 +33,7 @@ public class User implements SyncListener {
 	public final static String NAME_PROPERTY_DATE_OF_BIRTH = "date";
 	public final static String NAME_PROPERTY_DELETED = "del";
 	public final static String NAME_PROPERTY_SUBSCRIBES_TO = "substo";
-	
-	//TODO: Property change support
+	public final static String NAME_PROPERTY_IS_ONLINE = "isonline";
 	
 	/**
 	 * Creates a user without a password.
@@ -45,6 +47,7 @@ public class User implements SyncListener {
 		setUsername(username);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public User(String firstname, String surname, String username, String password) {
@@ -53,6 +56,7 @@ public class User implements SyncListener {
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -68,6 +72,7 @@ public class User implements SyncListener {
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
+		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public void addWeekModel(Week week) {
@@ -79,16 +84,20 @@ public class User implements SyncListener {
 	}
 	
 	public void setName(String n1, String n2) {
-		this.firstname = n1;
-		this.surname = n2;
+		setFirstname(n1);
+		setSurname(n2);
 	}
 	
 	public void setFirstname(String name) {
+		String old = getFirstname();
 		this.firstname = name;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_FIRSTNAME, old, name));
 	}
 	
 	public void setSurname(String name) {
+		String old = getSurname();
 		this.surname = name;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SURNAME, old, name));
 	}
 	
 	public String getName() {
@@ -104,7 +113,9 @@ public class User implements SyncListener {
 	}
 
 	public void setDateOfBirth(Date date) {
+		Date old = date;
 		this.dateOfBirth = date;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_DATE_OF_BIRTH, old, date));
 	}
 	
 	public Date getDateOfBirth() {
@@ -112,11 +123,15 @@ public class User implements SyncListener {
 	}
 
 	private void setEmail(String email) {
+		String old = email;
 		this.email = email;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_EMAIL, old, email));
 	}
 
 	private void setPassword(String password) {
+		String old = password;
 		this.password = password;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PASSWORD, old, password));
 	}
 	
 	public String getUsername() {
@@ -144,19 +159,24 @@ public class User implements SyncListener {
 	}
 	
 	public void setOnline(boolean isOnline) {
+		boolean old = isOnline;
 		this.isOnline = isOnline;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_IS_ONLINE, old, isOnline));
 	}
 
 	private void setUsername(String username) {
 		if (this.username == null) {
 			this.username = username;
+			pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_USERNAME, null, username));
 		} else {
 			throw new RuntimeException("A username is already set for this user!");
 		}
 	}
 	
 	private void setPhone(int phone) {
+		int old = phone;
 		this.phone = phone;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_PHONE, old, phone));
 	}
 
 	public String getEmail() {
@@ -220,15 +240,21 @@ public class User implements SyncListener {
 	}
 	
 	public void addSubscription(User target) {
+		ArrayList<User> old = getSubscribesTo();
 		this.subscribesTo.add(target);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIBES_TO, old, getSubscribesTo()));
 	}
 	
 	public void removeSubscription(User target) {
+		ArrayList<User> old = getSubscribesTo();
 		this.subscribesTo.remove(target);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIBES_TO, old, getSubscribesTo()));
 	}
 
 	public void setSubscribesTo(ArrayList<User> subscribesTo) {
+		ArrayList<User> old = getSubscribesTo();
 		this.subscribesTo = subscribesTo;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIBES_TO, old, subscribesTo));
 	}
 
 	@SuppressWarnings("unchecked")
