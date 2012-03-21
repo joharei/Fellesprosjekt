@@ -12,7 +12,7 @@ public class Appointment implements SyncListener {
 	private Date date, startTime, endTime;
 	private String description, location;
 	private Room room;
-	private int id;
+	private String id;
 	private User owner;
 	private boolean isDeleted;
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -32,7 +32,7 @@ public class Appointment implements SyncListener {
 	public static final String NAME_PROPERTY_DELETED = "deleted";
 	
 	public Appointment(Date date, Date startTime, Date endTime, String description,
-			String location, Room room, int id, User owner, boolean isDeleted) {
+			String location, Room room, String id, User owner, boolean isDeleted) {
 		setDate(date);
 		setStartTime(startTime);
 		setEndTime(endTime);
@@ -93,13 +93,13 @@ public class Appointment implements SyncListener {
 		this.room = room;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_ROOM, old, room));
 	}
-	public int getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(int id) {
-		int old = getId();
-		this.id = id;
-		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_ID, old, id));
+	public void setId(String id2) {
+		String old = getId();
+		this.id = id2;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_ID, old, id2));
 	}
 	public User getOwner() {
 		return owner;
