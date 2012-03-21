@@ -563,10 +563,10 @@ public class XmlSerializerX extends XmlSerializer {
 			
 			//handle existing invitations
 			Element invitationGrouping = new Element(Meeting.NAME_PROPERTY_INVITATIONS);
-			ArrayList<Invitation> invs = meeting.getInvitations();
-			Iterator<Invitation> it2 = invs.iterator();
+			ArrayList<String> invs = meeting.getInvitations();
+			Iterator<String> it2 = invs.iterator();
 			while (it2.hasNext()) {
-				invitationGrouping.appendChild(invitationToXmlElement(it2.next()));
+				invitationGrouping.appendChild(it2.next());
 			}
 			appElement.appendChild(invitationGrouping);
 			
@@ -646,7 +646,7 @@ public class XmlSerializerX extends XmlSerializer {
 		if (SaveableClass.valueOf(appElement.getLocalName()) == SaveableClass.Meeting) {
 			ArrayList<String> u2invList = new ArrayList<String>();
 			ArrayList<User> participants = new ArrayList<User>();
-			ArrayList<Invitation> invs = new ArrayList<Invitation>();
+			ArrayList<String> invs = new ArrayList<String>();
 			
 			e = appElement.getFirstChildElement(Meeting.NAME_PROPERTY_PARTICIPANTS);
 			if (e != null) {
@@ -662,7 +662,7 @@ public class XmlSerializerX extends XmlSerializer {
 				int count = e.getChildCount();
 				Elements invites = e.getChildElements();
 				for (int i = 0; i < count; i++) {
-					invs.add(assembleInvitation(invites.get(i)));
+					invs.add(invites.get(i).getValue());
 				}
 			}
 			
@@ -694,9 +694,8 @@ public class XmlSerializerX extends XmlSerializer {
 		status.appendChild("" + inv.getStatus());
 		invElement.appendChild(status);
 		
-		//meeting id only
 		Element meeting = new Element(Invitation.NAME_PROPERTY_MEETING);
-		meeting.appendChild("" + inv.getMeeting().getId());
+		meeting.appendChild(appointmentToXmlElement(inv.getMeeting()));
 		invElement.appendChild(meeting);
 		
 		Element id = new Element(Invitation.NAME_PROPERTY_ID);
@@ -710,8 +709,9 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Create an invitation object from a Xml element.
 	 * Uses the synchronization unit to retrieve the meeting
 	 * based on the meeting id.
+	 * @throws ParseException 
 	 */
-	private static Invitation assembleInvitation(Element invElement) {
+	private static Invitation assembleInvitation(Element invElement) throws ParseException {
 		InvitationStatus status = null;
 		Meeting meeting = null;
 		String id = null;
@@ -723,8 +723,7 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_MEETING);
 		if (e != null) {
-			String meetingID = e.getValue();
-			meeting = (Meeting) syncUnit.getObjectFromID(SaveableClass.Meeting, meetingID);
+			meeting = (Meeting) assembleAppointment(e);
 		}
 		
 		e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_ID);
