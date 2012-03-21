@@ -4,16 +4,24 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.text.DateFormat;
 import java.util.Calendar;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -21,7 +29,7 @@ import javax.swing.JTextField;
 
 import com.toedter.calendar.JDateChooser;
 
-public class AppointmentGui extends GUI{
+public class AppointmentGui extends JDialog{
 
 	/**
 	 * 
@@ -42,6 +50,9 @@ public class AppointmentGui extends GUI{
 	
 	public AppointmentGui() {
 		
+		this.setModal(true);
+		this.setPreferredSize(new Dimension(500,600));
+		pack();
 		
 		gb = new GridBagConstraints();
 		gbLayout = new GridBagLayout();
@@ -147,11 +158,28 @@ public class AppointmentGui extends GUI{
 		//cancel button
 		gb.gridx = 1;
 		gb.gridy = 5;
-		cancel = new JButton("cancel");
+		cancel = new JButton("Cancel");
 		gb.insets = new Insets(75, 100, 0, 0);
 		add(cancel, gb);
+		addActionListeners();
 	}
 	
+	private void addActionListeners() {
+		cancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("goes back");
+				setVisible(false);
+			}
+		});
+		create.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("goes back");
+				setVisible(false);
+			}
+		});
+	}
+	
+
 	class PlaceTextFieldAction implements FocusListener{
 
 		@Override
@@ -201,7 +229,7 @@ public class AppointmentGui extends GUI{
 			start++;
 		
 	}
-	}
+}
 
 	/**
 	 * @param args
