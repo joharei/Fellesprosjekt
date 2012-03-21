@@ -22,14 +22,12 @@ public class ClientHandler implements Runnable {
 	private Connection connection;
 	private ServerSynchronizationUnit serverSynchronizationUnit;
 	private User user;
-	private Map<SyncListener, Date> sentObjects;
 	private List<Object> sendQueue;
 	
 	public ClientHandler(Connection con, ServerSynchronizationUnit ssu) {
 		this.sendQueue = new ArrayList<Object>();
 		this.connection = con;
 		this.serverSynchronizationUnit = ssu;
-		this.sentObjects = new HashMap<SyncListener, Date>();
 	}
 	
 	@Override
@@ -70,17 +68,9 @@ public class ClientHandler implements Runnable {
 		}
 	}
 	
-	public void addSentObjects(List<SyncListener> objects) {
-		Date d = new Date();
-		for (SyncListener s : objects) {
-			this.sentObjects.put(s, d);
-		}
-	}
-	
 	public void receive(boolean isloggedIn) {
 		while(true) {
 			try {
-				// TODO: Send "feilmelding" dersom en endring ikke kan utfoeres
 				// TODO: Timeout!
 				Object o = XmlSerializerX.toObject(this.connection.receive());
 				if(o instanceof LoginRequest && !isloggedIn) {
@@ -94,13 +84,14 @@ public class ClientHandler implements Runnable {
 						// Send requested object
 						this.connection.send(XmlSerializerX.toXml(requestedObjects, request.getSaveableClass()));
 						// Remember that the requested object is sent
-						this.addSentObjects(requestedObjects);
 						// Den under skal vel ikke vaere her?
 						// this.serverSynchronizationUnit.addUpdatedObjects(requestedObjects);
 					} else if(o instanceof UpdateRequest) {
 						UpdateRequest updateReq = (UpdateRequest) o;
-						// TODO: Antar naa at alt som brukeren er interessert i blir puttet i sendQueue. Er det greit?
+						// Antar naa at alt som brukeren er interessert i blir puttet i sendQueue. Er det greit?
 						updateReq.addAllObjects(this.sendQueue);
+						// Toem sendQueue
+						this.sendQueue.clear();
 						this.connection.send(XmlSerializerX.toXml(updateReq, SaveableClass.UpdateRequest));
 					} else if(o instanceof List) {
 						this.processReceivedObjects((List) o);
@@ -135,7 +126,7 @@ public class ClientHandler implements Runnable {
 	public void processReceivedObjects(List<SyncListener> objects) {
 		for (SyncListener o : objects) {
 			SyncListener original = this.serverSynchronizationUnit.getObjectFromID(o.getSaveableClass(), o.getObjectID());
-			if(!this.serverSynchronizationUnit.isValidUpdate(o)) {
+			if(!this.serverSynchronizationUnit.isValidUpdate(o, original)) {
 				this.sendQueue.add(new ErrorMessage(original, o));
 			} else {
 				// Execute update
@@ -166,26 +157,25 @@ public class ClientHandler implements Runnable {
 									for(Notification notification : ((User) user).getNotifications()) {
 										if(notification.getInvitation().getID().equalsIgnoreCase(originalInvID)) {
 											((User) user).addNotification(not);
-											// TODO: Burde notifikasjonen med invitasjonen fjernes??
+											// TODO: Burde notifikasjonen med invitasjonen fjernes (Dette ble vi enig om aa diskutere senere)??
 											break outer;
 										}
 									}
 								}
 							}
 						}
-						// TODO: Maa jeg gjoere noe med participants?
-						// TODO: Maa jeg kalle fire paa alle invitasjonene? 
 					case Appointment:
-						// TODO: Antar at alt er sjekket (ogsaa romreservasjon), slik at fire tar seg av all oppdatering
+						// Antar at alt er sjekket (ogsaa romreservasjon), slik at fire tar seg av all oppdatering
 						break;
 					case Invitation:
-						
+						// Invitation er med Notification og trenger ikke aa bli behandlet separat
 						break;
 					case Notification:
-						// Antar at det bare er read som kan endres. Dette burde fire ta seg av
+						// TODO: Behandle svar paa invitation!!!!!!!!
+						
 						break;
 					case User:
-						
+						// TODO: Hvis ny user blir subscribet to, maa dennes appointments sendes
 						break;
 					default:
 						throw new RuntimeException("An unexpected object was received!");
@@ -195,9 +185,6 @@ public class ClientHandler implements Runnable {
 					// Object does not exist, but should be added
 					this.serverSynchronizationUnit.addObject(o);
 				}
-				// TODO:
-				// Notify users that care
-				// Dette skjer delvis i addObject, og burde kanskje derfor ogsaa skje i fire???????
 			}
 		}
 	}

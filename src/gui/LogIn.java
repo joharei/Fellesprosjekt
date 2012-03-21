@@ -6,7 +6,9 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.ConnectException;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
 
 import synclogic.ClientSynchronizationUnit;
 
@@ -29,9 +32,10 @@ public class LogIn extends JFrame{
 	private GridBagConstraints gridMain, gridSlave;
 	private GridBagLayout gbLayoutMain, gbLayoutSlave;
 	private JButton logInButton;
-	ClientSynchronizationUnit CSU;
-	private JPanel subPanel;
+	private JLabel nameError;
 	
+	private JPanel subPanel;
+	private Icon icon = UIManager.getIcon("OptionPane.errorIcon");
 	private ImageIcon logIn = new ImageIcon(getClass().getResource("art/logIn/login.png"));
 	
 	/**
@@ -39,6 +43,9 @@ public class LogIn extends JFrame{
 	 */
 	
 	public LogIn(){
+		
+		
+		XCal.getCSU().connectToServer("localhost", 1337);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		subPanel = new JPanel();
@@ -86,6 +93,15 @@ public class LogIn extends JFrame{
 		usernameField.setColumns(20);
 		subPanel.add(usernameField, gridSlave);
 		
+		//errorLabel
+		nameError = new JLabel();
+		nameError.setIcon(icon);
+		nameError.setText("Ugyldig navn");
+		gridSlave.gridx=2;
+		gridSlave.gridy=2;
+		nameError.setVisible(false);
+		add(nameError,gridSlave);
+		
 		//password
 		password = new JLabel("Password: ");
 		password.setFont(font1);
@@ -118,11 +134,30 @@ public class LogIn extends JFrame{
 	private void addActionListeners() {
 		logInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("log in!!");
-				JFrame gmain = new GUI();
-				gmain.setVisible(true);
-				gmain.pack();
-				setVisible(false);
+				//System.out.println("log in!!");
+				char [] liste  = passwordField.getPassword();
+				String passord="";
+				for (char c : liste) {
+					passord+=c;
+				}
+				try {
+					if(XCal.getCSU().logIn(usernameField.getText(), passord)==false){
+						System.out.println("feil brukernavn eller passord");
+						nameError.setVisible(true);
+						
+					}
+					else{
+						System.out.println("Suksess!");
+						JFrame gmain = new GUI();
+						gmain.setVisible(true);
+						gmain.pack();
+						setVisible(false);
+					}
+				} catch (ConnectException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 			}
 		});
 	}
