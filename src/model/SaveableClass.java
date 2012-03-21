@@ -8,5 +8,7 @@ public enum SaveableClass {
 	Notification,
 	Room,
 	User,
-	Week;
+	Week,
+	Null,
+	UpdateRequest;
 }

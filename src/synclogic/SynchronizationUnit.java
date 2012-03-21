@@ -20,7 +20,27 @@ public abstract class SynchronizationUnit {
 		this.listeners.remove(sl);
 	}
 	
+	/**
+	 * Adds a message to the send queue and sends it whenever possible.
+	 * @param o		The message to send
+	 */
 	public abstract void addToSendQueue(String o);
+	
+	/**
+	 * Returns the first object that matches the given class and id. Null if not found.
+	 * 
+	 * @param c		The object's class
+	 * @param id	The object's ID
+	 * @return		The matching object, or null of no matching object was found
+	 */
+	public SyncListener getObjectFromID(SaveableClass c, String id) {
+		List<SyncListener> objects = getObjectsFromID(c, id);
+		if(objects.isEmpty()) {
+			return null;
+		} else {
+			return objects.get(0);
+		}
+	}
 	
 	/**
 	 * Returns the object defined by the given class and ID in a List. Returns null if not found.
@@ -44,4 +64,14 @@ public abstract class SynchronizationUnit {
 		}
 		return objects.isEmpty() ? null : objects;
 	}
+	
+	/**
+	 * Notifies the changed object, telling it to 'clone' the newObject
+	 * 
+	 * @param c			The object's class
+	 * @param objectID	The object's ID
+	 * @param newObject	The new object
+	 * @return			True if a matching object was found. False if not
+	 */
+	public abstract boolean fire(SaveableClass c, String objectID, SyncListener newObject);
 }

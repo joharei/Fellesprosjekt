@@ -1,17 +1,20 @@
 package model;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Appointment {
+import synclogic.SyncListener;
+
+public class Appointment implements SyncListener {
 	private Date date, startTime, endTime;
 	private String description, location;
 	private Room room;
 	private int id;
 	private User owner;
 	private boolean isDeleted;
-	private static DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
-	private static DateFormat timeformat = DateFormat.getTimeInstance(DateFormat.SHORT);
+	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	private static DateFormat timeformat = new SimpleDateFormat("HH:mm:ss");
 	
 	//constants
 	public static final String NAME_PROPERTY_CLASSTYPE = "appointment";
@@ -99,5 +102,30 @@ public class Appointment {
 
 	public static DateFormat getTimeformat() {
 		return (DateFormat) timeformat.clone();
+	}
+
+	@Override
+	public void fire(SaveableClass classType, Object newVersion) {
+		Appointment app = (Appointment) newVersion;
+		setDate(app.getDate());
+		setDeleted(app.isDeleted());
+		setDescription(app.getDescription());
+		setStartTime(app.getStartTime());
+		setEndTime(app.getEndTime());
+		setId(app.getId());
+		setLocation(app.getLocation());
+		setOwner(app.getOwner());
+		setRoom(app.getRoom());
+		System.out.println("Updated appointment!");
+	}
+
+	@Override
+	public SaveableClass getSaveableClass() {
+		return SaveableClass.Appointment;
+	}
+
+	@Override
+	public String getObjectID() {
+		return "" + getId();
 	}
 }

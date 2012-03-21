@@ -1,6 +1,8 @@
 package model;
 
-public class Room {
+import synclogic.SyncListener;
+
+public class Room implements SyncListener {
 	private int id, capacity;
 	private String name;
 	
@@ -39,5 +41,24 @@ public class Room {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public void fire(SaveableClass classType, Object newVersion) {
+		Room room = (Room) newVersion;
+		setCapacity(room.getCapacity());
+		setId(room.getId());
+		setName(room.getName());
+		System.out.println("Room updated!");
+	}
+
+	@Override
+	public SaveableClass getSaveableClass() {
+		return SaveableClass.Room;
+	}
+
+	@Override
+	public String getObjectID() {
+		return "" + getId();
 	}
 }

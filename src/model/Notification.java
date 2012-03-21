@@ -1,6 +1,8 @@
 package model;
 
-public class Notification {
+import synclogic.SyncListener;
+
+public class Notification implements SyncListener {
 	private Invitation invitation;
 	private NotificationType type;
 	private int id;
@@ -32,8 +34,8 @@ public class Notification {
 	public void setType(NotificationType type) {
 		this.type = type;
 	}
-	public int getId() {
-		return id;
+	public String getId() {
+		return "" + id;
 	}
 	public void setId(int id) {
 		this.id = id;
@@ -51,4 +53,25 @@ public class Notification {
 		this.read = read;
 	}
 	private boolean read;
+
+	@Override
+	public void fire(SaveableClass classType, Object newVersion) {
+		Notification notif = (Notification) newVersion;
+		setId(Integer.parseInt(notif.getId()));
+		setInvitation(notif.getInvitation());
+		setRead(notif.isRead());
+		setTriggeredBy(notif.getTriggeredBy());
+		setType(notif.getType());
+		System.out.println("Notification updated!");
+	}
+
+	@Override
+	public SaveableClass getSaveableClass() {
+		return SaveableClass.Notification;
+	}
+
+	@Override
+	public String getObjectID() {
+		return getId();
+	}
 }
