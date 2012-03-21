@@ -4,29 +4,13 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.TextArea;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.Calendar;
-
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 public class GUI extends JFrame{
 	
@@ -42,32 +26,35 @@ public class GUI extends JFrame{
 	protected static final Font FONT_HEADER = new Font("", Font.PLAIN, 20);
 	protected static final Font FONT_FIELD = new Font("", Font.PLAIN, 18);
 	
-	GridBagConstraints c;
+	protected GridBagConstraints c;
 	JPanel panel = new JPanel();
-	private String QUESTION_MESSAGE="Apointment or Meeting";
 	
 	
 	private JButton logOutButton;
 	private JButton createButton;
 	private JLabel helpLabel;
 	private JLabel overskrift;
-	private String [] days = { "Time"," - ","Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun"};
-	private JLabel [] label2= new JLabel[9];
 
 	private String [] options = {"Meeting","Appointment"};
 	
-	public static void main(String[] args) throws IOException {
+	
+	public static void main(String[] args) {
 		GUI gmain = new GUI();
 		gmain.pack();
 		gmain.setVisible(true);
+		
 	}
 	
 	
 	
-	public GUI() throws IOException{
+	public GUI(){
+		SmallCalendar smallCal = new SmallCalendar();
+		
+		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel(smallCal);
 		
 		getContentPane().setBackground(COLOR_BACKGROUND);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		c = new GridBagConstraints();
 		
 		setLayout(new GridBagLayout());
@@ -84,11 +71,11 @@ public class GUI extends JFrame{
 		
 		c.gridx=0;
 		c.gridy=5;
-		add(new SmallCalendar(),c);
+		add(smallCal,c);
 		
 		c.gridx=9;
 		c.gridy=3;
-		add(new CalendarPanecolumnHeaderPanel(),c);
+		add(calPanel,c);
 		
 		c.gridx=9;
 		c.gridy=5;
@@ -111,6 +98,11 @@ public class GUI extends JFrame{
 		    	}
 		    	if(response==1){
 		    		System.out.println("Apointment");
+		    		GUI aGUI = new AppointmentGui();
+		    		setVisible(false);
+		    		aGUI.setVisible(true);
+		    		aGUI.pack();
+		    		
 		    	}
 		    }
 		});
