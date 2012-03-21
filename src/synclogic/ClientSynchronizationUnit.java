@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 import model.SaveableClass;
 import model.XmlSerializerX;
@@ -17,9 +19,10 @@ import nu.xom.ParsingException;
 
 public class ClientSynchronizationUnit extends SynchronizationUnit implements PropertyChangeListener {
 	
-	private MessageQueue sendQueue, receiveQueue;
+	private MessageQueue sendQueue;
 	private Connection connection;
 	private LoginRequest loginRequest;
+	private UpdateRequest updateRequest;
 	private Thread thread;
 	private boolean stopThread = false;
 	
@@ -29,7 +32,6 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		thread = new Thread(new testClass());
 	}
 	
-	@Override
 	public void addToSendQueue(String o) {
 		this.sendQueue.add(o);
 	}
@@ -102,26 +104,56 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	 * Logs in the user
 	 * @param username		The username to log in
 	 * @param password		The password that belongs to the username
+	 * @throws ConnectException If anything related to the connection goes wrong
 	 */
-	public void logIn(String username, String password){
+	public boolean logIn(String username, String password) throws ConnectException{
 		this.loginRequest = new LoginRequest(username, password);
 		try {
 			this.connection.send(XmlSerializerX.toXml(this.loginRequest, SaveableClass.LoginRequest));
 			LoginRequest respons = (LoginRequest) XmlSerializerX.toObject(this.connection.receive());
-			System.out.println(respons.getLoginAccepted());
-		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			return respons.getLoginAccepted();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ConnectException();
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ConnectException();
 		} catch (ParsingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ConnectException();
 		}
+	}
+	
+	/**
+	 * Checks for updates on the server
+	 * @return A list of ErrorMessages from the server
+	 * @throws ConnectException If anything related to the connection goes wrong
+	 */
+	public List<ErrorMessage> update() throws ConnectException{
+		this.updateRequest = new UpdateRequest();
+		List<ErrorMessage> errorMessages = new ArrayList<ErrorMessage>();
+		try {
+			this.connection.send(XmlSerializerX.toXml(this.updateRequest, SaveableClass.UpdateRequest));
+			UpdateRequest respons = (UpdateRequest) XmlSerializerX.toObject(this.connection.receive());
+			
+			for (int i = 0; i<respons.size(); i++) {
+				if (respons.getObject(i) instanceof SyncListener){
+					SyncListener object = (SyncListener) respons.getObject(i);
+					if (getObjectFromID(object.getSaveableClass(), object.getObjectID()) != null){
+						fire(object.getSaveableClass(), object.getObjectID(), object);
+					} else{
+						addObject(object);
+					}
+				} else{
+					errorMessages.add((ErrorMessage) respons.getObject(i));
+				}
+			}
+			
+		} catch (IOException e) {
+			throw new ConnectException();
+		} catch (ParseException e) {
+			throw new ConnectException();
+		} catch (ParsingException e) {
+			throw new ConnectException();
+		}
+		return errorMessages;
 	}
 	
 	/**
@@ -148,12 +180,24 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	
 	public static void main(String[] args){
 		ClientSynchronizationUnit syncUnit = new ClientSynchronizationUnit();
-		syncUnit.connectToServer("78.91.83.49", 1337);
-		syncUnit.logIn("joharei", "1234");
+		syncUnit.connectToServer("localhost", 1337);
+		try {
+			syncUnit.logIn("joharei", "123");
+			System.out.println("Logged in!!");
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 //		for (int i = 0; i<10; i++){
 //			syncUnit.addToSendQueue("Element " + i);
 //		}
 		syncUnit.disconnect();
+	}
+
+	@Override
+	public void addObject(SyncListener o) {
+		
+		
 	}
 	
 }
