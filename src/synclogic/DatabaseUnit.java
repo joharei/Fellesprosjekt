@@ -12,6 +12,7 @@ import java.util.Properties;
 import model.Appointment;
 import model.Notification;
 import model.Room;
+import model.SaveableClass;
 import model.User;
 
 public class DatabaseUnit {
@@ -76,6 +77,7 @@ public class DatabaseUnit {
 		}
 	//	conn.close();
 	}
+		
 	
 	public static ArrayList<Object> loadUser() throws SQLException{
 		Statement stmt = conn.createStatement();
@@ -139,6 +141,20 @@ public class DatabaseUnit {
 		return invitationArray;
 	}
 	
+	public static int getNewKey(SaveableClass type) throws SQLException{
+		if(type.equals(SaveableClass.Appointment)){
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT EventID FROM Event");
+			rs.last();
+			int eventID = rs.getInt("EventID");
+			int AppKey = eventID + 1;
+
+			return AppKey;
+		}
+		
+		
+		return 1;
+	}
 	
 	public void load(){
 		//når servern starter så hentes alle objektene ut fra databasen og lage objektene som ligger i databasen 
