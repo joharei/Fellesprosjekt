@@ -1,5 +1,6 @@
 package gui;
 
+
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -34,14 +35,14 @@ public class GUI extends JFrame{
 	private JButton createButton;
 	private JLabel helpLabel;
 	private JLabel overskrift;
-
+	
 	private String [] options = {"Meeting","Appointment"};
 	
 	
 	public static void main(String[] args) {
 		GUI gmain = new GUI();
-		gmain.pack();
 		gmain.setVisible(true);
+		gmain.pack();
 		
 	}
 	
@@ -90,27 +91,31 @@ public class GUI extends JFrame{
 		c.gridx=0;
 		c.gridy=6;
 		add(createButton,c);
-		createButton.addActionListener (new ActionListener () {
-		    public void actionPerformed(ActionEvent e) {
-		    	int response=JOptionPane.showOptionDialog(null, "Meeting or Apointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
-		    	if(response==0){
-		    		System.out.println("Meeting");
-		    	}
-		    	if(response==1){
-		    		System.out.println("Apointment");
-		    		GUI aGUI = new AppointmentGui();
-		    		setVisible(false);
-		    		aGUI.setVisible(true);
-		    		aGUI.pack();
-		    		
-		    	}
-		    }
-		});
 		
 		logOutButton = new JButton("Log Out");
 		c.gridx=30;
 		c.gridy=0;
 		add(logOutButton,c);
 		
+		addActionListeners();
+		
+	}
+	private void addActionListeners() {
+		createButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int response=JOptionPane.showOptionDialog(null, "Meeting or Apointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
+				if(response==0){
+					System.out.println("Meeting");
+				}
+				if(response==1){
+					System.out.println("Apointment");
+					GUI aGUI = new AppointmentGui();
+					aGUI.setVisible(true);
+					aGUI.pack();
+					setVisible(false);
+					
+				}
+			}
+		});
 	}
 }
