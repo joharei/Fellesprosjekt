@@ -3,9 +3,7 @@ package synclogic;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Appointment;
 import model.SaveableClass;
-import model.User;
 
 public abstract class SynchronizationUnit {
 
@@ -22,12 +20,6 @@ public abstract class SynchronizationUnit {
 	public void removeListener(SyncListener sl) {
 		this.listeners.remove(sl);
 	}
-	
-	/**
-	 * Adds a message to the send queue and sends it whenever possible.
-	 * @param o		The message to send
-	 */
-	public abstract void addToSendQueue(String o);
 	
 	/**
 	 * Returns the first object that matches the given class and id. Null if not found.
