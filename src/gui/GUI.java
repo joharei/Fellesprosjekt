@@ -114,6 +114,7 @@ public class GUI extends JFrame{
 		});
 		logOutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				XCal.getCSU().disconnect();
 				LogIn logIn = new LogIn();
 				logIn.pack();
 				logIn.setVisible(true);
