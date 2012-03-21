@@ -44,7 +44,7 @@ public class GUI extends JFrame{
 	public GUI(){
 		
 		pack();
-		this.setPreferredSize(new Dimension(700,600));
+		this.setPreferredSize(new Dimension(800,600));
 		SmallCalendar smallCal = new SmallCalendar();
 		
 		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel(smallCal);
