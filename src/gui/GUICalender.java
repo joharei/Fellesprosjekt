@@ -45,7 +45,7 @@ public class GUICalender extends JPanel{
 				
 				// This method is called when the button is pressed
 				public void actionPerformed(ActionEvent evt) {
-					System.out.println("Tester");
+					//System.out.println("Tester");
 				}
 			}
 					);

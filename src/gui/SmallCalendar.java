@@ -17,6 +17,10 @@ import javax.swing.JPanel;
 import com.toedter.calendar.JCalendar;
 
 public class SmallCalendar extends JPanel{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JButton [] buttons;
 	private CalendarPanecolumnHeaderPanel langtNavnPanel;
 	private GridBagConstraints c = new GridBagConstraints();
