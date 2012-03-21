@@ -2,13 +2,16 @@ package gui;
 
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -109,10 +112,8 @@ public class GUI extends JFrame{
 				}
 				if(response==1){
 					System.out.println("Apointment");
-					GUI aGUI = new AppointmentGui();
+					JDialog aGUI = new AppointmentGui();
 					aGUI.setVisible(true);
-					aGUI.pack();
-					setVisible(false);
 					
 				}
 			}
