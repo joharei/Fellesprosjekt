@@ -1,5 +1,6 @@
 package synclogic;
 
+import java.net.ConnectException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -8,7 +9,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
-
+import java.util.List;
 import model.Appointment;
 import model.Notification;
 import model.Room;
@@ -19,6 +20,14 @@ public class DatabaseUnit {
 
 	private static Connection conn = null;
 	
+	public DatabaseUnit() throws ConnectException {
+		try {
+			dbConnect();
+		} catch (Exception e) {
+			throw new ConnectException();
+		} 
+	}
+	
 	public void dbConnect() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException{
 		Properties props = new Properties();
 		props.put("user","hannekot_26");
@@ -28,7 +37,7 @@ public class DatabaseUnit {
 		conn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/hannekot_X-cal", props);
 	}
 	
-	public static void objectToDb(Object object) throws SQLException{
+	public static void objectToDb(List<SyncListener> object) throws SQLException{
 		if(object instanceof User){
 			User user1 = (User)object;
 			Statement stmt = conn.createStatement();
@@ -141,24 +150,63 @@ public class DatabaseUnit {
 		return invitationArray;
 	}
 	
-	public static String getNewKey(SaveableClass type) throws SQLException{
-		if(type.equals(SaveableClass.Appointment)){
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT EventID FROM Event");
-			rs.last();
-			int eventID = rs.getInt("EventID");
-			int appKey =eventID + 1;
-			String AppKey = Integer.toString(appKey);
-			
+	public String getNewKey(SaveableClass type){
+		if(type.equals(SaveableClass.Appointment) || type.equals(SaveableClass.Meeting)){
+			String AppKey = "";
+			try {
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT EventID FROM Event");
+				rs.last();
+				int eventID = rs.getInt("EventID");
+				int appKey = eventID + 1;
+				AppKey = Integer.toString(appKey);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
 			return AppKey;
 		}
 		else if(type.equals(SaveableClass.Invitation)){
+			String InvtKey = "";
+			try{
 			Statement stmt = conn.createStatement();
-		//	ResultSet rs
+			ResultSet rs = stmt.executeQuery("SELECT InvitationID FROM Invitation");
+			rs.last();
+			int invtID = rs.getInt("InvitationID");
+			int invtKey = invtID + 1;
+			InvtKey = Integer.toString(invtKey);
+			} catch(SQLException e){
+				e.printStackTrace();
+			}
+			return InvtKey;
 		}
-		
-		
-		return "jo";
+		else if(type.equals(SaveableClass.Notification)){
+			String NotKey = "";
+			try {
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT NotificationID FROM Notification");
+			rs.last();
+			int notID = rs.getInt("NotificationID");
+			int notKey = notID + 1;
+			NotKey = Integer.toString(notKey);
+			} catch(SQLException e){
+				e.printStackTrace();
+			}
+			return NotKey;
+		}
+		else{
+			String RoomKey = "";
+			try{
+			Statement stmt = conn.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT RoomID FROM Room");
+			rs.last();
+			int roomID = rs.getInt("RoomID");
+			int roomKey = roomID + 1;
+			RoomKey = Integer.toString(roomKey);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			return RoomKey;
+		}
 	}
 	
 	public void load(){
@@ -170,10 +218,12 @@ public class DatabaseUnit {
 		
 	} 
 	
+	public static void main(String[] args) {
+
+
+	}
 	
-	
-	public void closeConnection() throws SQLException
-	{
+	public void closeConnection() throws SQLException{
 		conn.close();
 	}
 
