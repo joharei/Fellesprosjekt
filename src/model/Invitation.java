@@ -12,22 +12,13 @@ public class Invitation {
 	public static final String NAME_PROPERTY_MEETING = "meeting";
 	public static final String NAME_PROPERTY_INVITEE = "invitee";
 	
-	public Invitation(InvitationStatus status, Meeting meeting) {
+	public Invitation(InvitationStatus status, Meeting meeting, String id) {
 		setStatus(status);
 		setMeeting(meeting);
+		setID(id);
 	}
 	
-	/**
-	 * Create an invitation
-	 * @param status Invitation status
-	 * @param meeting The meeting
-	 * @param invitee The recipient user
-	 */
-	public Invitation(InvitationStatus status, Meeting meeting, User invitee) {
-		setStatus(status);
-		setMeeting(meeting);
-		setInvitee(invitee);
-	}
+//TODO: Update class diagram, remove invitee
 	
 	public void setID(String id) {
 		this.id = id;
