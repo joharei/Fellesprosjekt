@@ -34,6 +34,7 @@ public class GUICalender extends JPanel{
 
 
 	for ( int h = 0; h < kolonner; h++) {
+		
 		for (int j = 0; j < rader; j++) {
 			button[h][j] = new JButton(new AbstractAction(" - ") {
 				
@@ -51,6 +52,7 @@ public class GUICalender extends JPanel{
 			//button[h][j].setText(""+h+"."+j);
 			c.gridx=11+j;
 			c.gridy=4+h;
+			
 			//button[h][j].setSize(5, 5);
 			button[h][j].setActionCommand(" ");
 			//add(button[h][j],c);
