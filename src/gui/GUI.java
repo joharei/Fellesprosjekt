@@ -115,7 +115,10 @@ public class GUI extends JFrame{
 		});
 		logOutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					System.exit(0);
+				LogIn logIn = new LogIn();
+				logIn.pack();
+				logIn.setVisible(true);
+				setVisible(false);
 			}
 		});
 	}
