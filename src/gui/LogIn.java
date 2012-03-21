@@ -21,6 +21,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.plaf.synth.Region;
 
+import synclogic.ClientSynchronizationUnit;
+
 public class LogIn extends JFrame{
 	
 	private JTextField usernameField;
@@ -29,7 +31,7 @@ public class LogIn extends JFrame{
 	private GridBagConstraints gridMain, gridSlave;
 	private GridBagLayout gbLayoutMain, gbLayoutSlave;
 	private JButton logInButton;
-	
+	ClientSynchronizationUnit CSU;
 	private JPanel subPanel;
 	
 	private ImageIcon logIn = new ImageIcon(getClass().getResource("art/logIn/login.png"));
@@ -42,9 +44,11 @@ public class LogIn extends JFrame{
 		LogIn logIn = new LogIn();
 		logIn.pack();
 		logIn.setVisible(true);
+		
 	}
 	
 	public LogIn(){
+		
 		
 		subPanel = new JPanel();
 		

@@ -102,6 +102,8 @@ public class GUI extends JFrame{
 				int response=JOptionPane.showOptionDialog(null, "Meeting or Apointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
 				if(response==0){
 					System.out.println("Meeting");
+					JDialog mGUI = new MeetingGui();
+					mGUI.setVisible(true);
 				}
 				if(response==1){
 					System.out.println("Apointment");
@@ -109,6 +111,11 @@ public class GUI extends JFrame{
 					aGUI.setVisible(true);
 					
 				}
+			}
+		});
+		logOutButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					System.exit(0);
 			}
 		});
 	}

@@ -1,27 +1,44 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class MeetingGui extends AppointmentGui{
+public class MeetingGui extends JDialog{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JLabel invite;
 	private JButton add, remove, newCreate, newCancel;
 	private JList addPersons;
 	private JScrollPane addPersonsScroll;
 	
+	protected GridBagConstraints gb;
+	protected GridBagLayout gbLayout;
+	
 	public MeetingGui(){
+
+
+		this.setModal(true);
+		this.setPreferredSize(new Dimension(500,600));
+		pack();
 		
-		remove(create);
-		remove(cancel);
-		
+		gb = new GridBagConstraints();
+		gbLayout = new GridBagLayout();
+		setLayout(gbLayout);
 		//invite
 		gb.gridx = 0;
 		gb.gridy = 5;
@@ -71,22 +88,26 @@ public class MeetingGui extends AppointmentGui{
 		gb.insets = new Insets(75, 100, 0, 0);
 		add(newCancel, gb);
 		
+		addActionListeners();
+	}
+	
+	private void addActionListeners() {
+		newCancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("goes back");
+				setVisible(false);
+			}
+		});
+		newCreate.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("goes back");
+				setVisible(false);
+			}
+		});
 	}
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		JFrame frame = new JFrame("Meeting");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//set dimension size
-		frame.setContentPane(new MeetingGui());
-		frame.setPreferredSize(new Dimension(500, 750));
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
 
 }
