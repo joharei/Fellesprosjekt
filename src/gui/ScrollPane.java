@@ -6,7 +6,7 @@ import javax.swing.JScrollPane;
 
 public class ScrollPane extends JScrollPane{
 	
-	private String [] days = { "Time"," - ","Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun"};
+	//private String [] days = { "Time"," - ","Mon", "Tue", "Wed", "Thu", "Fri", "Sat","Sun"};
 	
 	public ScrollPane(){
 		super(new GUICalender());
