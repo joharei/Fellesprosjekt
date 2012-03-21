@@ -141,19 +141,24 @@ public class DatabaseUnit {
 		return invitationArray;
 	}
 	
-	public static int getNewKey(SaveableClass type) throws SQLException{
+	public static String getNewKey(SaveableClass type) throws SQLException{
 		if(type.equals(SaveableClass.Appointment)){
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT EventID FROM Event");
 			rs.last();
 			int eventID = rs.getInt("EventID");
-			int AppKey = eventID + 1;
-
+			int appKey =eventID + 1;
+			String AppKey = Integer.toString(appKey);
+			
 			return AppKey;
+		}
+		else if(type.equals(SaveableClass.Invitation)){
+			Statement stmt = conn.createStatement();
+		//	ResultSet rs
 		}
 		
 		
-		return 1;
+		return "jo";
 	}
 	
 	public void load(){
