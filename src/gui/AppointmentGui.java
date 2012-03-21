@@ -8,17 +8,11 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.ParsePosition;
 import java.util.Calendar;
-import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,8 +22,12 @@ import javax.swing.JTextField;
 
 import com.toedter.calendar.JDateChooser;
 
-public class AppointmentGui extends JPanel{
+public class AppointmentGui extends GUI{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JLabel dateSelect, startTime, endTime, description, place;
 	private JTextArea descriptionField;
 	private JComboBox startTimeField, endTimeField, placeField2;
@@ -42,7 +40,9 @@ public class AppointmentGui extends JPanel{
 	protected GridBagConstraints gb;
 	protected GridBagLayout gbLayout;
 	
+	
 	public AppointmentGui() {
+		
 		
 		gb = new GridBagConstraints();
 		gbLayout = new GridBagLayout();
@@ -207,17 +207,17 @@ public class AppointmentGui extends JPanel{
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		JFrame frame = new JFrame("Appointment");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//set dimension size
-		frame.setContentPane(new AppointmentGui());
-		frame.setPreferredSize(new Dimension(500, 750));
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//		JFrame frame = new JFrame("Appointment");
+//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		
+//		//set dimension size
+//		frame.setContentPane(new AppointmentGui());
+//		frame.setPreferredSize(new Dimension(500, 750));
+//		
+//		frame.pack();
+//		frame.setVisible(true);
+//	}
 
 }
