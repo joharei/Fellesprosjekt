@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import com.sun.org.apache.bcel.internal.generic.GETSTATIC;
+
 import synclogic.LoginRequest;
 import synclogic.SynchronizationUnit;
 
@@ -559,6 +561,7 @@ public class XmlSerializerX extends XmlSerializer {
 			}
 			appElement.appendChild(participantGrouping);
 			
+			//handle existing invitations
 			Element invitationGrouping = new Element(Meeting.NAME_PROPERTY_INVITATIONS);
 			ArrayList<Invitation> invs = meeting.getInvitations();
 			Iterator<Invitation> it2 = invs.iterator();
@@ -566,6 +569,15 @@ public class XmlSerializerX extends XmlSerializer {
 				invitationGrouping.appendChild(invitationToXmlElement(it2.next()));
 			}
 			appElement.appendChild(invitationGrouping);
+			
+			//handle users to invite
+			Element u2inv = new Element(Meeting.NAME_PROPERTY_USERS_TO_INVITE);
+			ArrayList<String> list = meeting.getUsersToInvite();
+			Iterator<String> it3 = list.iterator();
+			while (it3.hasNext()) {
+				u2inv.appendChild(it3.next());
+			}
+			appElement.appendChild(u2inv);
 		}
 		return appElement;
 	}
@@ -578,6 +590,7 @@ public class XmlSerializerX extends XmlSerializer {
 		Date date = null, start = null, end = null;
 		String desc = null, loc = null;
 		Room room = null;
+		
 		User owner = null;
 		int id = 0;
 		boolean delFlag = false;
@@ -631,6 +644,7 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		//Handle meetings
 		if (SaveableClass.valueOf(appElement.getLocalName()) == SaveableClass.Meeting) {
+			ArrayList<String> u2invList = new ArrayList<String>();
 			ArrayList<User> participants = new ArrayList<User>();
 			ArrayList<Invitation> invs = new ArrayList<Invitation>();
 			
@@ -651,9 +665,19 @@ public class XmlSerializerX extends XmlSerializer {
 					invs.add(assembleInvitation(invites.get(i)));
 				}
 			}
+			
+			e = appElement.getFirstChildElement(Meeting.NAME_PROPERTY_USERS_TO_INVITE);
+			if (e != null) {
+				Elements usernames = e.getChildElements();
+				for (int i = 0; i < usernames.size(); i++) {
+					u2invList.add(usernames.get(i).getValue());
+				}
+			}
+			
 			Meeting m = new Meeting(date, start, end, desc, loc, room, id, owner, delFlag);
 			m.setParticipants(participants);
 			m.setInvitations(invs);
+			m.setUsersToInvite(u2invList);
 			return m;
 		}
 		return new Appointment(date, start, end, desc, loc, room, id, owner, delFlag);
@@ -675,6 +699,10 @@ public class XmlSerializerX extends XmlSerializer {
 		meeting.appendChild("" + inv.getMeeting().getId());
 		invElement.appendChild(meeting);
 		
+		Element id = new Element(Invitation.NAME_PROPERTY_ID);
+		id.appendChild(inv.getID());
+		invElement.appendChild(id);
+		
 		return invElement;
 	}
 	
@@ -686,6 +714,7 @@ public class XmlSerializerX extends XmlSerializer {
 	private static Invitation assembleInvitation(Element invElement) {
 		InvitationStatus status = null;
 		Meeting meeting = null;
+		String id = null;
 		
 		Element e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_STATUS);
 		if (e != null) {
@@ -698,7 +727,12 @@ public class XmlSerializerX extends XmlSerializer {
 			meeting = (Meeting) syncUnit.getObjectFromID(SaveableClass.Meeting, meetingID);
 		}
 		
-		return new Invitation(status, meeting);
+		e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_ID);
+		if (e != null) {
+			id = e.getValue();
+		}
+		
+		return new Invitation(status, meeting, id);
 	}
 	
 	/**
