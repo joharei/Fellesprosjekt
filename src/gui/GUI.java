@@ -41,17 +41,10 @@ public class GUI extends JFrame{
 	
 	private String [] options = {"Meeting","Appointment"};
 	
-	
-	public static void main(String[] args) {
-		GUI gmain = new GUI();
-		gmain.setVisible(true);
-		gmain.pack();
-		
-	}
-	
-	
-	
 	public GUI(){
+		
+		pack();
+		this.setPreferredSize(new Dimension(700,600));
 		SmallCalendar smallCal = new SmallCalendar();
 		
 		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel(smallCal);

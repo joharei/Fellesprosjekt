@@ -8,6 +8,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -19,7 +21,7 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.plaf.synth.Region;
 
-public class LogIn extends JPanel{
+public class LogIn extends JFrame{
 	
 	private JTextField usernameField;
 	private JPasswordField passwordField;
@@ -31,6 +33,16 @@ public class LogIn extends JPanel{
 	private JPanel subPanel;
 	
 	private ImageIcon logIn = new ImageIcon(getClass().getResource("art/logIn/login.png"));
+	
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		LogIn logIn = new LogIn();
+		logIn.pack();
+		logIn.setVisible(true);
+	}
 	
 	public LogIn(){
 		
@@ -104,22 +116,21 @@ public class LogIn extends JPanel{
 		gridSlave.gridy = 2;
 		gridSlave.insets = new Insets(10, 220, 0, 0);
 		subPanel.add(logInButton, gridSlave);
+		
+		addActionListeners();
+	}
+	
+	private void addActionListeners() {
+		logInButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("log in!!");
+				JFrame gmain = new GUI();
+				gmain.setVisible(true);
+				gmain.pack();
+				setVisible(false);
+			}
+		});
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		JFrame frame = new JFrame("Log In");
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		//set dimension size
-		frame.setContentPane(new LogIn());
-		frame.setPreferredSize(new Dimension(1000,500));
-		
-		frame.pack();
-		frame.setVisible(true);
-	}
 
 }
