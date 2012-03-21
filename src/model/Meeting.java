@@ -47,8 +47,16 @@ public class Meeting extends Appointment {
 	}
 	
 	public void addInvitation(Invitation inv) {
+		this.addInvitation(inv.getID());
+		
+//		ArrayList<String> old = getInvitations();
+//		this.invitationIDs.add(inv.getID());
+//		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
+	}
+	
+	public void addInvitation(String invitationID) {
 		ArrayList<String> old = getInvitations();
-		this.invitationIDs.add(inv.getID());
+		this.invitationIDs.add(invitationID);
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
 	}
 	
