@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 
-public class MeetingGui extends JDialog{
+public class MeetingGui extends AppointmentGui{
 	
 	/**
 	 * 
