@@ -159,6 +159,14 @@ public class AppointmentGui extends JDialog{
 		addActionListeners();
 	}
 	
+	public GridBagConstraints getGridBagConstraints(){
+		return gb;
+	}
+	
+	public GridBagLayout getGridBagLayout(){
+		return gbLayout;
+	}
+	
 	private void addActionListeners() {
 		cancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -229,17 +237,11 @@ public class AppointmentGui extends JDialog{
 	/**
 	 * @param args
 	 */
-//	public static void main(String[] args) {
-//		// TODO Auto-generated method stub
-//		JFrame frame = new JFrame("Appointment");
-//		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//		
-//		//set dimension size
-//		frame.setContentPane(new AppointmentGui());
-//		frame.setPreferredSize(new Dimension(500, 750));
-//		
-//		frame.pack();
-//		frame.setVisible(true);
-//	}
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		AppointmentGui gui = new AppointmentGui();
+		gui.pack();
+		gui.setVisible(true);
+	}
 
 }
