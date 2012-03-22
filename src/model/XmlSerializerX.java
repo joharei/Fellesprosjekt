@@ -44,11 +44,25 @@ public class XmlSerializerX extends XmlSerializer {
 		System.out.println("Password: " + lr2.getPassword());
 		System.out.println("Accepted: " + lr2.getLoginAccepted());
 		
+		//test errormessage
 		ErrorMessage errm = new ErrorMessage(user, user3);
 		xml = toXml(errm, SaveableClass.ErrorMessage);
 		System.out.println(xml);
 		errm = (ErrorMessage) toObject(xml);
 		System.out.println("Valid:\n" + errm.getValidObject() + "Invalid:\n" +  errm.getInvalidObject());
+		
+		//test updaterequest
+		UpdateRequest updt = new UpdateRequest();
+		SaveableClass type = SaveableClass.UpdateRequest;
+		xml = toXml(updt, type);
+		System.out.println(xml);
+		updt = (UpdateRequest) toObject(xml);
+		System.out.println("Received updatereq from client: " + updt.size());
+		updt.addObject(user);
+		xml = toXml(updt, type);
+		System.out.println(xml);
+		updt = (UpdateRequest) toObject(xml);
+		System.out.println("Received updatereq response from server:" + updt.getObject(0));
 	}
 	
 	//testing constructor
@@ -300,6 +314,7 @@ public class XmlSerializerX extends XmlSerializer {
 	}
 
 	private static Object assembleUpdateRequest(Element root) throws ParseException, ParsingException {
+		UpdateRequest ureq = null;
 		ArrayList<Object> objs = new ArrayList<Object>();
 		Element e = root.getFirstChildElement(UpdateRequest.NAME_PROPERTY_OBJECT_LIST);
 		if (e != null) {
@@ -312,8 +327,9 @@ public class XmlSerializerX extends XmlSerializer {
 				}
 			}
 		}
-		
-		return objs;
+		ureq = new UpdateRequest();
+		ureq.addAllObjects(objs);
+		return ureq;
 	}
 
 	private static Document stringToDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
