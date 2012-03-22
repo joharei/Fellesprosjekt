@@ -43,57 +43,143 @@ public class DatabaseUnit {
 		conn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/hannekot_X-cal", props);
 	}
 	
-	public static void objectToDb(List<SyncListener> object) throws SQLException{
-		if(object instanceof User){
-			User user1 = (User)object;
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT Username FROM User WHERE Username='" + user1.getUsername() +"'");
-			String dateOfBirth = (User.getDateFormat().format(user1.getDateOfBirth()));
-			while (rs.next()) {
+	public static void objectsToDb(List<SyncListener> objects) throws SQLException{
+		for (int i = 0; i < objects.size(); i++) {
+			if(objects.get(i) instanceof User){
+				User user = (User) objects.get(i);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT Username FROM User WHERE Username ='" + user.getUsername() +"';");
+				String dateOfBirth = (User.getDateFormat().format(user.getDateOfBirth()));
+				if (rs.next()) {			
+					System.out.println(user.getPassword() + user.getPhone()+ user.getSurname());
+						Statement update = conn.createStatement();
+						if(user.isDeleted()){							
+						update.executeUpdate("UPDATE User SET Password='" +user.getPassword()+"' , Email='" +user.getEmail() + "' , DateOfBirth='" + dateOfBirth +"', Phone='" + user.getPhone() +"' , Surname= '" + user.getSurname() + "' , Firstname='" + user.getFirstname() +"', Deleted='1' WHERE Username='" + user.getUsername() +"';");
+						}
+						else{
+							update.executeUpdate("UPDATE User SET Password='" +user.getPassword()+"' , Email='" +user.getEmail() + "' , DateOfBirth='" + dateOfBirth +"', Phone='" + user.getPhone() +"' , Surname= '" + user.getSurname() + "' , Firstname='" + user.getFirstname() +"', Deleted='0' WHERE Username='" + user.getUsername() +"';");
+						}
+						for (int j = 0; j < user.getNotifications().size(); j++) {
+							Statement stmt1 = conn.createStatement();
+							stmt1.executeUpdate("UPDATE UserNotification SET Username='" + user.getUsername() +"', NotificationID='"
+									+ user.getNotifications().get(j).getId() + "', Read ='" + user.getNotifications().get(j).isRead() 
+									+"' WHERE Username='" + user.getUsername() + "' AND NotificationID='" + user.getNotifications().get(j).getId() +"'");
+						}
+						for (int j = 0; j < user.getSubscribesTo().size(); j++) {
+							Statement delete = conn.createStatement();
+							delete.executeUpdate("DELETE FROM UserSubscription WHERE SubscriberUsername ='" +user.getUsername() + "'");
+							Statement insertInto1 = conn.createStatement();
+							insertInto1.executeUpdate("INSERT INTO UserSubscription Values('" + user.getUsername() +"','" 
+									+ user.getSubscribesTo().get(j).getUsername() + "');");	
+						}
+				}	
+				Statement insertInto = conn.createStatement();
+				insertInto.executeUpdate("INSERT INTO User VALUES('" + user.getUsername()+"','"
+						+ user.getPassword() +"','" + user.getEmail() + "','" + dateOfBirth + "','"
+						+ user.getPhone() + "','" + user.getSurname() + "','" + user.getFirstname() + "','0');");
+				for (int j = 0; j < user.getNotifications().size(); j++) { 
+					Statement insertInto1 = conn.createStatement();
+					insertInto1.execute("INSERT INTO UserNotification Values('" + user.getUsername() +"','" 
+							+ user.getNotifications().get(j).getId() + "','" + user.getNotifications().get(j).isRead() +"');");
+				}
+				for (int j = 0; j < user.getSubscribesTo().size(); j++) {
+					Statement insertInto1 = conn.createStatement();
+					insertInto1.executeUpdate("INSERT INTO UserSubscription Values('" + user.getUsername() +"','" 
+							+ user.getSubscribesTo().get(j).getUsername() + "');");	
+				}
+			}
+			else if(objects.get(i) instanceof Appointment){
+				Appointment appment = (Appointment) objects.get(i);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + appment.getId() + "';");
+				String date = (appment.getDateFormat().format(appment.getDate()));
+				String start = (appment.getDateFormat().format(appment.getStartTime()));
+				String end = (appment.getDateFormat().format(appment.getEndTime()));
+				if(rs.next()){
 					Statement update = conn.createStatement();
-					update.executeUpdate("UPDATE User SET Password='" +user1.getPassword()+"', Email='"
-							+user1.getEmail() +"', DateOfBirth='" + dateOfBirth + "', Phone='" 
-							+user1.getPhone() +"', Surname='" +user1.getSurname() +"', Firstname='" +user1.getFirstname()
-							+ "' WHERE Username='" +user1.getUsername() + "';") ;
-					return;
+					if(appment.isDeleted()){
+						update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + appment.getDescription() +"', Location='" + appment.getLocation() + "', Type='0', Deleted='1' WHERE EventID='" + appment.getId() +"';");
+					}
+					else{
+						update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + appment.getDescription() +"', Location='" + appment.getLocation() + "', Type='0', Deleted='0' WHERE EventID='" + appment.getId() +"';");	
+					}
+					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + appment.getRoom().getId() + "' WHERE EventID='" + appment.getId() + "';");
+				}
+				else{
+					Statement update = conn.createStatement();
+					if(appment.isDeleted()){
+						update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + appment.getDescription() + "','" + appment.getLocation() + "','0','1');");
+					}
+					else{
+						update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + appment.getDescription() + "','" + appment.getLocation() + "','0','0');");
+					}
+					update.executeUpdate("INSERT INTO RoomEvent VALUES('" + appment.getRoom().getId() + "','" + appment.getId() + "');");
+					update.execute("INSERT INTO UserEvent VALUES('" + appment.getOwner().getUsername() + "','" + appment.getId() + "');" );
+				}
+			}
+			else if(objects.get(i) instanceof Meeting){
+				Meeting meet = (Meeting) objects.get(i);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + meet.getId() + "';");
+				String date = (meet.getDateFormat().format(meet.getDate()));
+				String start = (meet.getDateFormat().format(meet.getStartTime()));
+				String end = (meet.getDateFormat().format(meet.getEndTime()));
+				if(rs.next()){
+					Statement update = conn.createStatement();
+					if(meet.isDeleted()){
+						update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='1' WHERE EventID='" + meet.getId() +"';");
+					}
+					else{
+						update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='0' WHERE EventID='" + meet.getId() +"';");	
+					}
+					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + meet.getRoom().getId() + "' WHERE EventID='" + meet.getId() + "';");
+				}
+				else{
+					Statement update = conn.createStatement();
+					if(meet.isDeleted()){
+						update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','1');");
+					}
+					else{
+						update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','0');");
+					}
+					update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
+					update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
+					for (int j = 0; j < meet.getInvitations().size(); j++) {
+						update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
+					}
+				}
+			}
+			else if(objects.get(i) instanceof Notification){
+				Notification not = (Notification) objects.get(i);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT * FROM Notification WHERE NotificationID ='" + not.getId() +"';");
+				if(rs.next()){
+					Statement update = conn.createStatement();
+					update.executeUpdate("UPDATE Notification SET type='" + not.getType().ordinal()+ "', TriggeredBy='" + not.getTriggeredBy().getUsername() + "' WHERE NotificationID='" + not.getId() +"';");		
+				}
+				else{
+					Statement insertInto = conn.createStatement();
+					insertInto.executeUpdate("INSERT INTO Notification VALUES('" + not.getType().ordinal() + "','" + not.getTriggeredBy().getUsername() +"');");
+					insertInto.executeUpdate("INSERT INTO BelongsTo VALUES('" + not.getInvitation().getID() + "','" + not.getId() + "');");
+				}
+			}
+			else if(objects.get(i)instanceof Invitation){
+				Invitation inv = (Invitation) objects.get(i);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT * FROM Invitation WHERE InvitationID ='" + inv.getID() + "';");
+				if(rs.next()){
+					Statement update = conn.createStatement();
+					update.executeUpdate("UPDATE Invitation SET Status='" + inv.getStatus().ordinal() + "' WHERE InvitationID='" + inv.getID() + "';");
+				}
+				else{
+					Statement insertInto = conn.createStatement();
+					insertInto.executeUpdate("INSERT INTO Invitation VALUES('" + inv.getStatus().ordinal() + "');");
+					insertInto.executeUpdate("INSERT INTO InvitationTo VALUES('" + inv.getID() + "','" + inv.getMeeting().getId() + "');");
+				}
 			}	
-			Statement insertInto = conn.createStatement();
-			insertInto.executeUpdate("INSERT INTO User VALUES('" + user1.getUsername()+"','"
-					+ user1.getPassword() +"','" + user1.getEmail() + "','" + dateOfBirth + "','"
-					+ user1.getPhone() + "','" + user1.getSurname() + "','" + user1.getFirstname() + "','0');");
 		}
-		else if(object instanceof Room){
-			Room room = (Room) object;
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT RoomID FROM Room WHERE RoomID='" + room.getId()+ "'");
-			while(rs.next()){
-					Statement update = conn.createStatement();
-					update.executeUpdate("UPDATE Room SET Name='" + room.getName()+ "', Capacity='" + room.getCapacity()
-								+ "' WHERE RoomID='" +room.getId() + "'");
-					return;
-			}
-			Statement insertInto = conn.createStatement();
-			insertInto.executeUpdate("INSERT INTO Room (Name, Capacity) VALUES('" + room.getName() + "','" + room.getCapacity() + "');");
-			}
+	}	
 
-		else if(object instanceof Notification){
-			Notification not= (Notification) object;
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT NotificationID FROM Notification WHERE NOtficationID='" +not.getId() + "'");
-			while(rs.next()){
-					Statement update = conn.createStatement();
-					ResultSet rs2 = update.executeQuery("UPDATE Notification SET Type='" + not.getType() 
-							+"' WHERE NotificationID='" + not.getId() +"'");
-					return;
-			}
-			Statement insertInto = conn.createStatement();
-			ResultSet rs1 = insertInto.executeQuery("INSERT INTO Notification VALUES(" + not.getId() +"," 
-					+ not.getType() +")");
-		}
-	//	conn.close();
-	}
-//gå igjennom alle objektene i lista og oppdater databasen etter hvilket objekt det er
-//husk listene participants, invitationID, subscribesTo
 	public static ArrayList<User> loadUser() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM User");
@@ -165,19 +251,19 @@ public class DatabaseUnit {
 			}
 			if(type == 1 && deleted == 0){
 				System.out.println(room.get(RoomIndex) +"+" + userArray.get(UserIndex));
-				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), eventID, userArray.get(UserIndex), false );
+				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
 				eventArray.add(meeting);
 			}
 			else if(type ==1 && deleted == 1){
-				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), eventID, userArray.get(UserIndex), true );
+				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true );
 				eventArray.add(meeting);
 			}
 			else if(type == 0 && deleted == 0){
-				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), eventID, userArray.get(UserIndex), false);
+				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false);
 				eventArray.add(appment);
 			}
 			else{
-				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), eventID, userArray.get(UserIndex), true);
+				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true);
 				eventArray.add(appment);
 			}
 			}
@@ -198,7 +284,8 @@ public class DatabaseUnit {
 			int index = 0;
 			for (int i = 0; i < eventArray.size(); i++) {
 				Object obj = eventArray.get(i);
-				if(((Meeting)obj).getId() == eventID){
+				int getObjectID = Integer.parseInt(((Meeting)obj).getId());
+				if( getObjectID == eventID){
 						index = i;
 						i = eventArray.size();
 				}	
@@ -431,7 +518,7 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public ArrayList<SyncListener> load() throws SQLException{
+	public static ArrayList<SyncListener> load() throws SQLException{
 		ArrayList<SyncListener> loadArray = new ArrayList<SyncListener>();
 		userArray = loadUser();
 		eventArray = loadEvent();
