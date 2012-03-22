@@ -9,8 +9,11 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import synclogic.ErrorMessage;
 import synclogic.LoginRequest;
+import synclogic.SyncListener;
 import synclogic.SynchronizationUnit;
+import synclogic.UpdateRequest;
 
 import no.ntnu.fp.model.XmlSerializer;
 import nu.xom.Document;
@@ -127,6 +130,9 @@ public class XmlSerializerX extends XmlSerializer {
 			case LoginRequest : {
 				return loginRequestToXmlElement((LoginRequest) obj);
 			}
+			case UpdateRequest : {
+				return updateRequestToXmlElement((UpdateRequest) obj);
+			}
 			case Week : {
 				return weekToXmlElement((Week) obj);
 			}
@@ -152,6 +158,25 @@ public class XmlSerializerX extends XmlSerializer {
 	}
 	
 	
+	private static Element updateRequestToXmlElement(UpdateRequest obj) {
+		 Element updr = new Element("" + SaveableClass.UpdateRequest);
+		 Element  list = new Element(UpdateRequest.NAME_PROPERTY_OBJECT_LIST);
+		 updr.appendChild(list);
+		 List<Object> all = obj.getObjects();
+		 Iterator<Object> it = all.iterator();
+		 while (it.hasNext()) {
+			 Object o = it.next();
+			 if (o instanceof SyncListener) {
+				 SyncListener sl = (SyncListener) o;
+				 SaveableClass type = sl.getSaveableClass();
+				list.appendChild(singleObjToElement(sl, type));
+			 } else if (o instanceof ErrorMessage) {
+				 list.appendChild(singleObjToElement(o, SaveableClass.ErrorMessage));
+			 }
+		 }
+		return updr;
+	}
+
 	/**
 	 * Get an object or a list of objects parsed from the Xml String.
 	 * @throws IOException
@@ -179,42 +204,67 @@ public class XmlSerializerX extends XmlSerializer {
 //				throw new ParsingException("Invalid prefix, only 'grp:' and no prefix is allowed");
 //			}
 		} else {
-			SaveableClass objType = SaveableClass.valueOf(rootName);
-			switch(objType) {
-				case User : {
-					return assembleUser(root);
-				}
-				case LoginRequest : {
-					return assembleLoginRequest(root);
-				}
-				case Week : {
-					return assembleWeek(root);
-				}
-				case Appointment : {
-					return assembleAppointment(root);
-				}
-				case Meeting : {
-					return assembleAppointment(root);
-				}
-				case Notification : {
-					return assembleNotification(root);
-				}
-				case Invitation : {
-					return assembleInvitation(root);
-				}
-				case Room : {
-					return assembleRoom(root);
-				}
-				case Null : {
-					return null;
-				}
-				default : {
-					throw new ParsingException("Unidentified object type met during parsing");
-				}
+			return assembleObject(root, rootName);
+		}
+	}
+
+	private static Object assembleObject(Element root, String rootName)
+			throws ParseException, ParsingException {
+		SaveableClass objType = SaveableClass.valueOf(rootName);
+		switch(objType) {
+			case User : {
+				return assembleUser(root);
+			}
+			case LoginRequest : {
+				return assembleLoginRequest(root);
+			}
+			case UpdateRequest : {
+				return assembleUpdateRequest(root);
+			}
+			case Week : {
+				return assembleWeek(root);
+			}
+			case Appointment : {
+				return assembleAppointment(root);
+			}
+			case Meeting : {
+				return assembleAppointment(root);
+			}
+			case Notification : {
+				return assembleNotification(root);
+			}
+			case Invitation : {
+				return assembleInvitation(root);
+			}
+			case Room : {
+				return assembleRoom(root);
+			}
+			case Null : {
+				return null;
+			}
+			default : {
+				throw new ParsingException("Unidentified object type met during parsing");
 			}
 		}
 	}
 	
+	private static Object assembleUpdateRequest(Element root) throws ParseException, ParsingException {
+		ArrayList<Object> objs = new ArrayList<Object>();
+		Element e = root.getFirstChildElement(UpdateRequest.NAME_PROPERTY_OBJECT_LIST);
+		if (e != null) {
+			Elements list = e.getChildElements();
+			for (int i = 0; i < list.size(); i++) {
+				Element objE = list.get(i);
+				if (objE != null) {
+//					SaveableClass type = SaveableClass.valueOf(objE.getValue());
+					objs.add(assembleObject(objE, objE.getLocalName()));
+				}
+			}
+		}
+		
+		return objs;
+	}
+
 	private static Document stringToDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {
 		nu.xom.Builder parser = new nu.xom.Builder(false);
 		nu.xom.Document doc = parser.build(xml, "");

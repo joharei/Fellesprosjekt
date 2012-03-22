@@ -16,6 +16,7 @@ import model.InvitationStatus;
 import model.Meeting;
 import model.Notification;
 import model.NotificationType;
+import model.Room;
 import model.SaveableClass;
 import model.User;
 import no.ntnu.fp.net.co.Connection;
@@ -40,6 +41,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		// TODO: LOADING!!!
 		//dbUnit.load();
 		// TODO: Maa lagre et sted ogsaa!
+		//TODO: Add sort before save
 	}
 
 	public void removeClientConnection(ClientHandler handler) {
@@ -125,12 +127,35 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 */
 	public boolean isValidUpdate(SyncListener update, SyncListener original, User sentBy) {
 		// TODO: Mye!
-		if (original == null) {
-			//new object, maybe not needed
-		} else {
-			//updated object
+		switch (update.getSaveableClass()) {
+			case Appointment : {
+				//Romreservasjon
+				Appointment neww = (Appointment) update;
+				
+				if (!(neww instanceof Meeting)) {
+					//as meeting
+					break;
+				}
+			}
+			case Meeting : {
+				
+				break;
+			}
+			default : {
+				throw new RuntimeException("Unknown object encountered");
+			}
 		}
 		throw new RuntimeException("NOT YET IMPLEMENTED!");
+	}
+	
+	private boolean getIsRoomAvailable(Room room) {
+		//get all appointments
+		//iterate, looking for the room
+			//if found, check time span of app
+				//no conflict, ret true
+		
+		return false;
+		
 	}
 
 	public ClientHandler getClientHandler(User user) {

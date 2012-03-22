@@ -7,6 +7,8 @@ public class UpdateRequest {
 
 	private List<Object> objects;
 	
+	public static final String NAME_PROPERTY_OBJECT_LIST = "objreq";
+	
 	public UpdateRequest() {
 		this.objects = new ArrayList<Object>();
 	}
@@ -25,6 +27,10 @@ public class UpdateRequest {
 	
 	public Object getObject(int i) {
 		return this.objects.get(i);
+	}
+	
+	public List<Object> getObjects() {
+		return objects;
 	}
 	
 }
