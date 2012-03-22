@@ -11,6 +11,7 @@ public class XCal {
 	
 	private static ClientSynchronizationUnit CSU;
 	static JTextField usernameField;
+	private static String serverIp = "localhost";
 	public static void main(String[] args) {
 		CSU=new ClientSynchronizationUnit();
 		LogIn logIn = new LogIn();
@@ -21,6 +22,10 @@ public class XCal {
 
 	public static ClientSynchronizationUnit getCSU() {
 		return CSU;
+	}
+	
+	public static String getServerIp(){
+		return serverIp;
 	}
 	
 }

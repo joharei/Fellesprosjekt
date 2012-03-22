@@ -17,6 +17,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 
 public class GUI extends JFrame implements WindowListener{
 	
@@ -42,6 +43,10 @@ public class GUI extends JFrame implements WindowListener{
 	private JLabel overskrift;
 	
 	private String [] options = {"Meeting","Appointment"};
+	
+	private JDialog progressWindow;
+	private JProgressBar progressBar;
+	Thread progressThread;
 	
 	public GUI(){
 		
@@ -97,6 +102,17 @@ public class GUI extends JFrame implements WindowListener{
 		
 		addActionListeners();
 		
+		JFrame nullFrame = null;
+		progressWindow = new JDialog(nullFrame, "Logging in...", true);
+		progressBar = new JProgressBar();
+		progressBar.setIndeterminate(true);
+		progressWindow.add(progressBar);
+		progressWindow.setSize(300, 75);
+		progressWindow.setLocationRelativeTo(null);
+//		progressWindow.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
+		progressWindow.setResizable(false);
+//		progressWindow.setVisible(true);
+		
 	}
 	private void addActionListeners() {
 		createButton.addActionListener(new ActionListener() {
@@ -117,14 +133,37 @@ public class GUI extends JFrame implements WindowListener{
 		});
 		logOutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				Thread progressThread = new Thread(new ProgressBar());
+				progressThread.start();
 				XCal.getCSU().disconnect();
 				LogIn logIn = new LogIn();
 				logIn.pack();
 				logIn.setVisible(true);
+//				progressWindow.setVisible(false);
 				setVisible(false);
 			}
 		});
 	}
+	
+	class ProgressBar implements Runnable{
+
+		@Override
+		public void run() {
+//			JFrame nullFrame = null;
+//			JDialog progressWindow = new JDialog(nullFrame, "Logging in...", true);
+//			JProgressBar progressBar = new JProgressBar();
+//			progressBar.setIndeterminate(true);
+//			progressBar.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
+//			progressWindow.add(progressBar);
+//			progressWindow.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
+//			progressWindow.pack();
+//			progressWindow.setResizable(false);
+			progressWindow.setVisible(true);
+			
+		}
+		
+	}
+	
 	@Override
 	public void windowOpened(WindowEvent e) {
 		// TODO Auto-generated method stub
@@ -133,6 +172,7 @@ public class GUI extends JFrame implements WindowListener{
 	@Override
 	public void windowClosing(WindowEvent e) {
 		// TODO Auto-generated method stub
+		XCal.getCSU().disconnect();
 		
 	}
 	@Override
