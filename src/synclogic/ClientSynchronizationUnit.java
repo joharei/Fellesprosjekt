@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import model.SaveableClass;
+import model.User;
 import model.XmlSerializerX;
 import no.ntnu.fp.net.co.Connection;
 import no.ntnu.fp.net.co.ConnectionImpl;
@@ -29,7 +30,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	public ClientSynchronizationUnit(){
 		this.sendQueue = new MessageQueue();
 		this.sendQueue.addPropertyChangeListener(this);
-		thread = new Thread(new testClass());
+		thread = new Thread(new SendClass());
 	}
 	
 	public void addToSendQueue(String o) {
@@ -53,7 +54,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		}
 	}
 	
-	class testClass implements Runnable{
+	class SendClass implements Runnable{
 
 		@Override
 		public void run() {
@@ -82,7 +83,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	 * @param ipAddress		The IP address for the server to connect to
 	 * @param port			The port to connect to
 	 */
-	public void connectToServer(String ipAddress, int port){
+	public void connectToServer(String ipAddress, int port) throws IOException{
 		// TODO: Should the port really be 9999?
 		this.connection = new ConnectionImpl(9999);
 		try {
@@ -94,10 +95,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 	
 	/**
@@ -111,6 +109,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		try {
 			this.connection.send(XmlSerializerX.toXml(this.loginRequest, SaveableClass.LoginRequest));
 			LoginRequest respons = (LoginRequest) XmlSerializerX.toObject(this.connection.receive());
+//			update();
 			return respons.getLoginAccepted();
 		} catch (IOException e) {
 			throw new ConnectException();
@@ -157,6 +156,26 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	}
 	
 	/**
+	 * Runs @
+	 * @return
+	 */
+	public List<User> getAllUsers() {
+		try {
+			update();
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		List<User> users = new ArrayList<User>();
+		for (SyncListener object : this.listeners) {
+			if (object.getSaveableClass() == SaveableClass.User){
+				users.add((User) object);
+			}
+		}
+		return users;
+	}
+	
+	/**
 	 * Closes this connection
 	 */
 	public void disconnect(){
@@ -180,11 +199,14 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	
 	public static void main(String[] args){
 		ClientSynchronizationUnit syncUnit = new ClientSynchronizationUnit();
-		syncUnit.connectToServer("localhost", 1337);
 		try {
+			syncUnit.connectToServer("localhost", 1337);
 			syncUnit.logIn("joharei", "123");
 			System.out.println("Logged in!!");
 		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
