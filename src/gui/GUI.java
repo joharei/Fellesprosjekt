@@ -50,8 +50,8 @@ public class GUI extends JFrame implements WindowListener{
 	
 	public GUI(){
 		
-		pack();
-		this.setPreferredSize(new Dimension(800,600));
+//		pack();
+//		this.setPreferredSize(new Dimension(800,600));
 		SmallCalendar smallCal = new SmallCalendar();
 		
 		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel(smallCal);
@@ -100,18 +100,20 @@ public class GUI extends JFrame implements WindowListener{
 		c.gridy=0;
 		add(logOutButton,c);
 		
-		addActionListeners();
-		
 		JFrame nullFrame = null;
-		progressWindow = new JDialog(nullFrame, "Logging in...", true);
+		progressWindow = new JDialog(nullFrame, "Logging out...", true);
 		progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
-		progressWindow.add(progressBar);
+//		progressWindow.add(progressBar);
 		progressWindow.setSize(300, 75);
 		progressWindow.setLocationRelativeTo(null);
 //		progressWindow.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
 		progressWindow.setResizable(false);
 //		progressWindow.setVisible(true);
+		
+		addActionListeners();
+		pack();
+		setLocationRelativeTo(null);
 		
 	}
 	private void addActionListeners() {
@@ -139,7 +141,7 @@ public class GUI extends JFrame implements WindowListener{
 				LogIn logIn = new LogIn();
 				logIn.pack();
 				logIn.setVisible(true);
-//				progressWindow.setVisible(false);
+				progressWindow.setVisible(false);
 				setVisible(false);
 			}
 		});
@@ -149,15 +151,6 @@ public class GUI extends JFrame implements WindowListener{
 
 		@Override
 		public void run() {
-//			JFrame nullFrame = null;
-//			JDialog progressWindow = new JDialog(nullFrame, "Logging in...", true);
-//			JProgressBar progressBar = new JProgressBar();
-//			progressBar.setIndeterminate(true);
-//			progressBar.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
-//			progressWindow.add(progressBar);
-//			progressWindow.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
-//			progressWindow.pack();
-//			progressWindow.setResizable(false);
 			progressWindow.setVisible(true);
 			
 		}

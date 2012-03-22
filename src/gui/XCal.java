@@ -15,8 +15,8 @@ public class XCal {
 	public static void main(String[] args) {
 		CSU=new ClientSynchronizationUnit();
 		LogIn logIn = new LogIn();
-		logIn.pack();
-		logIn.setPreferredSize(new Dimension(200,600));
+//		logIn.pack();
+//		logIn.setPreferredSize(new Dimension(200,600));
 		logIn.setVisible(true);
 	}
 

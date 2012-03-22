@@ -47,7 +47,8 @@ public class LogIn extends JFrame implements WindowListener{
 	private ImageIcon logIn = new ImageIcon(getClass().getResource("art/logIn/login.png"));
 	private JDialog progressWindow;
 	private JProgressBar progressBar;
-	Thread progressThread;
+	private JLabel tempProgressBar;
+	private Thread progressThread;
 	/**
 	 * @param args
 	 */
@@ -157,16 +158,22 @@ public class LogIn extends JFrame implements WindowListener{
 		subPanel.add(logInButton, gridSlave);
 		
 		addActionListeners();
-		JFrame nullFrame = null;
+		JFrame nullFrame = new JFrame();
 		progressWindow = new JDialog(nullFrame, "Logging in...", true);
-		progressBar = new JProgressBar();
-		progressBar.setIndeterminate(true);
+//		progressBar = new JProgressBar();
+//		progressBar.setIndeterminate(true);
+		tempProgressBar = new JLabel("Logging in...");
 		progressWindow.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
 		progressWindow.setResizable(false);
-		progressWindow.add(progressBar);
+		progressWindow.add(tempProgressBar);
+		progressWindow.setLocationRelativeTo(null);
 //		progressWindow.setVisible(true);
 //			progressWindow.setModalityType(ModalityType.APPLICATION_MODAL);
 //		progressWindow.pack();
+		
+		
+		pack();
+		setLocationRelativeTo(null);
 	}
 	
 	private void addActionListeners() {
@@ -199,14 +206,14 @@ public class LogIn extends JFrame implements WindowListener{
 						System.out.println("Suksess!");
 						JFrame gmain = new GUI();
 						gmain.setVisible(true);
-						gmain.pack();
+//						gmain.pack();
 						setVisible(false);
 					}
 				} catch (ConnectException e1) {
 					progressWindow.setVisible(false);
 //					progressThread.interrupt();
 //					progressWindow.dispose();
-					nameError.setText("Could not connect to server!");
+					nameError.setText("Could not connect to server! Please restart to try again.");
 					nameError.setVisible(true);
 				}
 				
