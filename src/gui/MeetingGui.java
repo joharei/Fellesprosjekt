@@ -7,11 +7,14 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.ListModel;
+import javax.swing.table.DefaultTableModel;
 
 public class MeetingGui extends AppointmentGui{
 	
@@ -24,19 +27,26 @@ public class MeetingGui extends AppointmentGui{
 	private JList addPersons;
 	private JScrollPane addPersonsScroll;
 	
-	protected GridBagConstraints gb;
-	protected GridBagLayout gbLayout;
+	private GridBagConstraints gb;
+//	protected GridBagLayout gbLayout;
 	
 	public MeetingGui(){
+		
+		super();
 
 
 		this.setModal(true);
-		this.setPreferredSize(new Dimension(500,600));
+		this.setPreferredSize(new Dimension(600,700));
 		pack();
 		
-		gb = new GridBagConstraints();
-		gbLayout = new GridBagLayout();
-		setLayout(gbLayout);
+		gb = getGridBagConstraints();
+		
+		remove(create);
+		remove(cancel);
+
+//		gb = new GridBagConstraints();
+//		gbLayout = new GridBagLayout();
+//		setLayout(gbLayout);
 		//invite
 		gb.gridx = 0;
 		gb.gridy = 5;
@@ -49,6 +59,7 @@ public class MeetingGui extends AppointmentGui{
 		gb.gridx = 1;
 		gb.gridy = 5;
 		addPersons = new JList();
+		addPersons.setModel(new DefaultListModel());
 		gb.insets = new Insets(48, 50, 0, 0);
 		
 		addPersonsScroll = new JScrollPane(addPersons);
@@ -62,6 +73,7 @@ public class MeetingGui extends AppointmentGui{
 		add = new JButton("add");
 		add.setPreferredSize(new Dimension(80, 30));
 		gb.insets = new Insets(10, 0, 32, 0);
+		add.addActionListener(new AddButtonAction());
 		add(add, gb);
 		
 		//remove button
@@ -70,6 +82,7 @@ public class MeetingGui extends AppointmentGui{
 		remove = new JButton("remove");
 		remove.setPreferredSize(new Dimension(80, 30));
 		gb.insets = new Insets(45, 0, 0, 0);
+		remove.addActionListener(new RemoveButtonAction());
 		add(remove, gb);
 		
 		
@@ -89,6 +102,32 @@ public class MeetingGui extends AppointmentGui{
 		addActionListeners();
 	}
 	
+	class RemoveButtonAction implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			Object[] userStrings = addPersons.getSelectedValues();
+			DefaultListModel model = (DefaultListModel) addPersons.getModel();
+			for(int i = 0; i<userStrings.length; i++){
+				 model.removeElement(userStrings[i]);
+			}
+		}
+		
+	}
+	
+	class AddButtonAction implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			JButton b = (JButton) e.getSource();
+			MeetingGui m = (MeetingGui) b.getParent().getParent().getParent().getParent();
+			ListOfPersons2 selectPersons = new ListOfPersons2(m);
+		}
+		
+	}
+	
 	private void addActionListeners() {
 		newCancel.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -104,8 +143,30 @@ public class MeetingGui extends AppointmentGui{
 		});
 	}
 
+	public void fillInvitationList(String[] selectedNames,
+			String[] selectedEmails) {
+		// TODO Auto-generated method stub
+		int count = selectedNames.length;
+		for(int i = 0; i<count; i++){
+			if(selectedNames[i] != null){
+				String userString = selectedNames[i] + " ; " + selectedEmails[i];
+				DefaultListModel model = (DefaultListModel) addPersons.getModel();
+				if(!model.contains(userString)){
+					model.addElement(userString);
+				}
+			}
+			continue;
+		}
+	}
 	/**
 	 * @param args
 	 */
-
+	
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		MeetingGui gui = new MeetingGui();
+		gui.pack();
+		gui.setVisible(true);
 }
+}
+
