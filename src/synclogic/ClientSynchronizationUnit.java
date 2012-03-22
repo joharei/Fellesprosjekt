@@ -110,7 +110,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		try {
 			this.connection.send(XmlSerializerX.toXml(this.loginRequest, SaveableClass.LoginRequest));
 			LoginRequest respons = (LoginRequest) XmlSerializerX.toObject(this.connection.receive());
-//			update();
+			update();
 			return respons.getLoginAccepted();
 		} catch (IOException e) {
 			throw new ConnectException();
