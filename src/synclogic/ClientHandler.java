@@ -132,9 +132,11 @@ public class ClientHandler implements Runnable {
 					switch(o.getSaveableClass()) {
 					case Meeting:
 						// TODO: BEHANDLE DELETED Hvordan finner jeg ut om noe skal slettes?
-						// TODO: Hvis meeting har forandret tidspunkt maa alle inviterte faa notification
 						Meeting originalM = (Meeting) original;
 						Meeting m = (Meeting) o;
+						if(m.isDeleted()) {
+							
+						}
 						// Sjekk om moete har endret tidspunkt
 						if(!originalM.getDate().equals(m.getDate())) {
 							for (String invitationID: m.getInvitations()) {
@@ -142,7 +144,15 @@ public class ClientHandler implements Runnable {
 								for (SyncListener user : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null)) {
 									for (Notification uNot : ((User) user).getNotifications()) {
 										if(uNot.getInvitation().getObjectID().equalsIgnoreCase(tempInv.getObjectID())) {
-											((User) user).addNotification(new Notification(uNot.getInvitation(), NotificationType.MEETING_TIME_CHANGED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), m.getOwner()));
+											Notification newNot = new Notification(uNot.getInvitation(), NotificationType.MEETING_TIME_CHANGED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), m.getOwner());
+											((User) user).addNotification(newNot);
+											// Sjekk om brukeren er online
+											if(this.serverSynchronizationUnit.getActiveUsers().contains((User) user)) {
+												ClientHandler ch = this.serverSynchronizationUnit.getClientHandler((User) user);
+												ch.addToSendQueue(newNot);
+												ch.addToSendQueue(m);
+												
+											}
 										}
 									}
 								}
@@ -182,7 +192,6 @@ public class ClientHandler implements Runnable {
 						// Invitation er med Notification og trenger ikke aa bli behandlet separat
 						break;
 					case Notification:
-						// TODO: Behandle svar paa invitation!!!!!!!!
 						Notification newNot = (Notification) o;
 						Notification oldNot = (Notification) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.Notification, newNot.getObjectID());
 						if(newNot.getInvitation().getStatus() != oldNot.getInvitation().getStatus()) {
@@ -201,6 +210,10 @@ public class ClientHandler implements Runnable {
 										}
 									}
 								}
+							} else if((oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED || oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED_TIME_CHANGED) && (newNot.getInvitation().getStatus() == InvitationStatus.ACCEPTED)) {
+								newNot.getInvitation().getMeeting().getOwner().addNotification(new Notification(newNot.getInvitation(), NotificationType.INVITATION_ACCEPTED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), this.getUser()));
+							} else if((oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED || oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED_TIME_CHANGED) && (newNot.getInvitation().getStatus() == InvitationStatus.REJECTED)) {
+								newNot.getInvitation().getMeeting().getOwner().addNotification(new Notification(newNot.getInvitation(), NotificationType.INVITATION_REJECTED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), this.getUser()));
 							}
 							oldNot.getInvitation().fire(SaveableClass.Invitation, newNot.getInvitation());
 						}
