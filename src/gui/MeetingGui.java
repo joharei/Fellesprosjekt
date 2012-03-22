@@ -2,19 +2,17 @@ package gui;
 
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
-import javax.swing.ListModel;
-import javax.swing.table.DefaultTableModel;
 
 public class MeetingGui extends AppointmentGui{
 	
@@ -138,6 +136,10 @@ public class MeetingGui extends AppointmentGui{
 		newCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("goes back");
+				
+				JFrame frame = null;
+				JOptionPane.showMessageDialog(frame, "<HTML>A new meeting has been created. <P> Message has been sent to: " + addPersons.getModel() );
+				
 				setVisible(false);
 			}
 		});
@@ -162,11 +164,11 @@ public class MeetingGui extends AppointmentGui{
 	 * @param args
 	 */
 	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		MeetingGui gui = new MeetingGui();
-		gui.pack();
-		gui.setVisible(true);
-}
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//		MeetingGui gui = new MeetingGui();
+//		gui.pack();
+//		gui.setVisible(true);
+//}
 }
 

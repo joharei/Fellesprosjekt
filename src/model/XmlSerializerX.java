@@ -29,6 +29,7 @@ public class XmlSerializerX extends XmlSerializer {
 //		list.add(new User("Kalle", "Kanin", "lovebunny666", "b@c.af", Calendar.getInstance().getTime(), 22445588));
 //		list.add(new User("Donald", "Duck", "ducky", "d@d.ab", Calendar.getInstance().getTime(), 42445588));
 		User user = new User("Onkel", "Skrue", "richie", "1234a", "s@r.ab", Calendar.getInstance().getTime(), 22445598);
+		User user3 = new User("Onkel", "Skrue", "richie", "666", "s@r.ab", Calendar.getInstance().getTime(), 22445598);
 		String xml = toXml(user, SaveableClass.User);
 		System.out.println(xml);
 		User user2 = (User) toObject(xml);
@@ -42,6 +43,26 @@ public class XmlSerializerX extends XmlSerializer {
 		System.out.println("Uname: " + lr2.getUsername());
 		System.out.println("Password: " + lr2.getPassword());
 		System.out.println("Accepted: " + lr2.getLoginAccepted());
+		
+		//test errormessage
+		ErrorMessage errm = new ErrorMessage(user, user3);
+		xml = toXml(errm, SaveableClass.ErrorMessage);
+		System.out.println(xml);
+		errm = (ErrorMessage) toObject(xml);
+		System.out.println("Valid:\n" + errm.getValidObject() + "Invalid:\n" +  errm.getInvalidObject());
+		
+		//test updaterequest
+		UpdateRequest updt = new UpdateRequest();
+		SaveableClass type = SaveableClass.UpdateRequest;
+		xml = toXml(updt, type);
+		System.out.println(xml);
+		updt = (UpdateRequest) toObject(xml);
+		System.out.println("Received updatereq from client: " + updt.size());
+		updt.addObject(user);
+		xml = toXml(updt, type);
+		System.out.println(xml);
+		updt = (UpdateRequest) toObject(xml);
+		System.out.println("Received updatereq response from server:" + updt.getObject(0));
 	}
 	
 	//testing constructor
@@ -133,6 +154,9 @@ public class XmlSerializerX extends XmlSerializer {
 			case UpdateRequest : {
 				return updateRequestToXmlElement((UpdateRequest) obj);
 			}
+			case ErrorMessage : {
+				return errorMessageToXmlElement((ErrorMessage) obj);
+			}
 			case Week : {
 				return weekToXmlElement((Week) obj);
 			}
@@ -158,24 +182,7 @@ public class XmlSerializerX extends XmlSerializer {
 	}
 	
 	
-	private static Element updateRequestToXmlElement(UpdateRequest obj) {
-		 Element updr = new Element("" + SaveableClass.UpdateRequest);
-		 Element  list = new Element(UpdateRequest.NAME_PROPERTY_OBJECT_LIST);
-		 updr.appendChild(list);
-		 List<Object> all = obj.getObjects();
-		 Iterator<Object> it = all.iterator();
-		 while (it.hasNext()) {
-			 Object o = it.next();
-			 if (o instanceof SyncListener) {
-				 SyncListener sl = (SyncListener) o;
-				 SaveableClass type = sl.getSaveableClass();
-				list.appendChild(singleObjToElement(sl, type));
-			 } else if (o instanceof ErrorMessage) {
-				 list.appendChild(singleObjToElement(o, SaveableClass.ErrorMessage));
-			 }
-		 }
-		return updr;
-	}
+
 
 	/**
 	 * Get an object or a list of objects parsed from the Xml String.
@@ -207,6 +214,41 @@ public class XmlSerializerX extends XmlSerializer {
 			return assembleObject(root, rootName);
 		}
 	}
+	
+	private static Element errorMessageToXmlElement(ErrorMessage err) {
+		Element errm = new Element("" + SaveableClass.ErrorMessage);
+		
+		Element valid = new Element(ErrorMessage.NAME_PROPERTY_VALID_OBJECT);
+		SyncListener validObject = err.getValidObject();
+		valid.appendChild(singleObjToElement(validObject, validObject.getSaveableClass()));
+		errm.appendChild(valid);
+		
+		Element invalid = new Element(ErrorMessage.NAME_PROPERTY_INVALID_OBJECT);
+		SyncListener invalidObject = err.getInvalidObject();
+		invalid.appendChild(singleObjToElement(invalidObject, invalidObject.getSaveableClass()));
+		errm.appendChild(invalid);
+		
+		return errm;
+	}
+	
+	private static Element updateRequestToXmlElement(UpdateRequest obj) {
+		Element updr = new Element("" + SaveableClass.UpdateRequest);
+		Element  list = new Element(UpdateRequest.NAME_PROPERTY_OBJECT_LIST);
+		updr.appendChild(list);
+		List<Object> all = obj.getObjects();
+		Iterator<Object> it = all.iterator();
+		while (it.hasNext()) {
+			Object o = it.next();
+			if (o instanceof SyncListener) {
+				SyncListener sl = (SyncListener) o;
+				SaveableClass type = sl.getSaveableClass();
+				list.appendChild(singleObjToElement(sl, type));
+			} else if (o instanceof ErrorMessage) {
+				list.appendChild(singleObjToElement(o, SaveableClass.ErrorMessage));
+			}
+		}
+		return updr;
+	}
 
 	private static Object assembleObject(Element root, String rootName)
 			throws ParseException, ParsingException {
@@ -220,6 +262,9 @@ public class XmlSerializerX extends XmlSerializer {
 			}
 			case UpdateRequest : {
 				return assembleUpdateRequest(root);
+			}
+			case ErrorMessage : {
+				return assembleErrorMessage(root);
 			}
 			case Week : {
 				return assembleWeek(root);
@@ -248,7 +293,28 @@ public class XmlSerializerX extends XmlSerializer {
 		}
 	}
 	
+	private static Object assembleErrorMessage(Element root) throws ParseException, ParsingException {
+		SyncListener valid = null, invalid = null;
+		Element e = root.getFirstChildElement(ErrorMessage.NAME_PROPERTY_VALID_OBJECT);
+		if (e != null) {
+			Element e2 = e.getChildElements().get(0);
+			if (e2 != null) {
+				valid = (SyncListener) assembleObject(e2, e2.getLocalName());
+			}
+		}
+		e = root.getFirstChildElement(ErrorMessage.NAME_PROPERTY_INVALID_OBJECT);
+		if (e != null) {
+			Element e2 = e.getChildElements().get(0);
+			if (e2 != null) {
+				invalid = (SyncListener) assembleObject(e2, e2.getLocalName());
+			}
+		}
+		ErrorMessage msg = new ErrorMessage(valid, invalid);
+		return msg;
+	}
+
 	private static Object assembleUpdateRequest(Element root) throws ParseException, ParsingException {
+		UpdateRequest ureq = null;
 		ArrayList<Object> objs = new ArrayList<Object>();
 		Element e = root.getFirstChildElement(UpdateRequest.NAME_PROPERTY_OBJECT_LIST);
 		if (e != null) {
@@ -261,8 +327,9 @@ public class XmlSerializerX extends XmlSerializer {
 				}
 			}
 		}
-		
-		return objs;
+		ureq = new UpdateRequest();
+		ureq.addAllObjects(objs);
+		return ureq;
 	}
 
 	private static Document stringToDocument(String xml) throws java.io.IOException, java.text.ParseException, nu.xom.ParsingException {

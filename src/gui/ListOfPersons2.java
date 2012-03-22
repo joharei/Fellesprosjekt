@@ -6,7 +6,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -15,6 +15,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+
+import model.User;
+
+import synclogic.ClientSynchronizationUnit;
 
 public class ListOfPersons2 extends JDialog{
 	
@@ -25,11 +29,12 @@ public class ListOfPersons2 extends JDialog{
 	private JScrollPane scrollPane;
 	private JTextField searchBox;
 	private JTable tableOfPersons;
+	
+	private DefaultTableModel model;
 
 	private Object[] colNames =  {"Name", "e-mail"};
 	
-	private Object[][] testData = {{"person1", "person1@bla.com"},{"person2", "person2@bla.com"},
-			{"person3", "person3@bla.com"},{"person4", "person4@bla.com"}};
+	private Object[][] testData;
 	
 	private ImageIcon search = new ImageIcon(getClass().getResource("art/addPersons/search.png"));
 	
@@ -61,6 +66,7 @@ public class ListOfPersons2 extends JDialog{
 		searchBox = new JTextField();
 		searchBox.setColumns(10);
 		gb.insets = new Insets(0, 15, 0, 0);
+		searchBox.addActionListener(new SearchAction());
 		add(searchBox, gb);
 		
 		//search button
@@ -69,6 +75,7 @@ public class ListOfPersons2 extends JDialog{
 		searchButton = new JButton("Search");
 		searchButton.setPreferredSize(new Dimension(75, 19));
 		gb.insets = new Insets(0, 0, 0, 20);
+		searchButton.addActionListener(new SearchAction());
 		add(searchButton, gb);
 
 		
@@ -81,12 +88,21 @@ public class ListOfPersons2 extends JDialog{
 		gb.gridy = 1;
 		tableOfPersons = new JTable(testData, colNames);
 		tableOfPersons.setFillsViewportHeight(true);
-		tableOfPersons.setModel(new DefaultTableModel(testData, colNames){
+		ArrayList<User> allUsers = (ArrayList<User>) XCal.getCSU().getAllUsers();
+		testData = new Object[allUsers.size()][2];
+		int count = 0;
+		for (User user : allUsers) {
+			testData[count][0] = user.getFirstname() + " " + user.getSurname();
+			testData[count][1] = user.getEmail();
+			count++;
+		}
+		model = new DefaultTableModel(testData, colNames){
 			public boolean isCellEditable(int rowIndex, int columnIndex){
 				return false;
 			}
 			
-		});
+		};
+		tableOfPersons.setModel(model);
 		scrollPane = new JScrollPane(tableOfPersons);
 		add(scrollPane, gb);
 		
@@ -110,6 +126,41 @@ public class ListOfPersons2 extends JDialog{
 		
 		pack();
 		setVisible(true);
+	}
+	
+	public JTextField getSearchBox(){
+		return searchBox;
+	}
+	
+	class SearchAction implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+					
+			String typed = getSearchBox().getText();
+			String personName = "";
+			String personEmail = "";
+			ClientSynchronizationUnit csu = XCal.getCSU();
+			ArrayList<User> allUsers = (ArrayList<User>) csu.getAllUsers();
+			
+			model = new DefaultTableModel(new Object[][]{}, colNames){
+				public boolean isCellEditable(int rowIndex, int columnIndex){
+					return false;
+				}
+				
+			};
+			tableOfPersons.setModel(model);
+
+			for (User user : allUsers) {
+				if(user.getFirstname().startsWith(typed)){
+					personName = user.getFirstname() + " " + user.getSurname();
+					model.insertRow(tableOfPersons.getModel().getRowCount(), new Object[]{user.getName(), user.getEmail()});
+					
+				}
+			}
+		}
+		
 	}
 	
 	/**

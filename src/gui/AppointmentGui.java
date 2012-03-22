@@ -16,7 +16,9 @@ import java.util.Calendar;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -176,6 +178,11 @@ public class AppointmentGui extends JDialog{
 		});
 		create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				JFrame frame = null;
+				JOptionPane.showMessageDialog(frame, "<HTML>Appointment created " );
+
+				
 				System.out.println("goes back");
 				dispose();
 			}

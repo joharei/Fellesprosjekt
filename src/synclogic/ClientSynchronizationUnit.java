@@ -167,8 +167,13 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		this.listeners = new ArrayList<SyncListener>();
 		this.listeners.add((SyncListener) new User("Johan", "Reitan", "joharei", "123", "joharei@stud.ntnu.no", new Date(), 0));
-		this.listeners.add((SyncListener) new User("Nitharshaan", "Thevarajah", "nithars", "1234", "nithars@stud.ntnu.no", new Date(), 0));
+		this.listeners.add((SyncListener) new User("Nitharshaan", "Thevarajah", "nitharsh", "1234", "nitharsh@stud.ntnu.no", new Date(), 0));
+		this.listeners.add((SyncListener) new User("Ole", "O", "oleo", "12345", "oleo@stud.ntnu.no", new Date(), 1));
+		this.listeners.add((SyncListener) new User("Dole", "D", "doled", "123456", "doled@stud.ntnu.no", new Date(), 2));
+		this.listeners.add((SyncListener) new User("Doffen", "OD", "doffenOD", "1234567", "doffenod@stud.ntnu.no", new Date(), 3));
+
 		List<User> users = new ArrayList<User>();
 		for (SyncListener object : this.listeners) {
 			if (object.getSaveableClass() == SaveableClass.User){
