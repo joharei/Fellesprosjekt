@@ -2,6 +2,9 @@ package synclogic;
 
 public class ErrorMessage {
 
+	public static final String NAME_PROPERTY_VALID_OBJECT = "validObject";
+	public static final String NAME_PROPERTY_INVALID_OBJECT = "invalidObject";
+	
 	private SyncListener validObject, invalidObject;
 	
 	public ErrorMessage(SyncListener validObject) {

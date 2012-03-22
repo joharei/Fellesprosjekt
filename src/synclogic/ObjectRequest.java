@@ -4,6 +4,9 @@ import model.SaveableClass;
 
 public class ObjectRequest {
 
+	public final static String NAME_PROPERTY_SAVEABLE_CLASS = "saveableClass";
+	public final static String NAME_PROPERTY_ID = "id";
+	
 	private SaveableClass c;
 	private String id;
 	
