@@ -45,7 +45,7 @@ public class ClientHandler implements Runnable {
 			// Get the user
 			User user = serverSynchronizationUnit.getUser(loginRequest.getUsername());
 			// Check if login is OK
-			if(user == null) {
+			if(user == null || user.isOnline()) {
 				loginRequest.setLoginAccepted(false);
 			} else {
 				loginRequest.setLoginAccepted(loginRequest.getUsername().equalsIgnoreCase(user.getUsername()) && user.getPassword().equals(loginRequest.getPassword()) ? true : false);
@@ -122,7 +122,7 @@ public class ClientHandler implements Runnable {
 	public void processReceivedObjects(List<SyncListener> objects) {
 		for (SyncListener o : objects) {
 			SyncListener original = this.serverSynchronizationUnit.getObjectFromID(o.getSaveableClass(), o.getObjectID());
-			if(!this.serverSynchronizationUnit.isValidUpdate(o, original)) {
+			if(!this.serverSynchronizationUnit.isValidUpdate(o, original, this.getUser())) {
 				this.sendQueue.add(new ErrorMessage(original, o));
 			} else {
 				// Execute update
@@ -131,10 +131,23 @@ public class ClientHandler implements Runnable {
 					// TODO Maa ogsaa gaa inn i alle referansene i objektet for aa oppdatere disse!!!!!!!!!!
 					switch(o.getSaveableClass()) {
 					case Meeting:
-						// TODO: BEHANDLE DELETED
+						// TODO: BEHANDLE DELETED Hvordan finner jeg ut om noe skal slettes?
 						// TODO: Hvis meeting har forandret tidspunkt maa alle inviterte faa notification
 						Meeting originalM = (Meeting) original;
 						Meeting m = (Meeting) o;
+						// Sjekk om moete har endret tidspunkt
+						if(!originalM.getDate().equals(m.getDate())) {
+							for (String invitationID: m.getInvitations()) {
+								Invitation tempInv = (Invitation) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.Invitation, invitationID);
+								for (SyncListener user : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null)) {
+									for (Notification uNot : ((User) user).getNotifications()) {
+										if(uNot.getInvitation().getObjectID().equalsIgnoreCase(tempInv.getObjectID())) {
+											((User) user).addNotification(new Notification(uNot.getInvitation(), NotificationType.MEETING_TIME_CHANGED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), m.getOwner()));
+										}
+									}
+								}
+							}
+						}
 						// Invite new users
 						this.serverSynchronizationUnit.sendMeetingInvitations(m);
 						// Sjekk om invitasjoner er blitt fjernet
@@ -173,9 +186,23 @@ public class ClientHandler implements Runnable {
 						Notification newNot = (Notification) o;
 						Notification oldNot = (Notification) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.Notification, newNot.getObjectID());
 						if(newNot.getInvitation().getStatus() != oldNot.getInvitation().getStatus()) {
-//							if(newNot.getInvitation().getStatus() == )
-//							Notification notToSend = new N
-//							oldNot.getInvitation().fire(SaveableClass.Invitation, newNot.getInvitation());
+							if(oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED_TIME_CHANGED && newNot.getInvitation().getStatus() == InvitationStatus.REJECTED) {
+								// Send notification til alle inviterte brukere som ikke har svart nei
+								for (String invitationID : newNot.getInvitation().getMeeting().getInvitations()) {
+									Invitation tempInv = (Invitation) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.Invitation, invitationID);
+									if(tempInv.getStatus() != InvitationStatus.REJECTED && tempInv.getStatus() != InvitationStatus.REVOKED) {
+										for (SyncListener user : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null)) {
+											for (Notification no : ((User) user).getNotifications()) {
+												if(no.getObjectID().equalsIgnoreCase(tempInv.getObjectID())) {
+													// Vi har funnet brukeren som skal ha notificationen
+													((User) user).addNotification(new Notification(tempInv, NotificationType.MEETING_CHANGE_REJECTED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), this.getUser()));
+												}
+											}
+										}
+									}
+								}
+							}
+							oldNot.getInvitation().fire(SaveableClass.Invitation, newNot.getInvitation());
 						}
 						break;
 					case User:
