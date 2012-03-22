@@ -36,7 +36,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		super();
 		this.updatedButNotSavedObjects = new ArrayList<SyncListener>();
 		this.activeUserConnections = new ArrayList<ClientHandler>();
-		this.dbUnit = new DatabaseUnit();
+		//this.dbUnit = new DatabaseUnit();
 		// TODO: LOADING!!!
 		//dbUnit.load();
 		// TODO: Maa lagre et sted ogsaa!
@@ -123,8 +123,13 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * @param original	The original. Null if update is a new object
 	 * @return			True if the update is valid. False if not
 	 */
-	public boolean isValidUpdate(SyncListener update, SyncListener original) {
-		// TODO
+	public boolean isValidUpdate(SyncListener update, SyncListener original, User sentBy) {
+		// TODO: Mye!
+		if (original == null) {
+			//new object, maybe not needed
+		} else {
+			//updated object
+		}
 		throw new RuntimeException("NOT YET IMPLEMENTED!");
 	}
 
@@ -185,10 +190,16 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		}
 	}
 	
-//	public static void main(String[] args) {
-//		ConnectionImpl.fixLogDirectory();
-//		ServerSynchronizationUnit ssu = new ServerSynchronizationUnit();
-//		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
-//		ssu.listenForUserConnections(1337);
-//	}
+	public static void main(String[] args) {
+		ConnectionImpl.fixLogDirectory();
+		ServerSynchronizationUnit ssu = null;
+		try {
+			ssu = new ServerSynchronizationUnit();
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
+		ssu.listenForUserConnections(1337);
+	}
 }
