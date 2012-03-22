@@ -10,5 +10,6 @@ public enum SaveableClass {
 	User,
 	Week,
 	Null,
-	UpdateRequest;
+	UpdateRequest,
+	ErrorMessage;
 }
