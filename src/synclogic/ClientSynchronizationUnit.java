@@ -9,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import model.SaveableClass;
@@ -160,12 +161,14 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	 * @return
 	 */
 	public List<User> getAllUsers() {
-		try {
-			update();
-		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			update();
+//		} catch (ConnectException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		this.listeners.add((SyncListener) new User("Johan", "Reitan", "joharei", "123", "joharei@stud.ntnu.no", new Date(), 0));
+		this.listeners.add((SyncListener) new User("Nitharshaan", "Thevarajah", "nithars", "1234", "nithars@stud.ntnu.no", new Date(), 0));
 		List<User> users = new ArrayList<User>();
 		for (SyncListener object : this.listeners) {
 			if (object.getSaveableClass() == SaveableClass.User){
