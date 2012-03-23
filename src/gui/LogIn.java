@@ -9,6 +9,8 @@ import java.awt.Insets;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -179,46 +181,70 @@ public class LogIn extends JFrame implements WindowListener{
 	private void addActionListeners() {
 		logInButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				progressThread = new Thread(new ProgressBar());
-				progressThread.start();
-				
-				char [] liste  = passwordField.getPassword();
-				String passord="";
-				for (char c : liste) {
-					passord+=c;
-				}
-				try {
-					
-					if(XCal.getCSU().logIn(XCal.usernameField.getText(), passord)==false){
-//						progressThread.interrupt();
-//						progressWindow.removeAll();
-//						progressWindow.dispose();
-						progressWindow.setVisible(false);
-						System.out.println("feil brukernavn eller passord");
-						nameError.setText("Invalid username and/or password");
-						nameError.setVisible(true);
-						
-					}
-					else{
-//						progressThread.interrupt();
-//						progressWindow.dispose();
-						progressWindow.setVisible(false);
-						System.out.println("Suksess!");
-						JFrame gmain = new GUI();
-						gmain.setVisible(true);
-//						gmain.pack();
-						setVisible(false);
-					}
-				} catch (ConnectException e1) {
-					progressWindow.setVisible(false);
-//					progressThread.interrupt();
-//					progressWindow.dispose();
-					nameError.setText("Could not connect to server! Please restart to try again.");
-					nameError.setVisible(true);
-				}
-				
+				logIn();
 			}
 		});
+		this.passwordField.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				logIn();
+				
+			}
+
+		
+		});
+		XCal.usernameField.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				logIn();
+				
+			}
+
+		
+		});
+		
+	}
+	private void logIn(){
+		progressThread = new Thread(new ProgressBar());
+		progressThread.start();
+		
+		char [] liste  = passwordField.getPassword();
+		String passord="";
+		for (char c : liste) {
+			passord+=c;
+		}
+		try {
+			
+			if(XCal.getCSU().logIn(XCal.usernameField.getText(), passord)==false){
+//				progressThread.interrupt();
+//				progressWindow.removeAll();
+//				progressWindow.dispose();
+				progressWindow.setVisible(false);
+				System.out.println("feil brukernavn eller passord");
+				nameError.setText("Invalid username and/or password");
+				nameError.setVisible(true);
+				
+			}
+			else{
+//				progressThread.interrupt();
+//				progressWindow.dispose();
+				progressWindow.setVisible(false);
+				System.out.println("Suksess!");
+				JFrame gmain = new GUI();
+				gmain.setVisible(true);
+//				gmain.pack();
+				setVisible(false);
+			}
+		} catch (ConnectException e1) {
+			progressWindow.setVisible(false);
+//			progressThread.interrupt();
+//			progressWindow.dispose();
+			nameError.setText("Could not connect to server! Please restart to try again.");
+			nameError.setVisible(true);
+		}
+		
 	}
 	
 	class ProgressBar implements Runnable{
