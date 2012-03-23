@@ -67,12 +67,7 @@ public class CalendarPanecolumnHeaderPanel extends JPanel implements PropertyCha
 		//	System.out.println("Dato i måneden: "+ evt.getNewValue());
 			dagIMnd=(Integer)evt.getNewValue();
 		}
-		if(evt.getPropertyName()==SmallCalendar.NAME_PROPERTY_DATE_IN_MONTH){
-			for (int i = 0; i < 7; i++) {
-				datoerIMnd[i]=(Integer)evt.getNewValue();
-				System.out.print(datoerIMnd[i]);
-			}
-		}
+		
 		if(weekNumber==52||weekNumber==5||weekNumber==9||weekNumber==13||weekNumber==18||weekNumber==22||weekNumber==26||weekNumber==31||weekNumber==35||weekNumber==40||weekNumber==44||weekNumber==48){
 			
 			int temp=7-trekkFraDag;
