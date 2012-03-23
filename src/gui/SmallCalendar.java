@@ -34,9 +34,11 @@ public class SmallCalendar extends JPanel{
 	private int maaned;
 	private int dagIUken;
 	private int datoIMnd;
+	private int [] datesInWeek;
 	private Calendar calender=Calendar.getInstance();
 	public final static String NAME_PROPERTY_WEEK_NUMBER="ukenr";
 	private PropertyChangeSupport support;
+	public final static String NAME_PROPERY_DATES_IN_WEEK="datoIUken";
 	public final static String NAME_PROPERTY_MONTH="maaned";
 	public final static String NAME_PROPERTY_DAYS_IN_WEEK="dagIUken";
 	public final static String NAME_PROPERTY_DATE_IN_MONTH="datoIMnd";
@@ -96,6 +98,17 @@ public class SmallCalendar extends JPanel{
 		
 		support.firePropertyChange(NAME_PROPERTY_DAYS_IN_WEEK, temp, dagerIUken);
 	}
+	
+	public void setDateInWeek(int [] datesInWeek){
+		int [] temp = null;
+		for (int i = 0; i <7; i++) {
+			temp [i]= this.datesInWeek[i];
+			this.datesInWeek[i]=datesInWeek[i];
+		}
+		
+		support.firePropertyChange(NAME_PROPERY_DATES_IN_WEEK, temp, datesInWeek);
+	}
+	
 	public void setDateInMonth(int datoIMnd){
 		int temp = this.datoIMnd;
 		this.datoIMnd=datoIMnd;
