@@ -18,10 +18,10 @@ public class Invitation implements SyncListener {
 	public static final String NAME_PROPERTY_ID = "id";
 	
 	public Invitation(InvitationStatus status, Meeting meeting, String id) {
+		pcs = new PropertyChangeSupport(this);
 		setStatus(status);
 		setMeeting(meeting);
 		setID(id);
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public void setID(String id) {

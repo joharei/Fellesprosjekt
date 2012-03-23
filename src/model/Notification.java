@@ -20,11 +20,11 @@ public class Notification implements SyncListener {
 	public static final String NAME_PROPERTY_TRIGGERED_BY = "triggeredBy";
 	
 	public Notification(Invitation invitation, NotificationType type, String id, User triggeredBy){
+		pcs = new PropertyChangeSupport(this);
 		setInvitation(invitation);
 		setType(type);
 		setId(id);
 		setTriggeredBy(triggeredBy);
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public Invitation getInvitation() {

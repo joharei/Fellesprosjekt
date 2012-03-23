@@ -23,10 +23,10 @@ public class Room implements SyncListener {
 	 * @param capacity
 	 */
 	public Room(int id, String name, int capacity) {
+		pcs = new PropertyChangeSupport(this);
 		this.id = id;
 		this.name = name;
 		this.capacity = capacity;
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public int getId() {
