@@ -7,6 +7,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Comparator;
+
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -153,10 +155,15 @@ public class ListOfPersons2 extends JDialog{
 			tableOfPersons.setModel(model);
 
 			for (User user : allUsers) {
-				if(user.getFirstname().startsWith(typed)){
+				String tempTyped = typed.toLowerCase();
+
+				String tempFirstName = user.getFirstname().toLowerCase();
+				String tempSureName = user.getSurname().toLowerCase();
+				String tempEmail = user.getEmail().toLowerCase();
+				
+				if(tempFirstName.startsWith(tempTyped) || tempSureName.startsWith(tempTyped) || tempEmail.startsWith(tempTyped)){
 					personName = user.getFirstname() + " " + user.getSurname();
 					model.insertRow(tableOfPersons.getModel().getRowCount(), new Object[]{user.getName(), user.getEmail()});
-					
 				}
 			}
 		}

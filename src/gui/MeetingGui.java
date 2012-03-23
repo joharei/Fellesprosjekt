@@ -137,7 +137,8 @@ public class MeetingGui extends AppointmentGui{
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("goes back");
 				DefaultListModel model = (DefaultListModel) addPersons.getModel();
-				if(model.isEmpty()){
+				if(model.isEmpty() || getCalIcon().getDate() == null || getDescriptionField().getText().isEmpty() || ((getPlaceField1().getText().isEmpty() || getPlaceField1().getText().equals("Type or click button"))
+						&& getPlaceField2().getSelectedItem().equals("choose"))){
 					JFrame frame = null;
 					JOptionPane.showMessageDialog(frame, "<HTML>Some fields are empty, please take care of the empty fields :) " );
 				}
