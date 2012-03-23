@@ -57,7 +57,8 @@ public abstract class SynchronizationUnit {
 				return objects;
 			}
 		}
-		return objects.isEmpty() ? null : objects;
+		return objects;
+//		return objects.isEmpty() ? null : objects;
 	}
 	
 	/**
