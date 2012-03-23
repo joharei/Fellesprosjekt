@@ -11,6 +11,7 @@ import java.util.List;
 
 import synclogic.ErrorMessage;
 import synclogic.LoginRequest;
+import synclogic.RoomAvailabilityRequest;
 import synclogic.SyncListener;
 import synclogic.SynchronizationUnit;
 import synclogic.UpdateRequest;
@@ -63,24 +64,40 @@ public class XmlSerializerX extends XmlSerializer {
 		System.out.println(xml);
 		updt = (UpdateRequest) toObject(xml);
 		System.out.println("Received updatereq response from server:" + updt.getObject(0));
+		
+		//test roomavailabilityrequest
+		System.out.println("\nStarting test of RoomAvailabilityRequest...");
+		RoomAvailabilityRequest rar = new RoomAvailabilityRequest();
+		type = SaveableClass.RoomAvailabilityRequest;
+		xml = toXml(rar, type);
+		System.out.println(xml);
+		rar = (RoomAvailabilityRequest) toObject(xml);
+		ArrayList<Room> rooms = new ArrayList<Room>();
+		rooms.add(new Room(0, "Hepp", 60));
+		rooms.add(new Room(3, "Klaustrofobi", 1));
+		rar.setAvailableRooms(rooms);
+		xml = toXml(rar, type);
+		System.out.println(xml);
+		rar = (RoomAvailabilityRequest) toObject(xml);
+		System.out.println("Room count: " + rar.getAvailableRooms().size());
 	}
 	
 	//testing constructor
-	@SuppressWarnings("rawtypes")
-	private XmlSerializerX(ArrayList list, SaveableClass type) {
-		Document doc = buildXml(list, type);
-		System.out.println("Xml string:\n" + doc.toXML());
-		System.out.println("Examine root element: " + doc.getRootElement().getLocalName());
-		try {
-			ArrayList objects = readXml(doc);
-			Iterator it = objects.iterator();
-			while (it.hasNext()) {
-				System.out.println(it.next());
-			}
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-	}
+//	@SuppressWarnings("rawtypes")
+//	private XmlSerializerX(ArrayList list, SaveableClass type) {
+//		Document doc = buildXml(list, type);
+//		System.out.println("Xml string:\n" + doc.toXML());
+//		System.out.println("Examine root element: " + doc.getRootElement().getLocalName());
+//		try {
+//			ArrayList objects = readXml(doc);
+//			Iterator it = objects.iterator();
+//			while (it.hasNext()) {
+//				System.out.println(it.next());
+//			}
+//		} catch (ParseException e) {
+//			e.printStackTrace();
+//		}
+//	}
 	
 	/**
 	 * Read a Xml document and create objects found within.
@@ -88,33 +105,33 @@ public class XmlSerializerX extends XmlSerializer {
 	 * @return Arraylist with the created objects.
 	 * @throws ParseException
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static ArrayList readXml(Document xmlDoc) throws ParseException {
-		ArrayList addedObj = new ArrayList();
-		Element root = xmlDoc.getRootElement();
-		SaveableClass objType = SaveableClass.valueOf(root.getLocalName());
-		switch (objType) {
-			case User : {
-				//Root of Xml file dictates collection of users
-				Elements users = root.getChildElements(User.NAME_PROPERTY_CLASSTYPE);
-				for (int i = 0; i < users.size(); i++) {
-					Element childElement = users.get(i);
-					addedObj.add(assembleUser(childElement));
-				}
-				return addedObj;
-			}
-			case Week : {
-				Elements weeks = root.getChildElements(Week.NAME_PROPERTY_CLASSTYPE);
-				for (int i = 0; i < weeks.size(); i++) {
-					Element weekElement = weeks.get(i);
-					addedObj.add(assembleWeek(weekElement));
-				}
-			}
-			default: {
-				throw new ParseException("Unrecognized object type!", 0);
-			}
-		}
-	}
+//	@SuppressWarnings({ "rawtypes", "unchecked" })
+//	private static ArrayList readXml(Document xmlDoc) throws ParseException {
+//		ArrayList addedObj = new ArrayList();
+//		Element root = xmlDoc.getRootElement();
+//		SaveableClass objType = SaveableClass.valueOf(root.getLocalName());
+//		switch (objType) {
+//			case User : {
+//				//Root of Xml file dictates collection of users
+//				Elements users = root.getChildElements(User.NAME_PROPERTY_CLASSTYPE);
+//				for (int i = 0; i < users.size(); i++) {
+//					Element childElement = users.get(i);
+//					addedObj.add(assembleUser(childElement));
+//				}
+//				return addedObj;
+//			}
+//			case Week : {
+//				Elements weeks = root.getChildElements(Week.NAME_PROPERTY_CLASSTYPE);
+//				for (int i = 0; i < weeks.size(); i++) {
+//					Element weekElement = weeks.get(i);
+//					addedObj.add(assembleWeek(weekElement));
+//				}
+//			}
+//			default: {
+//				throw new ParseException("Unrecognized object type!", 0);
+//			}
+//		}
+//	}
 	
 	/**
 	 * Turn a list of objects of the same type or a single object
@@ -154,6 +171,9 @@ public class XmlSerializerX extends XmlSerializer {
 			case UpdateRequest : {
 				return updateRequestToXmlElement((UpdateRequest) obj);
 			}
+			case RoomAvailabilityRequest : {
+				return roomAvailabilityRequestToXmlElement((RoomAvailabilityRequest) obj);
+			}
 			case ErrorMessage : {
 				return errorMessageToXmlElement((ErrorMessage) obj);
 			}
@@ -182,6 +202,7 @@ public class XmlSerializerX extends XmlSerializer {
 	}
 	
 	
+
 
 
 	/**
@@ -213,6 +234,39 @@ public class XmlSerializerX extends XmlSerializer {
 		} else {
 			return assembleObject(root, rootName);
 		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	private static Element roomAvailabilityRequestToXmlElement(
+			RoomAvailabilityRequest obj) {
+		Element rarE = new Element("" + SaveableClass.RoomAvailabilityRequest);
+		Element listE = new Element(RoomAvailabilityRequest.NAME_PROPERTY_ROOM_LIST);
+		List list = obj.getAvailableRooms();
+		for (Iterator iterator = list.iterator(); iterator.hasNext();) {
+			Room room = (Room) iterator.next();
+			listE.appendChild(roomToXmlElement(room));
+		}
+		rarE.appendChild(listE);
+		return rarE;
+	}
+	
+	private static Object assembleRoomAvailabilityRequest(Element rarE) {
+		RoomAvailabilityRequest rar = null;
+		ArrayList<Room> availableRooms = new ArrayList<Room>();
+		Element e = rarE.getFirstChildElement(RoomAvailabilityRequest.NAME_PROPERTY_ROOM_LIST);
+		if (e != null) {
+			Elements list = e.getChildElements();
+			for (int i = 0; i < list.size(); i++) {
+				Element roomE = list.get(i);
+				if (e != null) {
+					availableRooms.add(assembleRoom(roomE));
+				}
+			}
+		}
+		
+		rar = new RoomAvailabilityRequest();
+		rar.setAvailableRooms(availableRooms);
+		return rar;
 	}
 	
 	private static Element errorMessageToXmlElement(ErrorMessage err) {
@@ -262,6 +316,9 @@ public class XmlSerializerX extends XmlSerializer {
 			}
 			case UpdateRequest : {
 				return assembleUpdateRequest(root);
+			}
+			case RoomAvailabilityRequest : {
+				return assembleRoomAvailabilityRequest(root);
 			}
 			case ErrorMessage : {
 				return assembleErrorMessage(root);

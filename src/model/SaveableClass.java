@@ -11,5 +11,6 @@ public enum SaveableClass {
 	Week,
 	Null,
 	UpdateRequest,
-	ErrorMessage;
+	ErrorMessage,
+	RoomAvailabilityRequest;
 }
