@@ -27,6 +27,7 @@ public class CalendarPanecolumnHeaderPanel extends JPanel implements PropertyCha
 	private JLabel saturday = new JLabel("Sat");
 	private JLabel sunday = new JLabel("Sun");
 	private int maned=0;
+	private int [] datoerIMnd=null;
 	private int weekNumber;
 	private int dag=0;
 	private int dagIUken=0;
@@ -51,6 +52,7 @@ public class CalendarPanecolumnHeaderPanel extends JPanel implements PropertyCha
 			//System.out.println("Ukenr: "+(Integer)evt.getNewValue());
 			weekNumber=(Integer)evt.getNewValue();
 		}
+		
 		//System.out.println(evt.getPropertyName());
 		if(evt.getPropertyName()==SmallCalendar.NAME_PROPERTY_MONTH){
 			//System.out.println("Måned: "+evt.getNewValue());
@@ -65,6 +67,7 @@ public class CalendarPanecolumnHeaderPanel extends JPanel implements PropertyCha
 		//	System.out.println("Dato i måneden: "+ evt.getNewValue());
 			dagIMnd=(Integer)evt.getNewValue();
 		}
+		
 		if(weekNumber==52||weekNumber==5||weekNumber==9||weekNumber==13||weekNumber==18||weekNumber==22||weekNumber==26||weekNumber==31||weekNumber==35||weekNumber==40||weekNumber==44||weekNumber==48){
 			
 			int temp=7-trekkFraDag;
