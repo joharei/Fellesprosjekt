@@ -9,9 +9,9 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
+import model.Notification;
 import model.SaveableClass;
 import model.User;
 import model.XmlSerializerX;
@@ -163,22 +163,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	 * @return
 	 */
 	public List<User> getAllUsers() {
-//		try {
-//			update();
-//		} catch (ConnectException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-		this.listeners = new ArrayList<SyncListener>();
-		this.listeners.add((SyncListener) new User("Johan", "Reitan", "joharei", "123", "joharei@stud.ntnu.no", new Date(), 0));
-		this.listeners.add((SyncListener) new User("Nitharshaan", "Thevarajah", "nitharsh", "1234", "nitharsh@stud.ntnu.no", new Date(), 0));
-		this.listeners.add((SyncListener) new User("Ole", "O", "oleo", "12345", "oleo@stud.ntnu.no", new Date(), 1));
-		this.listeners.add((SyncListener) new User("Dole", "D", "doled", "123456", "doled@stud.ntnu.no", new Date(), 2));
-		this.listeners.add((SyncListener) new User("Doffen", "OD", "doffenOD", "1234567", "doffenod@stud.ntnu.no", new Date(), 3));
-
 		List<User> users = new ArrayList<User>();
 		for (SyncListener object : this.listeners) {
 			if (object.getSaveableClass() == SaveableClass.User){
+				System.out.println(((User) object).getFirstname());
 				users.add((User) object);
 			}
 		}
@@ -207,28 +195,34 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	
 	
 	
-	public static void main(String[] args){
-		ClientSynchronizationUnit syncUnit = new ClientSynchronizationUnit();
-		try {
-			syncUnit.connectToServer("localhost", 1337);
-			syncUnit.logIn("joharei", "123");
-			System.out.println("Logged in!!");
-		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-//		for (int i = 0; i<10; i++){
-//			syncUnit.addToSendQueue("Element " + i);
+//	public static void main(String[] args){
+//		ClientSynchronizationUnit syncUnit = new ClientSynchronizationUnit();
+//		try {
+//			syncUnit.connectToServer("localhost", 1337);
+//			syncUnit.logIn("joharei", "123");
+//			System.out.println("Logged in!!");
+//		} catch (ConnectException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
 //		}
-		syncUnit.disconnect();
-	}
+////		for (int i = 0; i<10; i++){
+////			syncUnit.addToSendQueue("Element " + i);
+////		}
+//		syncUnit.disconnect();
+//	}
 
 	@Override
 	public void addObject(SyncListener o) {
-		
+		if (o instanceof User){
+			System.out.println("Adding " + ((User) o).getFirstname());
+			this.listeners.add(o);
+			for (Notification not : ((User) o).getNotifications()) {
+				this.listeners.add(not);
+			}
+		}
 		
 	}
 	
