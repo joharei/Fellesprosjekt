@@ -61,13 +61,13 @@ public class ClientHandler implements Runnable {
 				this.addToSendQueue(this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null));
 				// Appointments
 				for (SyncListener app : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Appointment, null)) {
-					if(((Appointment) app).getOwner() == this.getUser()) {
+					if(((Appointment) app).getOwner() == this.getUser() || this.getUser().getSubscribesTo().contains(((Appointment) app).getOwner())) {
 						this.addToSendQueue(app);
 					}
 				}
 				// Meetings
 				for (SyncListener meeting : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Meeting, null)) {
-					if(((Meeting) meeting).getOwner() == this.getUser()) {
+					if(((Meeting) meeting).getOwner() == this.getUser() || this.getUser().getSubscribesTo().contains(((Meeting) meeting).getOwner())) {
 						this.addToSendQueue(meeting);
 					}
 				}
