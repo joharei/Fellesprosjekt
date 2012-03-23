@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import no.ntnu.fp.net.co.Connection;
+import model.Appointment;
 import model.Invitation;
 import model.InvitationStatus;
 import model.Meeting;
@@ -55,6 +56,27 @@ public class ClientHandler implements Runnable {
 			user.setOnline(loginRequest.getLoginAccepted());
 			if(loginRequest.getLoginAccepted()) {
 				this.user = user;
+				// Load users, notifications, appointments + meetings
+				// Users
+				this.addToSendQueue(this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null));
+				// Appointments
+				for (SyncListener app : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Appointment, null)) {
+					if(((Appointment) app).getOwner() == this.getUser()) {
+						this.addToSendQueue(app);
+					}
+				}
+				// Meetings
+				for (SyncListener meeting : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Meeting, null)) {
+					if(((Meeting) meeting).getOwner() == this.getUser()) {
+						this.addToSendQueue(meeting);
+					}
+				}
+				// Notifications
+				for (SyncListener not : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Notification, null)) {
+					if(this.user.getNotifications().contains(not)) {
+						this.addToSendQueue(not);
+					}
+				}
 			}
 			return loginRequest.getLoginAccepted();
 		} catch (Exception e) {
@@ -119,6 +141,10 @@ public class ClientHandler implements Runnable {
 		this.sendQueue.add(o);
 	}
 	
+	public void addToSendQueue(List<Object> objects) {
+		this.sendQueue.addAll(objects);
+	}
+	
 	public void processReceivedObjects(List<SyncListener> objects) {
 		for (SyncListener o : objects) {
 			SyncListener original = this.serverSynchronizationUnit.getObjectFromID(o.getSaveableClass(), o.getObjectID());
@@ -131,11 +157,26 @@ public class ClientHandler implements Runnable {
 					// TODO Maa ogsaa gaa inn i alle referansene i objektet for aa oppdatere disse!!!!!!!!!!
 					switch(o.getSaveableClass()) {
 					case Meeting:
-						// TODO: BEHANDLE DELETED Hvordan finner jeg ut om noe skal slettes?
 						Meeting originalM = (Meeting) original;
 						Meeting m = (Meeting) o;
 						if(m.isDeleted()) {
-							
+							for(String invID : m.getInvitations()) {
+								Invitation tempInv = (Invitation) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.Invitation, invID);
+								if(tempInv.getStatus() != InvitationStatus.REJECTED && tempInv.getStatus() != InvitationStatus.REVOKED) {
+									for (SyncListener sl : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null)) {
+										User user = (User) sl;
+										for (Notification uNot : user.getNotifications()) {
+											if(uNot.getInvitation() == tempInv || uNot.getInvitation().getObjectID().equalsIgnoreCase(tempInv.getObjectID())) {
+												Notification newNot = new Notification(tempInv, NotificationType.MEETING_CANCELLED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), this.getUser());
+												user.addNotification(newNot);
+												if(this.serverSynchronizationUnit.getActiveUsers().contains(user)) {
+													this.serverSynchronizationUnit.getClientHandler(user).addToSendQueue(uNot);
+												}
+											}
+										}
+									}
+								}
+							}
 						}
 						// Sjekk om moete har endret tidspunkt
 						if(!originalM.getDate().equals(m.getDate())) {
@@ -211,8 +252,14 @@ public class ClientHandler implements Runnable {
 									}
 								}
 							} else if((oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED || oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED_TIME_CHANGED) && (newNot.getInvitation().getStatus() == InvitationStatus.ACCEPTED)) {
+								// Bruker godtar invitasjon
 								newNot.getInvitation().getMeeting().getOwner().addNotification(new Notification(newNot.getInvitation(), NotificationType.INVITATION_ACCEPTED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), this.getUser()));
+								newNot.getInvitation().getMeeting().addParticipant(this.getUser());
+								if(this.serverSynchronizationUnit.getActiveUsers().contains(oldNot.getInvitation().getMeeting().getOwner())) {
+									this.serverSynchronizationUnit.getClientHandler(oldNot.getInvitation().getMeeting().getOwner()).addToSendQueue(oldNot.getInvitation().getMeeting());
+								}
 							} else if((oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED || oldNot.getInvitation().getStatus() == InvitationStatus.NOT_ANSWERED_TIME_CHANGED) && (newNot.getInvitation().getStatus() == InvitationStatus.REJECTED)) {
+								// Bruker avslaar invitasjon
 								newNot.getInvitation().getMeeting().getOwner().addNotification(new Notification(newNot.getInvitation(), NotificationType.INVITATION_REJECTED, this.serverSynchronizationUnit.getNewKey(SaveableClass.Notification), this.getUser()));
 							}
 							oldNot.getInvitation().fire(SaveableClass.Invitation, newNot.getInvitation());
