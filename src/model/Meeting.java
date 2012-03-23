@@ -10,6 +10,8 @@ public class Meeting extends Appointment {
 			String location, Room room, String id, User owner, boolean isDeleted) {
 		super(date, startTime, endTime, description, location, room, id, owner,	isDeleted);
 		pcs = new PropertyChangeSupport(this);
+		this.usersToInvite = new ArrayList<String>();
+		this.invitationIDs = new ArrayList<String>();
 	}
 	
 	public Meeting(Date date, Date startTime, Date endTime, String description,
@@ -18,6 +20,7 @@ public class Meeting extends Appointment {
 		super(date, startTime, endTime, description, location, room, id, owner,
 				isDeleted);
 		pcs = new PropertyChangeSupport(this);
+		this.usersToInvite = new ArrayList<String>();
 		setInvitations(invites);
 	}
 
