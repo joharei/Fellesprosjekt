@@ -46,7 +46,7 @@ public class GUI extends JFrame implements WindowListener{
 	
 	private JDialog progressWindow;
 	private JProgressBar progressBar;
-	Thread progressThread;
+	private Thread progressThread;
 	
 	public GUI(){
 		
@@ -56,8 +56,8 @@ public class GUI extends JFrame implements WindowListener{
 		
 		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel(smallCal);
 		
-		getContentPane().setBackground(COLOR_BACKGROUND);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//		getContentPane().setBackground(COLOR_BACKGROUND);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		c = new GridBagConstraints();
 		
@@ -104,13 +104,14 @@ public class GUI extends JFrame implements WindowListener{
 		progressWindow = new JDialog(nullFrame, "Logging out...", true);
 		progressBar = new JProgressBar();
 		progressBar.setIndeterminate(true);
-//		progressWindow.add(progressBar);
+		progressWindow.add(progressBar);
 		progressWindow.setSize(300, 75);
 		progressWindow.setLocationRelativeTo(null);
 //		progressWindow.setBounds(getWidth()/2-300/2, getHeight()/2-75/2, 300, 75);
 		progressWindow.setResizable(false);
 //		progressWindow.setVisible(true);
 		
+		this.addWindowListener(this);
 		addActionListeners();
 		pack();
 		setLocationRelativeTo(null);
@@ -135,11 +136,19 @@ public class GUI extends JFrame implements WindowListener{
 		});
 		logOutButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Thread progressThread = new Thread(new ProgressBar());
+				progressThread = new Thread(new ProgressBar());
 				progressThread.start();
+				synchronized(this){
+					try {
+						wait(2000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
 				XCal.getCSU().disconnect();
 				LogIn logIn = new LogIn();
-				logIn.pack();
+//				logIn.pack();
 				logIn.setVisible(true);
 				progressWindow.setVisible(false);
 				setVisible(false);
@@ -165,13 +174,16 @@ public class GUI extends JFrame implements WindowListener{
 	@Override
 	public void windowClosing(WindowEvent e) {
 		// TODO Auto-generated method stub
-		XCal.getCSU().disconnect();
+//		System.out.println("WindowClosing");
+//		XCal.getCSU().disconnect();
 		
 	}
 	@Override
 	public void windowClosed(WindowEvent e) {
 		// TODO Auto-generated method stub
+		System.out.println("WindowClosed");
 		XCal.getCSU().disconnect();
+		System.exit(0);
 	}
 	@Override
 	public void windowIconified(WindowEvent e) {

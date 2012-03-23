@@ -58,7 +58,7 @@ public class LogIn extends JFrame implements WindowListener{
 	public LogIn(){
 		
 		
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		subPanel = new JPanel();
 		/*
@@ -173,7 +173,7 @@ public class LogIn extends JFrame implements WindowListener{
 //			progressWindow.setModalityType(ModalityType.APPLICATION_MODAL);
 //		progressWindow.pack();
 		
-		
+		this.addWindowListener(this);
 		pack();
 		setLocationRelativeTo(null);
 	}
@@ -270,8 +270,9 @@ public class LogIn extends JFrame implements WindowListener{
 
 	@Override
 	public void windowClosed(WindowEvent e) {
-		// TODO Auto-generated method stub
+		System.out.println("WindowClosed");
 		XCal.getCSU().disconnect();
+		System.exit(0);
 	}
 
 	@Override
