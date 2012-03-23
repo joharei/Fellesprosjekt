@@ -123,7 +123,9 @@ public class ClientHandler implements Runnable {
 				}
 			} catch (Exception e) {
 				// TODO Er denne ok?
-				e.printStackTrace();
+				if(!(e instanceof NullPointerException)) {
+					e.printStackTrace();
+				}
 				System.out.println("Connection was closed by client (or died for some reason)!");
 				this.user.setOnline(false);
 				this.serverSynchronizationUnit.removeClientConnection(this);
