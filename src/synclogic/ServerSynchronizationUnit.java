@@ -44,6 +44,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		this.updatedButNotSavedObjects = new ArrayList<SyncListener>();
 		this.activeUserConnections = new ArrayList<ClientHandler>();
 		this.dbUnit = new DatabaseUnit();
+		System.out.println(getNewKey(SaveableClass.Notification));
 		// TODO: LOADING!!!
 		//dbUnit.load();
 		// TODO: Maa lagre et sted ogsaa!
@@ -149,61 +150,68 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 				 */
 				Appointment app = (Appointment) update;
 				if (original == null) {
-					// new app, verify owner
-					if (!app.getOwner().equals(sentBy)) {
-						return false;
-					}
-					
-					//Don't change start date backwards to before this day
-					Date appDate = app.getStartTime();
-					Date now = Calendar.getInstance().getTime();
-					if (appDate.before(now)) {
-						return false;
-					}
-					
-					//verify room
-					if (!getIsRoomAvailable(app.getRoom(), app.getStartTime(), app.getEndTime())) {
-						return false;
-					}
-					return true;
+					return validateNewAppointment(sentBy, app);
 				} else {
-					Appointment oApp = (Appointment) original;
-					//don't change owner or id
-					if (!oApp.getOwner().equals(app.getOwner())) {
-						return false;
-					}
-					if (!oApp.getId().equals(app.getId())) {
-						return false;
-					}
-					
-					//Don't change start date backwards to before this day
-					Date oAppDate = oApp.getDate();
-					Date appDate = app.getDate();
-					Date now = Calendar.getInstance().getTime();
-					if ((!oAppDate.equals(appDate)) && appDate.before(now)) {
-						return false;
-					}
-					//Same as above, but for time
-					oAppDate = oApp.getStartTime();
-					appDate = app.getStartTime();
-					if (((!oAppDate.equals(appDate)) && appDate.before(now))) {
-						return false;
-					}
-					//changed room? if so, validate
-					Room appR = app.getRoom();
-					Room origR = oApp.getRoom();
-					if (!appR.equals(origR) && !getIsRoomAvailable(appR, appDate, app.getEndTime())) {
-						return false;
-					}
-					return true;
+					return validateUpdatedAppointment(original, app);
 				}
-				break;
 			}
 			default : {
-				return false;
+				throw new RuntimeException("NOT YET IMPLEMENTED!");
 			}
 		}
-		throw new RuntimeException("NOT YET IMPLEMENTED!");
+	}
+
+	private boolean validateUpdatedAppointment(SyncListener original,
+			Appointment app) {
+		Appointment oApp = (Appointment) original;
+		//don't change owner or id
+		if (!oApp.getOwner().equals(app.getOwner())) {
+			return false;
+		}
+		if (!oApp.getId().equals(app.getId())) {
+			return false;
+		}
+		
+		//Don't change start date backwards to before this day
+		Date oAppDate = oApp.getDate();
+		Date appDate = app.getDate();
+		Date now = Calendar.getInstance().getTime();
+		if ((!oAppDate.equals(appDate)) && appDate.before(now)) {
+			return false;
+		}
+		//Same as above, but for time
+		oAppDate = oApp.getStartTime();
+		appDate = app.getStartTime();
+		if (((!oAppDate.equals(appDate)) && appDate.before(now))) {
+			return false;
+		}
+		//changed room? if so, validate
+		Room appR = app.getRoom();
+		Room origR = oApp.getRoom();
+		if (!appR.equals(origR) && !getIsRoomAvailable(appR, appDate, app.getEndTime())) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean validateNewAppointment(User sentBy, Appointment app) {
+		// new app, verify owner
+		if (!app.getOwner().equals(sentBy)) {
+			return false;
+		}
+		
+		//Don't change start date backwards to before this day
+		Date appDate = app.getStartTime();
+		Date now = Calendar.getInstance().getTime();
+		if (appDate.before(now)) {
+			return false;
+		}
+		
+		//verify room
+		if (!getIsRoomAvailable(app.getRoom(), app.getStartTime(), app.getEndTime())) {
+			return false;
+		}
+		return true;
 	}
 	
 	/**
