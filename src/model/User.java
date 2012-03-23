@@ -41,6 +41,7 @@ public class User implements SyncListener {
 	 * Typically used for instancing other users than the logged in user on clients.
 	 */
 	public User(String firstname, String surname, String username, String email, Date dateOfBirth, int phone) {
+		pcs = new PropertyChangeSupport(this);
 		setName(firstname, surname);
 		setDateOfBirth(dateOfBirth);
 		setEmail(email);
@@ -48,16 +49,15 @@ public class User implements SyncListener {
 		setUsername(username);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public User(String firstname, String surname, String username, String password) {
+		pcs = new PropertyChangeSupport(this);
 		setName(firstname, surname);
 		setUsername(username);
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
 		weekModels = new ArrayList<Week>();
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**

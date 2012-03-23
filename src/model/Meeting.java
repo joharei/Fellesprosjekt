@@ -11,6 +11,15 @@ public class Meeting extends Appointment {
 		super(date, startTime, endTime, description, location, room, id, owner,	isDeleted);
 		pcs = new PropertyChangeSupport(this);
 	}
+	
+	public Meeting(Date date, Date startTime, Date endTime, String description,
+			String location, Room room, String id, User owner, boolean isDeleted,
+			ArrayList<String> invites) {
+		super(date, startTime, endTime, description, location, room, id, owner,
+				isDeleted);
+		pcs = new PropertyChangeSupport(this);
+		setInvitations(invites);
+	}
 
 	private ArrayList<User> participants;
 	private ArrayList<String> invitationIDs;
