@@ -28,6 +28,7 @@ public class DatabaseUnit {
 	
 	public DatabaseUnit() throws ConnectException {
 		try {
+			conn = null;
 			dbConnect();
 		} catch (Exception e) {
 			throw new ConnectException();
@@ -92,9 +93,9 @@ public class DatabaseUnit {
 				Appointment appment = (Appointment) objects.get(i);
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + appment.getId() + "';");
-				String date = (appment.getDateFormat().format(appment.getDate()));
-				String start = (appment.getDateFormat().format(appment.getStartTime()));
-				String end = (appment.getDateFormat().format(appment.getEndTime()));
+				String date = (Appointment.getDateFormat().format(appment.getDate()));
+				String start = (Appointment.getDateFormat().format(appment.getStartTime()));
+				String end = (Appointment.getDateFormat().format(appment.getEndTime()));
 				if(rs.next()){
 					Statement update = conn.createStatement();
 					if(appment.isDeleted()){
@@ -121,9 +122,9 @@ public class DatabaseUnit {
 				Meeting meet = (Meeting) objects.get(i);
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + meet.getId() + "';");
-				String date = (meet.getDateFormat().format(meet.getDate()));
-				String start = (meet.getDateFormat().format(meet.getStartTime()));
-				String end = (meet.getDateFormat().format(meet.getEndTime()));
+				String date = (Meeting.getDateFormat().format(meet.getDate()));
+				String start = (Meeting.getDateFormat().format(meet.getStartTime()));
+				String end = (Meeting.getDateFormat().format(meet.getEndTime()));
 				if(rs.next()){
 					Statement update = conn.createStatement();
 					if(meet.isDeleted()){
