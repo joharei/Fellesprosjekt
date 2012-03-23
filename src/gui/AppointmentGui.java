@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -167,6 +168,20 @@ public class AppointmentGui extends JDialog{
 		add(cancel, gb);
 		addActionListeners();
 	}
+	
+	public JDateChooser getCalIcon(){
+		return calIcon;
+	}
+	public JTextArea getDescriptionField(){
+		return descriptionField;
+	}
+	public JTextField getPlaceField1(){
+		return placeField1;
+	}
+	public JComboBox getPlaceField2(){
+		return placeField2;
+	}
+	
 	
 	public GridBagConstraints getGridBagConstraints(){
 		return gb;

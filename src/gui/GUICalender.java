@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -25,10 +26,12 @@ public class GUICalender extends JPanel{
 		for ( int h = 0; h < kolonner; h++) {
 			
 			button[h][0] = new JButton(teller[h]);
+			button[h][0].setBackground(Color.DARK_GRAY);
+			button[h][0].setForeground(Color.WHITE);
+			button[h][0].setEnabled(false);
 			c.gridx=9;
 			c.gridy=4+h;
-			//button[h][j].setSize(5, 5);
-			//button[h][0].setActionCommand();
+			c.ipady=5;
 			add(button[h][0],c);
 	}
 
@@ -49,13 +52,13 @@ public class GUICalender extends JPanel{
 				}
 			}
 					);
-			//button[h][j].setText(""+h+"."+j);
 			c.gridx=11+j;
 			c.gridy=4+h;
-			
-			//button[h][j].setSize(5, 5);
+			c.ipadx=100;
+			c.ipady=5;
+			c.weightx=1;
+			button[h][j].setBackground(Color.WHITE);
 			button[h][j].setActionCommand(" ");
-			//add(button[h][j],c);
 			add(button[h][j],c);
 		}
 	}

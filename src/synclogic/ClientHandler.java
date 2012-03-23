@@ -59,7 +59,9 @@ public class ClientHandler implements Runnable {
 				this.user = user;
 				// Load users, notifications, appointments + meetings
 				// Users
-				this.addToSendQueue(this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null));
+				for(SyncListener sync : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.User, null)) {
+					this.addToSendQueue(sync);
+				}
 				// Appointments
 				for (SyncListener app : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Appointment, null)) {
 					if(((Appointment) app).getOwner() == this.getUser() || this.getUser().getSubscribesTo().contains(((Appointment) app).getOwner())) {
@@ -110,6 +112,21 @@ public class ClientHandler implements Runnable {
 						// Antar naa at alt som brukeren er interessert i blir puttet i sendQueue. Er det greit?
 						updateReq.addAllObjects(this.sendQueue);
 						// Toem sendQueue
+						if(updateReq.getObjects().isEmpty()) {
+							System.out.println("Ingenting aa sende!");
+						} else {
+							System.out.println("Sender noe naa!");
+							System.out.println("Item count: " + updateReq.getObjects().size());
+							Object obj = updateReq.getObject(0);
+							SyncListener object = (SyncListener) obj; 
+							System.out.println("Dette blir sendt: " + object.getSaveableClass().toString() + " : " + object.getObjectID());
+							if(updateReq.getObjects().get(0) instanceof User) {
+								User asd = (User) updateReq.getObjects().get(0);
+								System.out.println("Bruker som sendes: " + asd.getUsername());
+							} else {
+								System.out.println("Det var ikke en bruker som ble sendt!");
+							}
+						}
 						this.sendQueue.clear();
 						this.connection.send(XmlSerializerX.toXml(updateReq, SaveableClass.UpdateRequest));
 					} else if(o instanceof List) {
@@ -146,7 +163,7 @@ public class ClientHandler implements Runnable {
 		this.sendQueue.add(o);
 	}
 	
-	public void addToSendQueue(List<Object> objects) {
+	public void addAllToSendQueue(List<Object> objects) {
 		this.sendQueue.addAll(objects);
 	}
 	

@@ -43,7 +43,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		super();
 		this.updatedButNotSavedObjects = new ArrayList<SyncListener>();
 		this.activeUserConnections = new ArrayList<ClientHandler>();
-		//this.dbUnit = new DatabaseUnit();
+		this.dbUnit = new DatabaseUnit();
 		// TODO: LOADING!!!
 		//dbUnit.load();
 		// TODO: Maa lagre et sted ogsaa!
@@ -138,11 +138,69 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 				//pass down to meeting
 			}
 			case Meeting : {
-				Appointment neww = (Appointment) update;
+				/* - Owner can change own app/meeting
+				 * Restrictions:
+				 * 	+ On room change, validate new room first
+				 * 	+ Can't move app backwards in time
+				 * 	+ Can't change owner
+				 * 	+ Can't change id
+				 * - Other user can change someone's meeting if:
+				 * 	+ probably never
+				 */
+				Appointment app = (Appointment) update;
+				if (original == null) {
+					// new app, verify owner
+					if (!app.getOwner().equals(sentBy)) {
+						return false;
+					}
+					
+					//Don't change start date backwards to before this day
+					Date appDate = app.getStartTime();
+					Date now = Calendar.getInstance().getTime();
+					if (appDate.before(now)) {
+						return false;
+					}
+					
+					//verify room
+					if (!getIsRoomAvailable(app.getRoom(), app.getStartTime(), app.getEndTime())) {
+						return false;
+					}
+					return true;
+				} else {
+					Appointment oApp = (Appointment) original;
+					//don't change owner or id
+					if (!oApp.getOwner().equals(app.getOwner())) {
+						return false;
+					}
+					if (!oApp.getId().equals(app.getId())) {
+						return false;
+					}
+					
+					//Don't change start date backwards to before this day
+					Date oAppDate = oApp.getDate();
+					Date appDate = app.getDate();
+					Date now = Calendar.getInstance().getTime();
+					if ((!oAppDate.equals(appDate)) && appDate.before(now)) {
+						return false;
+					}
+					//Same as above, but for time
+					oAppDate = oApp.getStartTime();
+					appDate = app.getStartTime();
+					if (((!oAppDate.equals(appDate)) && appDate.before(now))) {
+						return false;
+					}
+					//changed room? if so, validate
+					Room appR = app.getRoom();
+					Room origR = oApp.getRoom();
+					if (!appR.equals(origR) && !getIsRoomAvailable(appR, appDate, app.getEndTime())) {
+						return false;
+					}
+					return true;
+				}
 				break;
 			}
 			default : {
-				throw new RuntimeException("Unknown object encountered");
+				return false;
 			}
 		}
 		throw new RuntimeException("NOT YET IMPLEMENTED!");
@@ -292,7 +350,9 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		ssu.listeners.add(new User("Test", "Testersen", "test", "test", "BLANK", new Date(), 911));
 		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
+		ssu.listeners.add(new User("Stian", "Weie", "stianwe", "123", "BLANK", new Date(), 113));
 		ssu.listenForUserConnections(1337);
 	}
 }
