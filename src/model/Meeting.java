@@ -11,6 +11,7 @@ public class Meeting extends Appointment {
 		super(date, startTime, endTime, description, location, room, id, owner,	isDeleted);
 		pcs = new PropertyChangeSupport(this);
 		this.usersToInvite = new ArrayList<String>();
+		this.participants = new ArrayList<User>();
 		this.invitationIDs = new ArrayList<String>();
 	}
 	
