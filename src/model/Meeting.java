@@ -8,8 +8,7 @@ import java.util.Date;
 public class Meeting extends Appointment {
 	public Meeting(Date date, Date startTime, Date endTime, String description,
 			String location, Room room, String id, User owner, boolean isDeleted) {
-		super(date, startTime, endTime, description, location, room, id, owner,
-				isDeleted);
+		super(date, startTime, endTime, description, location, room, id, owner,	isDeleted);
 		pcs = new PropertyChangeSupport(this);
 	}
 
