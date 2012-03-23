@@ -135,6 +135,25 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	public boolean isValidUpdate(SyncListener update, SyncListener original, User sentBy) {
 		// TODO: Mye!
 		switch (update.getSaveableClass()) {
+			case Notification :  {
+				/*
+				 * User updates own notification: read
+				 * Invitiation is bundled within
+				 */
+				Notification notify = (Notification) update;
+				Notification old = null;
+				Invitation inv = notify.getInvitation();
+				Invitation ninv = null;
+				if (original != null) {
+					//update of existing notification
+					old = (Notification) original;
+					ninv = old.getInvitation();
+					//check the invitation
+					boolean validInvitation = isValidUpdate(inv, ninv, sentBy);
+				} else {
+					boolean validInvitation = isValidUpdate(inv, ninv, sentBy);
+				}
+			}
 			case Appointment : {
 				//pass down to meeting
 			}

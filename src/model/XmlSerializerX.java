@@ -67,11 +67,18 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		//test roomavailabilityrequest
 		System.out.println("\nStarting test of RoomAvailabilityRequest...");
-		RoomAvailabilityRequest rar = new RoomAvailabilityRequest();
+		Calendar a = Calendar.getInstance();
+		a.set(2012, 3, 12, 10, 15, 0);
+		Date adate = a.getTime();
+		a.set(Calendar.HOUR_OF_DAY, 16);
+		Date bdate = a.getTime();
+		RoomAvailabilityRequest rar = new RoomAvailabilityRequest(adate, bdate);
 		type = SaveableClass.RoomAvailabilityRequest;
 		xml = toXml(rar, type);
 		System.out.println(xml);
 		rar = (RoomAvailabilityRequest) toObject(xml);
+		System.out.println(rar.getStart());
+		System.out.println(rar.getEnd());
 		ArrayList<Room> rooms = new ArrayList<Room>();
 		rooms.add(new Room(0, "Hepp", 60));
 		rooms.add(new Room(3, "Klaustrofobi", 1));
@@ -80,6 +87,7 @@ public class XmlSerializerX extends XmlSerializer {
 		System.out.println(xml);
 		rar = (RoomAvailabilityRequest) toObject(xml);
 		System.out.println("Room count: " + rar.getAvailableRooms().size());
+		System.out.println(RoomAvailabilityRequest.dateFormat.format(rar.getStart()));
 	}
 	
 	//testing constructor
@@ -240,6 +248,15 @@ public class XmlSerializerX extends XmlSerializer {
 	private static Element roomAvailabilityRequestToXmlElement(
 			RoomAvailabilityRequest obj) {
 		Element rarE = new Element("" + SaveableClass.RoomAvailabilityRequest);
+		
+		Element startE = new Element(RoomAvailabilityRequest.NAME_PROPERTY_START_DATE);
+		startE.appendChild(RoomAvailabilityRequest.dateFormat.format(obj.getStart()));
+		rarE.appendChild(startE);
+		
+		Element endE = new Element(RoomAvailabilityRequest.NAME_PROPERTY_END_DATE);
+		endE.appendChild(RoomAvailabilityRequest.dateFormat.format(obj.getEnd()));
+		rarE.appendChild(endE);
+		
 		Element listE = new Element(RoomAvailabilityRequest.NAME_PROPERTY_ROOM_LIST);
 		List list = obj.getAvailableRooms();
 		for (Iterator iterator = list.iterator(); iterator.hasNext();) {
@@ -250,10 +267,21 @@ public class XmlSerializerX extends XmlSerializer {
 		return rarE;
 	}
 	
-	private static Object assembleRoomAvailabilityRequest(Element rarE) {
+	private static Object assembleRoomAvailabilityRequest(Element rarE) throws ParseException {
 		RoomAvailabilityRequest rar = null;
+		Date start = null, end = null;
+		Element e = rarE.getFirstChildElement(RoomAvailabilityRequest.NAME_PROPERTY_START_DATE);
+		if (e != null) {
+			start = RoomAvailabilityRequest.dateFormat.parse(e.getValue());
+		}
+		
+		e = rarE.getFirstChildElement(RoomAvailabilityRequest.NAME_PROPERTY_END_DATE);
+		if (e != null) {
+			end = RoomAvailabilityRequest.dateFormat.parse(e.getValue());
+		}
+		
 		ArrayList<Room> availableRooms = new ArrayList<Room>();
-		Element e = rarE.getFirstChildElement(RoomAvailabilityRequest.NAME_PROPERTY_ROOM_LIST);
+		e = rarE.getFirstChildElement(RoomAvailabilityRequest.NAME_PROPERTY_ROOM_LIST);
 		if (e != null) {
 			Elements list = e.getChildElements();
 			for (int i = 0; i < list.size(); i++) {
@@ -264,7 +292,7 @@ public class XmlSerializerX extends XmlSerializer {
 			}
 		}
 		
-		rar = new RoomAvailabilityRequest();
+		rar = new RoomAvailabilityRequest(start, end);
 		rar.setAvailableRooms(availableRooms);
 		return rar;
 	}
