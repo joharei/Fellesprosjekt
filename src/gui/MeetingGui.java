@@ -136,11 +136,18 @@ public class MeetingGui extends AppointmentGui{
 		newCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("goes back");
-				
-				JFrame frame = null;
-				JOptionPane.showMessageDialog(frame, "<HTML>A new meeting has been created. <P> Message has been sent to: " + addPersons.getModel() );
-				
-				setVisible(false);
+				DefaultListModel model = (DefaultListModel) addPersons.getModel();
+				if(model.isEmpty()){
+					JFrame frame = null;
+					JOptionPane.showMessageDialog(frame, "<HTML>Some fields are empty, please take care of the empty fields :) " );
+				}
+				else{
+					JFrame frame = null;
+					JOptionPane.showMessageDialog(frame, "<HTML>A new meeting has been created. <P> Message has been sent to: " + addPersons.getModel() );
+					
+					setVisible(false);
+					
+				}
 			}
 		});
 	}

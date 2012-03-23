@@ -141,8 +141,15 @@ public class AppointmentGui extends JDialog{
 		gb.gridx = 2;
 		gb.gridy = 4;
 		placeField2 = new JComboBox();
+		placeField2.addItem("choose");
+		
+		//dummy inputs
+		placeField2.addItem("G032");
+		placeField2.addItem("R8");
+		
+		
 		gb.insets = new Insets(10, 0, 0, 0);
-		placeField2.setPreferredSize(new Dimension(50, 20));
+		placeField2.setPreferredSize(new Dimension(75, 20));
 		add(placeField2, gb);
 		
 		//create button
@@ -178,13 +185,21 @@ public class AppointmentGui extends JDialog{
 		});
 		create.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				if(calIcon.getDate() == null || descriptionField.getText().isEmpty() || ((placeField1.getText().isEmpty() || placeField1.getText().equals("Type or click button"))
+						&& placeField2.getSelectedItem().equals("choose"))){
+					JFrame frame = null;
+					JOptionPane.showMessageDialog(frame, "<HTML>Some fields are empty, please take care of the empty fields :) " );
+				}
+				else{
+					JFrame frame = null;
+					JOptionPane.showMessageDialog(frame, "<HTML>Appointment created " );
+					
+					
+					System.out.println("goes back");
+					dispose();
+					
+				}
 				
-				JFrame frame = null;
-				JOptionPane.showMessageDialog(frame, "<HTML>Appointment created " );
-
-				
-				System.out.println("goes back");
-				dispose();
 			}
 		});
 	}
@@ -195,13 +210,17 @@ public class AppointmentGui extends JDialog{
 		@Override
 		public void focusGained(FocusEvent e) {
 			// TODO Auto-generated method stub
-			placeField1.setText("");
+			if(placeField1.getText().isEmpty() == true || placeField1.getText().equals("Type or click button")){
+				placeField1.setText("");
+			}
 		}
 
 		@Override
 		public void focusLost(FocusEvent e) {
 			// TODO Auto-generated method stub
-			placeField1.setText("Type or click button");
+			if(placeField1.getText().isEmpty() == true){
+				placeField1.setText("Type or click button");
+			}
 		}
 		
 	}
