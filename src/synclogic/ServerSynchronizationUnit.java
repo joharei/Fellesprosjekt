@@ -292,7 +292,9 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		ssu.listeners.add(new User("Test", "Testersen", "test", "test", "BLANK", new Date(), 911));
 		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
+		ssu.listeners.add(new User("Stian", "Weie", "stianwe", "123", "BLANK", new Date(), 113));
 		ssu.listenForUserConnections(1337);
 	}
 }
