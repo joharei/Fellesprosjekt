@@ -113,6 +113,7 @@ public class GUI extends JFrame implements WindowListener{
 		
 		this.addWindowListener(this);
 		addActionListeners();
+		this.setResizable(false);
 		pack();
 		setLocationRelativeTo(null);
 		

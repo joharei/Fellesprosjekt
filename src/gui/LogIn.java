@@ -174,6 +174,7 @@ public class LogIn extends JFrame implements WindowListener{
 //		progressWindow.pack();
 		
 		this.addWindowListener(this);
+		this.setResizable(false);
 		pack();
 		setLocationRelativeTo(null);
 	}
