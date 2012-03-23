@@ -63,7 +63,9 @@ public class SmallCalendar extends JPanel{
 				calender.setTime(jDate.getDate());
 				calender.setMinimalDaysInFirstWeek(4);  
 				calender.setFirstDayOfWeek(Calendar.MONDAY);
+				//calender.getTime()
 				setUkeNr(calender.get(Calendar.WEEK_OF_YEAR));
+				//setDateInWeek(calender.get(Calendar.));
 				calender.set(Calendar.WEEK_OF_YEAR, ukenr);
 				setDateInMonth(calender.get(Calendar.DAY_OF_MONTH));
 				setDagerIUken(calender.get(Calendar.DAY_OF_WEEK));
@@ -104,9 +106,9 @@ public class SmallCalendar extends JPanel{
 		for (int i = 0; i <7; i++) {
 			temp [i]= this.datesInWeek[i];
 			this.datesInWeek[i]=datesInWeek[i];
+			support.firePropertyChange(NAME_PROPERY_DATES_IN_WEEK, temp, datesInWeek[i]);
 		}
 		
-		support.firePropertyChange(NAME_PROPERY_DATES_IN_WEEK, temp, datesInWeek);
 	}
 	
 	public void setDateInMonth(int datoIMnd){
