@@ -90,57 +90,6 @@ public class XmlSerializerX extends XmlSerializer {
 		System.out.println(RoomAvailabilityRequest.dateFormat.format(rar.getStart()));
 	}
 	
-	//testing constructor
-//	@SuppressWarnings("rawtypes")
-//	private XmlSerializerX(ArrayList list, SaveableClass type) {
-//		Document doc = buildXml(list, type);
-//		System.out.println("Xml string:\n" + doc.toXML());
-//		System.out.println("Examine root element: " + doc.getRootElement().getLocalName());
-//		try {
-//			ArrayList objects = readXml(doc);
-//			Iterator it = objects.iterator();
-//			while (it.hasNext()) {
-//				System.out.println(it.next());
-//			}
-//		} catch (ParseException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-	/**
-	 * Read a Xml document and create objects found within.
-	 * @param xmlDoc The document
-	 * @return Arraylist with the created objects.
-	 * @throws ParseException
-	 */
-//	@SuppressWarnings({ "rawtypes", "unchecked" })
-//	private static ArrayList readXml(Document xmlDoc) throws ParseException {
-//		ArrayList addedObj = new ArrayList();
-//		Element root = xmlDoc.getRootElement();
-//		SaveableClass objType = SaveableClass.valueOf(root.getLocalName());
-//		switch (objType) {
-//			case User : {
-//				//Root of Xml file dictates collection of users
-//				Elements users = root.getChildElements(User.NAME_PROPERTY_CLASSTYPE);
-//				for (int i = 0; i < users.size(); i++) {
-//					Element childElement = users.get(i);
-//					addedObj.add(assembleUser(childElement));
-//				}
-//				return addedObj;
-//			}
-//			case Week : {
-//				Elements weeks = root.getChildElements(Week.NAME_PROPERTY_CLASSTYPE);
-//				for (int i = 0; i < weeks.size(); i++) {
-//					Element weekElement = weeks.get(i);
-//					addedObj.add(assembleWeek(weekElement));
-//				}
-//			}
-//			default: {
-//				throw new ParseException("Unrecognized object type!", 0);
-//			}
-//		}
-//	}
-	
 	/**
 	 * Turn a list of objects of the same type or a single object
 	 * into a Xml string. Supported objects can be found in the
