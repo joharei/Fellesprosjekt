@@ -29,13 +29,14 @@ public class ClientHandler implements Runnable {
 	
 	@Override
 	public void run() {
+		this.receive(false);
 		// Receive login request
-		try {
-			this.receive(this.login((LoginRequest) XmlSerializerX.toObject(this.connection.receive())));
-		} catch (Exception e) {
-			// Do nothing
-			e.printStackTrace();
-		}
+//		try {
+//			this.receive(this.login((LoginRequest) XmlSerializerX.toObject(this.connection.receive())));
+//		} catch (Exception e) {
+//			// Do nothing
+//			e.printStackTrace();
+//		}
 		this.serverSynchronizationUnit.removeClientConnection(this);
 		System.out.println("Client handler should be dead now.");
 	}
@@ -127,7 +128,9 @@ public class ClientHandler implements Runnable {
 					e.printStackTrace();
 				}
 				System.out.println("Connection was closed by client (or died for some reason)!");
-				this.user.setOnline(false);
+				if(this.user != null) {
+					this.user.setOnline(false);
+				}
 				this.serverSynchronizationUnit.removeClientConnection(this);
 				break;
 			}

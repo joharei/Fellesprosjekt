@@ -8,9 +8,21 @@ import java.util.Date;
 public class Meeting extends Appointment {
 	public Meeting(Date date, Date startTime, Date endTime, String description,
 			String location, Room room, String id, User owner, boolean isDeleted) {
+		super(date, startTime, endTime, description, location, room, id, owner,	isDeleted);
+		pcs = new PropertyChangeSupport(this);
+		this.usersToInvite = new ArrayList<String>();
+		this.participants = new ArrayList<User>();
+		this.invitationIDs = new ArrayList<String>();
+	}
+	
+	public Meeting(Date date, Date startTime, Date endTime, String description,
+			String location, Room room, String id, User owner, boolean isDeleted,
+			ArrayList<String> invites) {
 		super(date, startTime, endTime, description, location, room, id, owner,
 				isDeleted);
 		pcs = new PropertyChangeSupport(this);
+		this.usersToInvite = new ArrayList<String>();
+		setInvitations(invites);
 	}
 
 	private ArrayList<User> participants;

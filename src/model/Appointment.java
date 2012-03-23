@@ -33,6 +33,7 @@ public class Appointment implements SyncListener {
 	
 	public Appointment(Date date, Date startTime, Date endTime, String description,
 			String location, Room room, String id, User owner, boolean isDeleted) {
+		pcs = new PropertyChangeSupport(this);
 		setDate(date);
 		setStartTime(startTime);
 		setEndTime(endTime);
@@ -42,7 +43,6 @@ public class Appointment implements SyncListener {
 		setId(id);
 		setOwner(owner);
 		setDeleted(isDeleted);
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	public Date getDate() {

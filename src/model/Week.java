@@ -41,6 +41,7 @@ public class Week {
 	 * @param startDate Date of the monday
 	 */
 	public Week(Date startDate) {
+		pcs = new PropertyChangeSupport(this);
 		this.startDate = startDate;
 		Calendar d = Calendar.getInstance();
 		d.setFirstDayOfWeek(Calendar.MONDAY);
@@ -59,7 +60,6 @@ public class Week {
 			throw new RuntimeException("Computed week is invalid, different week numbers!");
 		}
 		this.appointments = new ArrayList<Appointment>();
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**Create a week of correct duration with the
@@ -68,6 +68,7 @@ public class Week {
 	 * @param appointments List of appointments
 	 */
 	public Week(Date startDate, ArrayList<Appointment> appointments) {
+		pcs = new PropertyChangeSupport(this);
 		this.startDate = startDate;
 		Calendar d = Calendar.getInstance();
 		d.setFirstDayOfWeek(Calendar.MONDAY);
@@ -80,20 +81,19 @@ public class Week {
 		this.endDate = d.getTime();
 		this.weekNumber = calcWeekNumber(startDate);
 		this.appointments = appointments;
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
 	 * Create a week with start and finish dates.
 	 */
 	public Week(Date startDate, Date endDate) {
+		pcs = new PropertyChangeSupport(this);
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.weekNumber = calcWeekNumber(startDate);
 		if (weekNumber != calcWeekNumber(endDate)) {
 			throw new IllegalArgumentException("Given dates belong to different weeks");
 		}
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
@@ -101,6 +101,7 @@ public class Week {
 	 * a list of appointments for the week.
 	 */
 	public Week(Date startDate, Date endDate, ArrayList<Appointment> appointments) {
+		pcs = new PropertyChangeSupport(this);
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.weekNumber = calcWeekNumber(startDate);
@@ -108,7 +109,6 @@ public class Week {
 		if (weekNumber != calcWeekNumber(endDate)) {
 			throw new IllegalArgumentException("Given dates belong to different weeks");
 		}
-		pcs = new PropertyChangeSupport(this);
 	}
 	
 	/**
