@@ -31,14 +31,8 @@ public class SmallCalendar extends JPanel{
 	private String [] maned = {"-","Januar", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"};
 	private JCalendar jDate;
 	private int ukenr;
-	private int startDateOfWeek;
-	private int startMonthOfWeek;
+	
 	private int year;
-	private int maaned;
-	private int dagIUken;
-	private int datoIMnd;
-	private int maxDays;
-	private int [] datesInWeek;
 	private Calendar calender=Calendar.getInstance();
 	private Calendar cal = Calendar.getInstance();
 	public final static String NAME_PROPERTY_WEEK_NUMBER="ukenr";
@@ -75,10 +69,10 @@ public class SmallCalendar extends JPanel{
 				setUkeNr(calender.get(Calendar.WEEK_OF_YEAR));
 				//setDateInWeek(calender.get(Calendar.));
 				calender.set(Calendar.WEEK_OF_YEAR, ukenr);
-				setDateInMonth(calender.get(Calendar.DAY_OF_MONTH));
-				setDagIUken(calender.get(Calendar.DAY_OF_WEEK));
-				setMonth(calender.get(Calendar.MONTH)+1);
-				setMaxDays(calender.getActualMaximum(Calendar.DAY_OF_MONTH));
+//				setDateInMonth(calender.get(Calendar.DAY_OF_MONTH));
+//				setDagIUken(calender.get(Calendar.DAY_OF_WEEK));
+//				setMonth(calender.get(Calendar.MONTH)+1);
+//				setMaxDays(calender.getActualMaximum(Calendar.DAY_OF_MONTH));
 				//System.out.println("Dato på første dag i uken:"+calender.getTime());
 				cal.set(cal.WEEK_OF_YEAR,ukenr);
 				cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
@@ -94,24 +88,6 @@ public class SmallCalendar extends JPanel{
 		});
 	
 	}
-	private void setStartDateOfWeek(int startDateOfWeek){
-		int temp=this.startDateOfWeek;
-		this.startDateOfWeek=startDateOfWeek;
-		support.firePropertyChange(NAME_PROPERTY_START_DATE_OF_WEEK, temp, startDateOfWeek);
-	}
-	private void setStartMonthOfWeek(int startMonthOfWeek){
-		int temp=this.startMonthOfWeek;
-		this.startMonthOfWeek=startMonthOfWeek;
-		support.firePropertyChange(NAME_PROPERTY_START_MONTH_OF_WEEK, temp, startMonthOfWeek);
-	}
-	private void setMaxDays(int actualMaximum) {
-		// TODO Auto-generated method stub
-		int temp=this.maxDays;
-		this.maxDays=actualMaximum;
-		support.firePropertyChange(NAME_PROPERTY_MAX_DAYS_IN_WEEK, temp, actualMaximum);
-		
-	}
-	
 	public void setUkeNr(int ukenr){
 		int temp=this.ukenr;
 		this.ukenr=ukenr;
@@ -122,44 +98,8 @@ public class SmallCalendar extends JPanel{
 	public int getUkeNr(){
 		return ukenr;
 	}
-	public void setMonth(int month){
-		int temp=this.maaned;
-		this.maaned=month;
-		
-		support.firePropertyChange(NAME_PROPERTY_MONTH, temp, month);
-	}
-	public int getMonth(){
-		return maaned;
-	}
-	public void setDagIUken(int dagerIUken){
-		if(dagerIUken==1){
-			dagerIUken=7;
-		}
-		else{
-			dagerIUken--;
-		}
-		int temp = this.dagIUken;
-		this.dagIUken=dagerIUken;
-		
-		support.firePropertyChange(NAME_PROPERTY_DAYS_IN_WEEK, temp, dagerIUken);
-	}
 	
-	public void setDateInWeek(int [] datesInWeek){
-		int [] temp = null;
-		for (int i = 0; i <7; i++) {
-			temp [i]= this.datesInWeek[i];
-			this.datesInWeek[i]=datesInWeek[i];
-			support.firePropertyChange(NAME_PROPERY_DATES_IN_WEEK, temp, datesInWeek[i]);
-		}
-		
-	}
 	
-	public void setDateInMonth(int datoIMnd){
-		int temp = this.datoIMnd;
-		this.datoIMnd=datoIMnd;
-		
-		support.firePropertyChange(NAME_PROPERTY_DATE_IN_MONTH, temp, datoIMnd);
-	}
 	public void addListener(PropertyChangeListener listener){
 		support.addPropertyChangeListener(listener);
 	}
