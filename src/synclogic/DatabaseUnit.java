@@ -255,6 +255,7 @@ public class DatabaseUnit {
 		}
 		return userArray;
 	}
+	
 
 	public ArrayList<Room> loadRoom() throws SQLException{
 		//method to load room
@@ -341,6 +342,7 @@ public class DatabaseUnit {
 			}
 		return eventArray;
 	}
+	
 
 	public ArrayList<Invitation> loadInvitation() throws SQLException{
 		//method to load invitations
@@ -565,9 +567,11 @@ public class DatabaseUnit {
 			try {
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT EventID FROM Event");
-				rs.last();
-				int eventID = rs.getInt("EventID");
-				int appKey = eventID + eventCount;
+				int appKey = 0 + eventCount;
+				if(rs.last()){
+					int eventID = rs.getInt("EventID");
+					appKey += eventID;
+				}
 				AppKey = Integer.toString(appKey);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -578,12 +582,14 @@ public class DatabaseUnit {
 			//the type is a invitation, select invitationIDs from the invitaiton table
 			String InvtKey = "";
 			invitationCount +=1;
+			int invtKey = 0 + invitationCount;
 			try{
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT InvitationID FROM Invitation");
-				rs.last();
-				int invtID = rs.getInt("InvitationID");
-				int invtKey = invtID + invitationCount;
+				if(rs.last()){
+					int invtID = rs.getInt("InvitationID");
+					invtKey += invtID;
+				}
 				InvtKey = Integer.toString(invtKey);
 			} catch(SQLException e){
 				e.printStackTrace();
@@ -594,12 +600,14 @@ public class DatabaseUnit {
 			//the type is a notification, select notificationIDs from the notfication table
 			String NotKey = "";
 			notificationCount +=1;
+			int notKey = 0 + notificationCount;
 			try {
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT NotificationID FROM Notification");
-				rs.last();
-				int notID = rs.getInt("NotificationID");
-				int notKey = notID + notificationCount;
+				if(rs.last()){
+					int notID = rs.getInt("NotificationID");
+					notKey += notID;
+				}
 				NotKey = Integer.toString(notKey);
 			} catch(SQLException e){
 				e.printStackTrace();
@@ -610,12 +618,14 @@ public class DatabaseUnit {
 			//the type is a room, select the roomIDs from the room table
 			String RoomKey = "";
 			roomCount += 1;
+			int roomKey = 0 + roomCount;
 			try{
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT RoomID FROM Room");
-				rs.last();
-				int roomID = rs.getInt("RoomID");
-				int roomKey = roomID + roomCount;
+				if(rs.last()){
+					int roomID = rs.getInt("RoomID");
+					roomKey += roomID;
+				}
 				RoomKey = Integer.toString(roomKey);
 			} catch (SQLException e) {
 				e.printStackTrace();
