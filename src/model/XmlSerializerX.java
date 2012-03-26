@@ -118,9 +118,7 @@ public class XmlSerializerX extends XmlSerializer {
 				return userToXmlElement((User) obj);
 			}
 			case Null : {
-				Element n = new Element("" + SaveableClass.Null);
-//					n.appendChild("null");
-				return n;
+				return nullToXmlElement();
 			}
 			case LoginRequest : {
 				return loginRequestToXmlElement((LoginRequest) obj);
@@ -608,6 +606,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Turn a room into a Xml element
 	 */
 	private static Element roomToXmlElement(Room room) {
+		//TODO: Null?
 		Element roomElement = new Element("" + SaveableClass.Room);
 		
 		Element id = new Element(Room.NAME_PROPERTY_ID);
@@ -632,6 +631,9 @@ public class XmlSerializerX extends XmlSerializer {
 	private static Room assembleRoom(Element roomElement) {
 		int id = 0, capacity = 0;
 		String name = null;
+		if (roomElement.getFirstChildElement("" + SaveableClass.Null) != null) {
+			return null;
+		}
 		Element e = roomElement.getFirstChildElement(Room.NAME_PROPERTY_ID);
 		if (e != null) {
 			id = Integer.parseInt(e.getValue());
@@ -645,6 +647,11 @@ public class XmlSerializerX extends XmlSerializer {
 			capacity = Integer.parseInt(e.getValue());
 		}
 		return new Room(id, name, capacity);
+	}
+	
+	private static Element nullToXmlElement() {
+		Element n = new Element("" + SaveableClass.Null);
+		return n;
 	}
 	
 	/**
@@ -676,8 +683,14 @@ public class XmlSerializerX extends XmlSerializer {
 		Element loc = new Element(Appointment.NAME_PROPERTY_LOCATION);
 		loc.appendChild(event.getLocation());
 		
+		
 		Element room = new Element(Appointment.NAME_PROPERTY_ROOM);
-		room.appendChild(roomToXmlElement(event.getRoom()));
+		Room roomObj = event.getRoom();
+		if (roomObj != null) {
+			room.appendChild(roomToXmlElement(event.getRoom()));
+		} else {
+			room.appendChild(nullToXmlElement());
+		}
 		
 		Element id = new Element(Appointment.NAME_PROPERTY_ID);
 		id.appendChild("" + event.getId());
