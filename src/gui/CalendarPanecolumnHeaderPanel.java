@@ -86,61 +86,49 @@ public class CalendarPanecolumnHeaderPanel extends JPanel implements PropertyCha
 		int i = startDatoUke;
 		System.out.println("StartDato er: "+i);
 		System.out.println("StartMnd er: "+startMndUke);
+		
+		for (int j = 0; j < 7; j++) {
+			if(startDatoUke==maxDagerIMnd){
+				if(j==0){
+					createMon(j);
+					break;
+				}
+				if(j==1){
+					createTue(j);
+					break;
+				}
+				if(j==2){
+					createWed(j);
+					break;
+				}
+				if(j==3){
+					createThu(j);
+					break;
+				}
+				if(j==4){
+					createFri(j);
+					break;
+				}
+				if(j==5){
+					createSat(j);
+					break;
+				}
+				if(j==6){
+					createSun(j);
+					break;
+				}
+				startDatoUke++;
+			}
+		}
+		
+		
 		if(startDatoUke==maxDagerIMnd){
 			i=1;
 			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			monday.setText("Mon"+i+"/"+" ");
-			i++;
-		}
-		if(startDatoUke==maxDagerIMnd){
-			i=1;
-			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			tuesday.setText("Tue"+i+"/"+startMndUke+" ");
-			i++;
-		}
-		if(startDatoUke==maxDagerIMnd){
-			i=1;
-			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			wednesday.setText("Wed"+i+"/"+startMndUke+" ");
-			i++;
-		}
-		if(startDatoUke==maxDagerIMnd){
-			i=1;
-			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			wednesday.setText("Thu"+i+"/"+startMndUke+" ");
-			i++;
-		}
-		if(startDatoUke==maxDagerIMnd){
-			i=1;
-			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			friday.setText("Fri"+i+"/"+startMndUke+" ");
-			i++;
-		}
-		if(startDatoUke==maxDagerIMnd){
-			i=1;
-			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			saturday.setText("Sat"+i+"/"+startMndUke+" ");
-			i++;
-		}
-		if(startDatoUke==maxDagerIMnd){
-			i=1;
-			startMndUke++;
-		}
-		if(startDatoUke!=maxDagerIMnd){
-			sunday.setText("sun"+i+"/"+startMndUke+" ");
-			i++;
+			if(startDatoUke!=maxDagerIMnd){
+				sunday.setText("sun"+i+"/"+startMndUke+" ");
+				i++;
+			}
 		}
 		
 		c.anchor=GridBagConstraints.NORTHWEST;
@@ -153,5 +141,95 @@ public class CalendarPanecolumnHeaderPanel extends JPanel implements PropertyCha
 		add(saturday);
 		add(sunday);
 		setPreferredSize(new Dimension(400,30));
+	}
+	public void createMon(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startMndUke++;
+		tuesday.setText("Thu"+"1"+"/"+startMndUke+" ");
+		wednesday.setText("Wed"+"2"+"/"+startMndUke+" ");
+		thursday.setText("Thu"+"3"+"/"+startMndUke+" ");
+		friday.setText("Fri"+"4"+"/"+startMndUke+" ");
+		saturday.setText("Sat"+"5"+"/"+startMndUke+" ");
+		sunday.setText("Sun"+"6"+"/"+startMndUke+" ");
+	}
+	public void createTue(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		tuesday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startMndUke++;
+		wednesday.setText("Wed"+"1"+"/"+startMndUke+" ");
+		thursday.setText("Thu"+"2"+"/"+startMndUke+" ");
+		friday.setText("Fri"+"3"+"/"+startMndUke+" ");
+		saturday.setText("Sat"+"4"+"/"+startMndUke+" ");
+		sunday.setText("Sun"+"5"+"/"+startMndUke+" ");
+	}
+	public void createWed(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		tuesday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		wednesday.setText("Wed"+startDatoUke+"/"+startMndUke+" ");
+		startMndUke++;
+		thursday.setText("Thu"+"1"+"/"+startMndUke+" ");
+		friday.setText("Fri"+"2"+"/"+startMndUke+" ");
+		saturday.setText("Sat"+"3"+"/"+startMndUke+" ");
+		sunday.setText("Sun"+"4"+"/"+startMndUke+" ");
+	}
+	public void createThu(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		tuesday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		wednesday.setText("Wed"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		thursday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startMndUke++;
+		friday.setText("Fri"+"1"+"/"+startMndUke+" ");
+		saturday.setText("Sat"+"2"+"/"+startMndUke+" ");
+		sunday.setText("Sun"+"3"+"/"+startMndUke+" ");
+	}
+	public void createFri(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		tuesday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		wednesday.setText("Wed"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		thursday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		friday.setText("Fri"+startDatoUke+"/"+startMndUke+" ");
+		startMndUke++;
+		saturday.setText("Sat"+"1"+"/"+startMndUke+" ");
+		sunday.setText("Sun"+"2"+"/"+startMndUke+" ");
+	}
+	public void createSat(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		tuesday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		wednesday.setText("Wed"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		thursday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		friday.setText("Fri"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		saturday.setText("Sat"+startDatoUke+"/"+startMndUke+" ");
+		startMndUke++;
+		sunday.setText("Sun"+"1"+"/"+startMndUke+" ");
+	}
+	public void createSun(int i){
+		monday.setText("Mon"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		tuesday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		wednesday.setText("Wed"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		thursday.setText("Thu"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		friday.setText("Fri"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		saturday.setText("Sat"+startDatoUke+"/"+startMndUke+" ");
+		startDatoUke++;
+		sunday.setText("Sun"+startDatoUke+"/"+startMndUke+" ");
 	}
 }
