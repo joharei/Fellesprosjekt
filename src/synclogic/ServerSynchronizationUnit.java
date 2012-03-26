@@ -377,9 +377,13 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		User stian = new User("Stian", "Weie", "stianwe", "123", "BLANK", new Date(), 113);
 		ssu.listeners.add(new User("Test", "Testersen", "test", "test", "BLANK", new Date(), 911));
 		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
-		ssu.listeners.add(new User("Stian", "Weie", "stianwe", "123", "BLANK", new Date(), 113));
+		ssu.listeners.add(stian);
+		String id = ssu.getNewKey(SaveableClass.Appointment);
+		System.out.println("DEN NYE IDEN ER : " + id);
+		ssu.listeners.add(new Appointment(new Date(), new Date(), new Date(), "Dette er en test", "Her", null, id, stian, false));
 		ssu.listenForUserConnections(1337);
 	}
 }
