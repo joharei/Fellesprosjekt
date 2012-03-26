@@ -36,6 +36,7 @@ public class DatabaseUnit {
 	}
 	
 	public void dbConnect() throws ClassNotFoundException, SQLException, InstantiationException, IllegalAccessException{
+		//method to connect to the database with username and password
 		Properties props = new Properties();
 		props.put("user","hannekot_26");
 		props.put("password","gruppe26");
@@ -108,6 +109,41 @@ public class DatabaseUnit {
 					}
 				}
 			}
+			else if(objects.get(i) instanceof Meeting){
+				Meeting meet = (Meeting) objects.get(i);
+				Statement stmt = conn.createStatement();
+				//Execute a query to find out if the meeting is already in the database
+				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + meet.getId() + "';");
+				// getting the rigth usable format of the time of the meeting
+				String date = (Meeting.getDateFormat().format(meet.getDate()));
+				String start = (Meeting.getDateFormat().format(meet.getStartTime()));
+				String end = (Meeting.getDateFormat().format(meet.getEndTime()));
+				if(rs.next()){
+					//the meeting is in the database, update the information in the database
+					Statement update = conn.createStatement();
+					int del = (meet.isDeleted()) ? 1 : 0;		
+					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='" + del + "' WHERE EventID='" + meet.getId() +"';");	
+					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + meet.getRoom().getId() + "' WHERE EventID='" + meet.getId() + "';");
+					for (int j = 0; j < meet.getInvitations().size(); j++) {
+						Statement stm = conn.createStatement();
+						ResultSet set = stm.executeQuery("SELECT * FROM InvitationTo WHERE EventID='" + meet.getId());
+						if(!set.next()){
+							update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
+						}
+					}
+				}
+			else{
+				//the meeting is not in the database, insert the information about the meeting into Event, RoomEvent, UserEvent and InvitationTo 
+				Statement update = conn.createStatement();
+				int del = (meet.isDeleted()) ? 1 : 0;		
+				update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
+				update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
+				update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
+				for (int j = 0; j < meet.getInvitations().size(); j++) {
+					update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
+				}
+			}
+			}
 			else if(objects.get(i) instanceof Appointment){
 				Appointment appment = (Appointment) objects.get(i);
 				Statement stmt = conn.createStatement();
@@ -134,41 +170,7 @@ public class DatabaseUnit {
 					update.execute("INSERT INTO UserEvent VALUES('" + appment.getOwner().getUsername() + "','" + appment.getId() + "');" );
 				}
 			}
-			else if(objects.get(i) instanceof Meeting){
-				Meeting meet = (Meeting) objects.get(i);
-				Statement stmt = conn.createStatement();
-				//Execute a query to find out if the meeting is already in the database
-				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + meet.getId() + "';");
-				// getting the rigth usable format of the time of the meeting
-				String date = (Meeting.getDateFormat().format(meet.getDate()));
-				String start = (Meeting.getDateFormat().format(meet.getStartTime()));
-				String end = (Meeting.getDateFormat().format(meet.getEndTime()));
-				if(rs.next()){
-					//the meeting is in the database, update the information in the database
-					Statement update = conn.createStatement();
-					int del = (meet.isDeleted()) ? 1 : 0;		
-					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='" + del + "' WHERE EventID='" + meet.getId() +"';");	
-					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + meet.getRoom().getId() + "' WHERE EventID='" + meet.getId() + "';");
-					for (int j = 0; j < meet.getInvitations().size(); j++) {
-						Statement stm = conn.createStatement();
-						ResultSet set = stm.executeQuery("SELECT * FROM InvitationTo WHERE EventID='" + meet.getId());
-						if(!set.next()){
-						update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
-						}
-					}
-				}
-				else{
-					//the meeting is not in the database, insert the information about the meeting into Event, RoomEvent, UserEvent and InvitationTo 
-					Statement update = conn.createStatement();
-					int del = (meet.isDeleted()) ? 1 : 0;		
-					update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
-					update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
-					update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
-					for (int j = 0; j < meet.getInvitations().size(); j++) {
-						update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
-					}
-				}
-			}
+
 			else if(objects.get(i) instanceof Notification){
 				Notification not = (Notification) objects.get(i);
 				Statement stmt = conn.createStatement();
@@ -207,7 +209,9 @@ public class DatabaseUnit {
 	}	
 
 	public ArrayList<User> loadUser() throws SQLException{
+		//method to load user information from database
 		Statement stmt = conn.createStatement();
+		//Selects all information about the user in the database and make User objects out of the information
 		ResultSet rs = stmt.executeQuery("SELECT * FROM User");
 		ArrayList<User> userArray = new ArrayList<User>();
 		while(rs.next()){
@@ -231,7 +235,9 @@ public class DatabaseUnit {
 	}
 
 	public ArrayList<Room> loadRoom() throws SQLException{
+		//method to load room
 		Statement stmt = conn.createStatement();
+		//selects all information on Room in the database and make Room objects
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Room");
 		ArrayList<Room> roomArray = new ArrayList<Room>();
 		while(rs.next()){
@@ -270,27 +276,44 @@ public class DatabaseUnit {
 				}
 			}
 			ArrayList<Room> room = loadRoom();
-			int RoomIndex = 0;
+			int RoomIndex = room.size() + 5;
 			for (int i = 0; i < room.size(); i++) {
 				if(room.get(i).getName().equalsIgnoreCase(roomName)){
 					RoomIndex = i;
 					i=room.size();
 				}
 			}
-			if(type == 1 && deleted == 0){
-				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
+			
+			if(type == 1 && deleted == 0 && RoomIndex<room.size()){
+				Meeting meeting = new Meeting(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
 				eventArray.add(meeting);
 			}
-			else if(type ==1 && deleted == 1){
+			else if(type == 1 && deleted == 0 && RoomIndex>room.size()){
+				Meeting meeting = new Meeting(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false );
+				eventArray.add(meeting);
+			}
+			else if(type == 1 && deleted == 1 && RoomIndex<room.size()){
 				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true );
 				eventArray.add(meeting);
 			}
-			else if(type == 0 && deleted == 0){
+			else if(type == 1 && deleted == 1 && RoomIndex>room.size()){
+				Meeting meeting = new Meeting(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), true );
+				eventArray.add(meeting);
+			}
+			else if(type == 0 && deleted == 0 && RoomIndex<room.size()){
 				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false);
 				eventArray.add(appment);
 			}
-			else{
+			else if(type == 0 && deleted == 0 && RoomIndex>room.size()){
+				Appointment appment = new Appointment(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false);
+				eventArray.add(appment);
+			}
+			else if(type == 0 && deleted == 1 && RoomIndex<room.size()){
 				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true);
+				eventArray.add(appment);
+			}
+			else if(type == 0 && deleted == 0 && RoomIndex>room.size()){
+				Appointment appment = new Appointment(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false);
 				eventArray.add(appment);
 			}
 			}
@@ -317,6 +340,7 @@ public class DatabaseUnit {
 					i = eventArray.size();
 				}	
 				if(eventArray.get(index)instanceof Meeting){
+					System.out.println("yo");
 					Meeting obj1 = (Meeting) eventArray.get(index);
 					switch (status) {
 					case 0:{	
@@ -379,6 +403,7 @@ public class DatabaseUnit {
 				ArrayList<Invitation> invitationArray = loadInvitation();
 				int invitationIndex = 0;
 				for (int j = 0; j < invitationArray.size(); j++) {
+					System.out.println("invArray");
 					Statement sstm = conn.createStatement();
 					ResultSet rs1 = sstm.executeQuery("SELECT InvitationID FROM BelongsTo WHERE NotificationID='" + notificationID + "'");
 					rs1.first();
@@ -473,7 +498,7 @@ public class DatabaseUnit {
 			while(rs.next()){
 				int invitationID = rs.getInt("InvitationID");
 				((Meeting)eventArray.get(i)).addInvitation((Integer.toString(invitationID)));
-			}
+				}
 			}	
 		}
 	}
@@ -571,5 +596,17 @@ public class DatabaseUnit {
 	
 	public void closeConnection() throws SQLException{
 		conn.close();
+	}
+
+	public static void main(String[] args) throws ConnectException {
+		
+		try {
+			DatabaseUnit db= new DatabaseUnit();
+			
+			System.out.println(db.load());
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
