@@ -122,8 +122,10 @@ public class DatabaseUnit {
 					//the meeting is in the database, update the information in the database
 					Statement update = conn.createStatement();
 					int del = (meet.isDeleted()) ? 1 : 0;		
-					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='" + del + "' WHERE EventID='" + meet.getId() +"';");	
+					if(meet.getRoom() != null){
 					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + meet.getRoom().getId() + "' WHERE EventID='" + meet.getId() + "';");
+					}
+					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='" + del + "' WHERE EventID='" + meet.getId() +"';");	
 					for (int j = 0; j < meet.getInvitations().size(); j++) {
 						Statement stm = conn.createStatement();
 						ResultSet set = stm.executeQuery("SELECT * FROM InvitationTo WHERE EventID='" + meet.getId());
@@ -135,14 +137,16 @@ public class DatabaseUnit {
 				else{
 					//the meeting is not in the database, insert the information about the meeting into Event, RoomEvent, UserEvent and InvitationTo 
 					Statement update = conn.createStatement();
-					int del = (meet.isDeleted()) ? 1 : 0;		
+					int del = (meet.isDeleted()) ? 1 : 0;	
+					if(meet.getRoom() != null){
+						update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
+					}
 					update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
-					update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
-				update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
-				for (int j = 0; j < meet.getInvitations().size(); j++) {
-					update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
+					update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
+					for (int j = 0; j < meet.getInvitations().size(); j++) {
+						update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
+					}
 				}
-			}
 			}
 			else if(objects.get(i) instanceof Appointment){
 				Appointment appment = (Appointment) objects.get(i);
@@ -156,17 +160,21 @@ public class DatabaseUnit {
 				if(rs.next()){
 					//the appointment is in the database, update the information
 					Statement update = conn.createStatement();
-					int del = (appment.isDeleted()) ? 1 : 0;		
-					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + appment.getDescription() +"', Location='" + appment.getLocation() + "', Type='0', Deleted='" + del + "' WHERE EventID='" + appment.getId() +"';");	
-					//Updates the room connected to the appointment incase there is a room change
-					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + appment.getRoom().getId() + "' WHERE EventID='" + appment.getId() + "';");
+					int del = (appment.isDeleted()) ? 1 : 0;	
+					if(appment.getRoom() != null){
+						//Updates the room connected to the appointment incase there is a room change
+						update.executeUpdate("UPDATE RoomEvent SET RoomID='" + appment.getRoom().getId() + "' WHERE EventID='" + appment.getId() + "';");
+					}
+					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + appment.getDescription() +"', Location='" + appment.getLocation() + "', Type='0', Deleted='" + del + "' WHERE EventID='" + appment.getId() +"';");
 				}
 				else{
 					//the appointment is not in the database, insert the appointment in the database, insert the room connection and the UserEvent to connect the user to the appointment
 					Statement update = conn.createStatement();
 					int del = (appment.isDeleted()) ? 1 : 0;	
+					if(appment.getRoom() != null){
+						update.executeUpdate("INSERT INTO RoomEvent VALUES('" + appment.getRoom().getId() + "','" + appment.getId() + "');");
+					}
 					update.executeUpdate("INSERT INTO Event VALUES('" + appment.getId() + "','" + date + "','" + start +"','" + end + "','" + appment.getDescription() + "','" + appment.getLocation() + "','0','" + del + "');");
-					update.executeUpdate("INSERT INTO RoomEvent VALUES('" + appment.getRoom().getId() + "','" + appment.getId() + "');");
 					update.execute("INSERT INTO UserEvent VALUES('" + appment.getOwner().getUsername() + "','" + appment.getId() + "');" );
 				}
 			}
