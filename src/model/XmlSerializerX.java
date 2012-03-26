@@ -94,6 +94,9 @@ public class XmlSerializerX extends XmlSerializer {
 		xml = toXml(m, m.getSaveableClass());
 		System.out.println(xml);
 		Meeting m2 = (Meeting) toObject(xml);
+		System.out.println("Date: " + m2.getDate());
+		System.out.println("Start: " + m2.getStartTime());
+		System.out.println("End: " + m2.getEndTime());
 		System.out.println(m2.getOwner().getUsername());
 	}
 	
@@ -580,8 +583,9 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Create a week model from the Xml element
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static Week assembleWeek(Element weekElement) throws ParseException {
+	private static Week assembleWeek(Element weekElement) throws ParseException, ParsingException {
 		Date start = null, end = null;
 		ArrayList<Appointment> appointments = new ArrayList<Appointment>();
 		
@@ -753,8 +757,9 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Create a meeting or appointment from their respective elements
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static Appointment assembleAppointment(Element appElement) throws ParseException {
+	private static Appointment assembleAppointment(Element appElement) throws ParseException, ParsingException {
 		Date date = null, start = null, end = null;
 		String desc = null, loc = null;
 		Room room = null;
@@ -767,17 +772,30 @@ public class XmlSerializerX extends XmlSerializer {
 		if (e != null) {
 			DateFormat dFormat = Appointment.getDateFormat();
 			date = dFormat.parse(e.getValue());
+		} else {
+			throw new ParsingException("Could not parse date!");
 		}
 		
 		DateFormat tFormat = Appointment.getTimeformat();
+		Calendar cal = Calendar.getInstance();
+		Calendar cal2 = Calendar.getInstance();
+		cal.setTime(date);
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_START_TIME);
 		if (e != null) {
 			start = tFormat.parse(e.getValue());
+			cal2.setTime(start);
+			cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+			start = cal.getTime();
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_END_TIME);
 		if (e != null) {
 			end = tFormat.parse(e.getValue());
+			cal2.setTime(end);
+			cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+			end = cal.getTime();
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DESCRIPTION);
@@ -890,8 +908,9 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Uses the synchronization unit to retrieve the meeting
 	 * based on the meeting id.
 	 * @throws ParseException 
+	 * @throws ParsingException 
 	 */
-	private static Invitation assembleInvitation(Element invElement) throws ParseException {
+	private static Invitation assembleInvitation(Element invElement) throws ParseException, ParsingException {
 		InvitationStatus status = null;
 		Meeting meeting = null;
 		String id = null;
@@ -945,8 +964,9 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Create a Notification from a Xml element. It contains the source user
 	 * as well as the related Invitation.
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static Notification assembleNotification(Element notifE) throws ParseException {
+	private static Notification assembleNotification(Element notifE) throws ParseException, ParsingException {
 		Invitation inv = null;
 		NotificationType type = null;
 		String id = null;
