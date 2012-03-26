@@ -22,9 +22,13 @@ import model.User;
 
 public class DatabaseUnit {
 
-	private static Connection conn = null;
-	private static ArrayList<User> userArray;
-	private static ArrayList<Appointment> eventArray;
+	private  Connection conn = null;
+	private ArrayList<User> userArray;
+	private ArrayList<Appointment> eventArray;
+	private int eventCount = 0;
+	private int invitationCount = 0;
+	private int notificationCount = 0;
+	private int roomCount = 0;
 	
 	public DatabaseUnit() throws ConnectException {
 		try {
@@ -45,7 +49,11 @@ public class DatabaseUnit {
 		conn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/hannekot_X-cal", props);
 	}
 	
-	public void objectsToDb(List<SyncListener> objects) throws SQLException{
+	public void objectsToDb(List<SyncListener> objects) throws SQLException{		
+		eventCount = 0;
+		invitationCount = 0;
+		notificationCount = 0;
+		roomCount = 0;
 		//iterates the list of objects that are to be put i the database, checks what type of SyncListener it is
 		for (int i = 0; i < objects.size(); i++) {
 			if(objects.get(i) instanceof User){
@@ -553,12 +561,13 @@ public class DatabaseUnit {
 		if(type.equals(SaveableClass.Appointment) || type.equals(SaveableClass.Meeting)){
 			//the type is either an appointment or a meeting, select eventIDs from the event table
 			String AppKey = "";
+			eventCount +=1;
 			try {
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT EventID FROM Event");
 				rs.last();
 				int eventID = rs.getInt("EventID");
-				int appKey = eventID + 1;
+				int appKey = eventID + eventCount;
 				AppKey = Integer.toString(appKey);
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -568,12 +577,13 @@ public class DatabaseUnit {
 		else if(type.equals(SaveableClass.Invitation)){
 			//the type is a invitation, select invitationIDs from the invitaiton table
 			String InvtKey = "";
+			invitationCount +=1;
 			try{
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT InvitationID FROM Invitation");
 				rs.last();
 				int invtID = rs.getInt("InvitationID");
-				int invtKey = invtID + 1;
+				int invtKey = invtID + invitationCount;
 				InvtKey = Integer.toString(invtKey);
 			} catch(SQLException e){
 				e.printStackTrace();
@@ -583,12 +593,13 @@ public class DatabaseUnit {
 		else if(type.equals(SaveableClass.Notification)){
 			//the type is a notification, select notificationIDs from the notfication table
 			String NotKey = "";
+			notificationCount +=1;
 			try {
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT NotificationID FROM Notification");
 				rs.last();
 				int notID = rs.getInt("NotificationID");
-				int notKey = notID + 1;
+				int notKey = notID + notificationCount;
 				NotKey = Integer.toString(notKey);
 			} catch(SQLException e){
 				e.printStackTrace();
@@ -598,12 +609,13 @@ public class DatabaseUnit {
 		else{
 			//the type is a room, select the roomIDs from the room table
 			String RoomKey = "";
+			roomCount += 1;
 			try{
 				Statement stmt = conn.createStatement();
 				ResultSet rs = stmt.executeQuery("SELECT RoomID FROM Room");
 				rs.last();
 				int roomID = rs.getInt("RoomID");
-				int roomKey = roomID + 1;
+				int roomKey = roomID + roomCount;
 				RoomKey = Integer.toString(roomKey);
 			} catch (SQLException e) {
 				e.printStackTrace();
