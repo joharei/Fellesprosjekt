@@ -59,7 +59,7 @@ public class GUI extends JFrame implements WindowListener{
 //		this.setPreferredSize(new Dimension(800,600));
 		SmallCalendar smallCal = new SmallCalendar();
 		
-		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel(smallCal);
+		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel();
 		
 //		getContentPane().setBackground(COLOR_BACKGROUND);
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -82,6 +82,7 @@ public class GUI extends JFrame implements WindowListener{
 		c.gridy=5;
 		add(smallCal,c);
 		
+		c.fill=GridBagConstraints.HORIZONTAL;
 		c.gridx=9;
 		c.gridy=3;
 		add(calPanel,c);
@@ -118,9 +119,9 @@ public class GUI extends JFrame implements WindowListener{
 		
 		this.addWindowListener(this);
 		addActionListeners();
-		this.setResizable(false);
+//		this.setResizable(false);
+		this.setMinimumSize(new Dimension(1421, 505));
 		pack();
-		System.out.println("Bredden er: " + this.getWidth());
 		setLocationRelativeTo(null);
 		
 //		XCal.getCSU().requestObject(new ObjectRequest(SaveableClass.Appointment, "5"));
