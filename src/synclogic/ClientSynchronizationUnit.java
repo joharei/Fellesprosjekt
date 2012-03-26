@@ -9,10 +9,13 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import model.Appointment;
 import model.Notification;
+import model.Room;
 import model.SaveableClass;
 import model.User;
 import model.XmlSerializerX;
@@ -32,11 +35,31 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	public ClientSynchronizationUnit(){
 		this.sendQueue = new MessageQueue();
 		this.sendQueue.addPropertyChangeListener(this);
-		thread = new Thread(new SendClass());
+		this.thread = new Thread(new SendClass());
+		Calendar start = Calendar.getInstance();
+		start.set(Calendar.HOUR_OF_DAY, 15);
+		start.set(Calendar.MINUTE, 0);
+		Calendar end = Calendar.getInstance();
+		end.set(Calendar.HOUR_OF_DAY, 18);
+		end.set(Calendar.MINUTE, 0);
+		addObject(new Appointment(new Date(), start.getTime(), end.getTime(), "Dette er en testavtale", "her", new Room(0, "Kalahari", 20), "1", new User("Johan", "Reitan", "joharei", "123"), false));
 	}
 	
 	public void addToSendQueue(String o) {
 		this.sendQueue.add(o);
+	}
+	
+	public void addToSendQueue(SyncListener o) {
+		this.sendQueue.add(XmlSerializerX.toXml(o, o.getSaveableClass()));
+	}
+	
+	public List<Room> getAvailableRooms(Date start, Date end) {
+		this.addToSendQueue(XmlSerializerX.toXml(new RoomAvailabilityRequest(start, end), SaveableClass.RoomAvailabilityRequest));
+		try {
+			return (List<Room>) XmlSerializerX.toObject(this.connection.receive());
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	@Override
@@ -160,14 +183,13 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	}
 	
 	/**
-	 * Runs @
-	 * @return
+	 * Returns a list of all the local users
+	 * @return A list of users
 	 */
 	public List<User> getAllUsers() {
 		List<User> users = new ArrayList<User>();
 		for (SyncListener object : this.listeners) {
 			if (object.getSaveableClass() == SaveableClass.User){
-				System.out.println(((User) object).getFirstname());
 				users.add((User) object);
 			}
 		}
@@ -175,9 +197,26 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	}
 	
 	/**
-	 * Closes this connection
+	 * Returns a list of all the local appointments
+	 * @return A list of users
 	 */
-	public void disconnect(){
+	
+	public List<Appointment> getAllAppointments() {
+		List<Appointment> appointments = new ArrayList<Appointment>();
+		for (SyncListener object : this.listeners) {
+			if (object.getSaveableClass() == SaveableClass.Appointment){
+				appointments.add((Appointment) object);
+			}
+		}
+		return appointments;
+	}
+	
+	/**
+	 * Closes this connection
+	 * @throws IOException 
+	 */
+	public void disconnect() throws IOException{
+		int counter = 0;
 		while(true){
 			try {
 				if (this.sendQueue.isEmpty()){
@@ -187,9 +226,11 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 					return;
 				}
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				if (counter>2){
+					throw e;
+				}
 			}
+			counter++;
 			internalWait(50);
 		}
 	}
