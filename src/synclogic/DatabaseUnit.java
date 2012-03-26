@@ -121,7 +121,8 @@ public class DatabaseUnit {
 				if(rs.next()){
 					//the meeting is in the database, update the information in the database
 					Statement update = conn.createStatement();
-					int del = (meet.isDeleted()) ? 1 : 0;		
+					int del = (meet.isDeleted()) ? 1 : 0;	
+					//if the meeting is not connected to a room then there is not need to update RoomEvent
 					if(meet.getRoom() != null){
 					update.executeUpdate("UPDATE RoomEvent SET RoomID='" + meet.getRoom().getId() + "' WHERE EventID='" + meet.getId() + "';");
 					}
@@ -138,6 +139,7 @@ public class DatabaseUnit {
 					//the meeting is not in the database, insert the information about the meeting into Event, RoomEvent, UserEvent and InvitationTo 
 					Statement update = conn.createStatement();
 					int del = (meet.isDeleted()) ? 1 : 0;	
+					//if the meeting is not connected to a room then there is not need to update RoomEvent
 					if(meet.getRoom() != null){
 						update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
 					}
@@ -161,6 +163,7 @@ public class DatabaseUnit {
 					//the appointment is in the database, update the information
 					Statement update = conn.createStatement();
 					int del = (appment.isDeleted()) ? 1 : 0;	
+					//if the appointment is not connected to a room then there is not need to update RoomEvent
 					if(appment.getRoom() != null){
 						//Updates the room connected to the appointment incase there is a room change
 						update.executeUpdate("UPDATE RoomEvent SET RoomID='" + appment.getRoom().getId() + "' WHERE EventID='" + appment.getId() + "';");
@@ -171,6 +174,7 @@ public class DatabaseUnit {
 					//the appointment is not in the database, insert the appointment in the database, insert the room connection and the UserEvent to connect the user to the appointment
 					Statement update = conn.createStatement();
 					int del = (appment.isDeleted()) ? 1 : 0;	
+					//if the appointment is not connected to a room then there is not need to update RoomEvent
 					if(appment.getRoom() != null){
 						update.executeUpdate("INSERT INTO RoomEvent VALUES('" + appment.getRoom().getId() + "','" + appment.getId() + "');");
 					}
