@@ -175,10 +175,12 @@ public class ClientHandler implements Runnable {
 		for (SyncListener o : objects) {
 			SyncListener original = this.serverSynchronizationUnit.getObjectFromID(o.getSaveableClass(), o.getObjectID());
 			if(!this.serverSynchronizationUnit.isValidUpdate(o, original, this.getUser())) {
+				System.out.println("ERROR! Consult Fossum!");
 				this.sendQueue.add(new ErrorMessage(original, o));
 			} else {
 				// Execute update
 				if(original != null) {
+					System.out.println("Object already exists!");
 					// Object exists and should be updated
 					// TODO Maa ogsaa gaa inn i alle referansene i objektet for aa oppdatere disse!!!!!!!!!!
 					switch(o.getSaveableClass()) {
@@ -300,6 +302,7 @@ public class ClientHandler implements Runnable {
 					this.serverSynchronizationUnit.fire(original.getSaveableClass(), original.getObjectID(), o);
 				} else {
 					// Object does not exist, but should be added
+					System.out.println("New object should be added: " + o.getSaveableClass().toString() + ":" + o.getObjectID());
 					this.serverSynchronizationUnit.addObject(o);
 				}
 			}
