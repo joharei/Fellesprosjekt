@@ -89,6 +89,12 @@ public class XmlSerializerX extends XmlSerializer {
 		rar = (RoomAvailabilityRequest) toObject(xml);
 		System.out.println("Room count: " + rar.getAvailableRooms().size());
 		System.out.println(RoomAvailabilityRequest.dateFormat.format(rar.getStart()));
+		
+		Meeting m = new Meeting(adate, adate, bdate, "Haha", "Parken", null, null, user, false);
+		xml = toXml(m, m.getSaveableClass());
+		System.out.println(xml);
+		Meeting m2 = (Meeting) toObject(xml);
+		System.out.println(m2.getOwner().getUsername());
 	}
 	
 	/**
@@ -302,9 +308,7 @@ public class XmlSerializerX extends XmlSerializer {
 			case Week : {
 				return assembleWeek(root);
 			}
-			case Appointment : {
-				return assembleAppointment(root);
-			}
+			case Appointment : {}
 			case Meeting : {
 				return assembleAppointment(root);
 			}
@@ -355,7 +359,6 @@ public class XmlSerializerX extends XmlSerializer {
 			for (int i = 0; i < list.size(); i++) {
 				Element objE = list.get(i);
 				if (objE != null) {
-//					SaveableClass type = SaveableClass.valueOf(objE.getValue());
 					objs.add(assembleObject(objE, objE.getLocalName()));
 				}
 			}
@@ -794,7 +797,15 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_OWNER);
 		if (e != null) {
-			owner = assembleUser(e);
+			System.out.println(e.getLocalName());
+			Element u = e.getFirstChildElement("" + SaveableClass.User);
+			if (u != null) {
+				owner = assembleUser(u);
+			} else {
+				System.out.println("No child found");
+			}
+		} else {
+			System.out.println("Owner element not found!");
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_ID);
