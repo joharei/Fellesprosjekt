@@ -138,6 +138,7 @@ public class ClientHandler implements Runnable {
 					} else if(o instanceof RoomAvailabilityRequest){
 						RoomAvailabilityRequest rar = (RoomAvailabilityRequest) o;
 						rar.setAvailableRooms(this.serverSynchronizationUnit.getAvailableRooms(rar.getStart(), rar.getEnd()));
+						this.connection.send(XmlSerializerX.toXml(rar, SaveableClass.RoomAvailabilityRequest));
 					} else {
 						throw new RuntimeException("Oops! Something went wrong.");
 					}
