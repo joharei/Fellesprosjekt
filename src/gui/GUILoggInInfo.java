@@ -10,6 +10,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import model.User;
+
 public class GUILoggInInfo extends JPanel{
 	private JLabel nameLabel;
 	private JLabel ansattNrLabel;
@@ -66,7 +68,7 @@ public class GUILoggInInfo extends JPanel{
 		if(value.equals("Meeting deleted")){
 			JOptionPane.showMessageDialog(null,"Meeting was deleted");
 		}
-		//Her skal det skje noe mer når man velger en notification
+		//Her skal det skje noe mer nï¿½r man velger en notification
 	}
 	private String getAnsattNr() {
 		// TODO Auto-generated method stub
@@ -77,9 +79,13 @@ public class GUILoggInInfo extends JPanel{
 	}
 	
 	public String getName(){
-		String info="Magnus Kongshem";//midlertidig for testing av GUI
 		//hent opp info fra Logg inn siden
 		String info2 = XCal.usernameField.getText();
+		for (User o : XCal.getCSU().getAllUsers()) {
+			if (o.getUsername().equalsIgnoreCase(XCal.usernameField.getText())){
+				return o.getFirstname() + " " + o.getSurname();
+			}
+		}
 		
 		return info2;
 	}

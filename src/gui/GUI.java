@@ -19,6 +19,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import synclogic.ObjectRequest;
+
+import model.SaveableClass;
+import model.XmlSerializerX;
+
 public class GUI extends JFrame implements WindowListener{
 	
 	/**
@@ -50,7 +55,6 @@ public class GUI extends JFrame implements WindowListener{
 	
 	public GUI(){
 		
-//		pack();
 //		this.setPreferredSize(new Dimension(800,600));
 		SmallCalendar smallCal = new SmallCalendar();
 		
@@ -115,7 +119,10 @@ public class GUI extends JFrame implements WindowListener{
 		addActionListeners();
 		this.setResizable(false);
 		pack();
+		System.out.println("Bredden er: " + this.getWidth());
 		setLocationRelativeTo(null);
+		
+//		XCal.getCSU().requestObject(new ObjectRequest(SaveableClass.Appointment, "5"));
 		
 	}
 	private void addActionListeners() {
@@ -139,14 +146,6 @@ public class GUI extends JFrame implements WindowListener{
 			public void actionPerformed(ActionEvent e) {
 				progressThread = new Thread(new ProgressBar());
 				progressThread.start();
-				synchronized(this){
-					try {
-						wait(2000);
-					} catch (InterruptedException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				}
 				XCal.getCSU().disconnect();
 				LogIn logIn = new LogIn();
 //				logIn.pack();
