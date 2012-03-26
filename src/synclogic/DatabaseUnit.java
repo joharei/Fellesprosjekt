@@ -44,7 +44,7 @@ public class DatabaseUnit {
 		conn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/hannekot_X-cal", props);
 	}
 	
-	public static void objectsToDb(List<SyncListener> objects) throws SQLException{
+	public void objectsToDb(List<SyncListener> objects) throws SQLException{
 		//iterates the list of objects that are to be put i the database, checks what type of SyncListener it is
 		for (int i = 0; i < objects.size(); i++) {
 			if(objects.get(i) instanceof User){
@@ -206,7 +206,7 @@ public class DatabaseUnit {
 		}
 	}	
 
-	public static ArrayList<User> loadUser() throws SQLException{
+	public ArrayList<User> loadUser() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM User");
 		ArrayList<User> userArray = new ArrayList<User>();
@@ -230,7 +230,7 @@ public class DatabaseUnit {
 		return userArray;
 	}
 
-	public static ArrayList<Room> loadRoom() throws SQLException{
+	public ArrayList<Room> loadRoom() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Room");
 		ArrayList<Room> roomArray = new ArrayList<Room>();
@@ -244,7 +244,7 @@ public class DatabaseUnit {
 		return roomArray;
 	}
 
-	public static ArrayList<Appointment> loadEvent() throws SQLException{
+	public ArrayList<Appointment> loadEvent() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Event");
 		ArrayList<Appointment> eventArray = new ArrayList<Appointment>();
@@ -297,7 +297,7 @@ public class DatabaseUnit {
 		return eventArray;
 	}
 
-	public static ArrayList<Invitation> loadInvitation() throws SQLException{
+	public ArrayList<Invitation> loadInvitation() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Invitation");
 		ArrayList<Invitation> invitationArray = new ArrayList<Invitation>();
@@ -354,7 +354,7 @@ public class DatabaseUnit {
 		return invitationArray;
 	}
 
-	public static ArrayList<Notification> loadNotifcation() throws SQLException{
+	public ArrayList<Notification> loadNotifcation() throws SQLException{
 		ArrayList<Notification> notificationArray = new ArrayList<Notification>();
 		java.sql.PreparedStatement pstmt;
 		String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
@@ -439,7 +439,7 @@ public class DatabaseUnit {
 		return notificationArray;
 	}
 	
-	public static void addParticipants() throws SQLException{
+	public void addParticipants() throws SQLException{
 		for (int i = 0; i < eventArray.size(); i++) {
 			if(eventArray.get(i) instanceof Meeting){				
 				java.sql.PreparedStatement pstmt;
@@ -465,7 +465,7 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public static void addInvitation() throws SQLException{
+	public void addInvitation() throws SQLException{
 		for (int i = 0; i < eventArray.size(); i++) {
 			if(eventArray.get(i) instanceof Meeting){				
 			Statement stmt = conn.createStatement();
@@ -478,7 +478,7 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public static void addUserSubscription() throws SQLException{
+	public void addUserSubscription() throws SQLException{
 		for (int i = 0; i < userArray.size(); i++) {
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT AuthorUsername FROM UserSubscription WHERE SubscriberUsername='"+ userArray.get(i).getUsername()+ "';");
@@ -554,7 +554,7 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public static ArrayList<SyncListener> load() throws SQLException{
+	public ArrayList<SyncListener> load() throws SQLException{
 		ArrayList<SyncListener> loadArray = new ArrayList<SyncListener>();
 		userArray = loadUser();
 		eventArray = loadEvent();
@@ -572,8 +572,4 @@ public class DatabaseUnit {
 	public void closeConnection() throws SQLException{
 		conn.close();
 	}
-	
-	public static void main(String[] args) {
-	}
 }
-	
