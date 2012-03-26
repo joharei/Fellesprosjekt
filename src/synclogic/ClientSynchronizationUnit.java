@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Appointment;
 import model.Notification;
 import model.SaveableClass;
 import model.User;
@@ -132,7 +133,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		this.updateRequest = new UpdateRequest();
 		List<ErrorMessage> errorMessages = new ArrayList<ErrorMessage>();
 		try {
-			this.connection.send(XmlSerializerX.toXml(this.updateRequest, SaveableClass.UpdateRequest));
+			addToSendQueue(XmlSerializerX.toXml(this.updateRequest, SaveableClass.UpdateRequest));
 			UpdateRequest respons = (UpdateRequest) XmlSerializerX.toObject(this.connection.receive());
 			
 			for (int i = 0; i<respons.size(); i++) {
@@ -217,13 +218,13 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	@Override
 	public void addObject(SyncListener o) {
 		if (o instanceof User){
-			System.out.println("Adding " + ((User) o).getFirstname());
 			this.listeners.add(o);
 			for (Notification not : ((User) o).getNotifications()) {
 				this.listeners.add(not);
 			}
+		} else if (o instanceof Appointment){
+			this.listeners.add(o);
 		}
 		
 	}
-	
 }
