@@ -224,6 +224,8 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			}
 		} else if (o instanceof Appointment){
 			this.listeners.add(o);
+			System.out.println("Description: " + ((Appointment) o).getDescription());
+			System.out.println("Time: " + ((Appointment) o).getDate());
 		}
 		
 	}
