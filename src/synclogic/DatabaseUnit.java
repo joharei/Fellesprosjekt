@@ -132,12 +132,12 @@ public class DatabaseUnit {
 						}
 					}
 				}
-			else{
-				//the meeting is not in the database, insert the information about the meeting into Event, RoomEvent, UserEvent and InvitationTo 
-				Statement update = conn.createStatement();
-				int del = (meet.isDeleted()) ? 1 : 0;		
-				update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
-				update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
+				else{
+					//the meeting is not in the database, insert the information about the meeting into Event, RoomEvent, UserEvent and InvitationTo 
+					Statement update = conn.createStatement();
+					int del = (meet.isDeleted()) ? 1 : 0;		
+					update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
+					update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
 				update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
 				for (int j = 0; j < meet.getInvitations().size(); j++) {
 					update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
@@ -340,7 +340,6 @@ public class DatabaseUnit {
 					i = eventArray.size();
 				}	
 				if(eventArray.get(index)instanceof Meeting){
-					System.out.println("yo");
 					Meeting obj1 = (Meeting) eventArray.get(index);
 					switch (status) {
 					case 0:{	
