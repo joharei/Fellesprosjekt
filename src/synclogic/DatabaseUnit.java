@@ -140,10 +140,12 @@ public class DatabaseUnit {
 					Statement update = conn.createStatement();
 					int del = (meet.isDeleted()) ? 1 : 0;	
 					//if the meeting is not connected to a room then there is not need to update RoomEvent
-					if(meet.getRoom() != null){
-						update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getRoom().getId() + "','" + meet.getId() + "');");
+					Statement rsstmt = conn.createStatement();
+					ResultSet room = rsstmt.executeQuery("SELECT * FROM RoomEvent WHERE EventID='" + meet.getId() + "' AND RoomID='" + meet.getRoom() + "'");
+					if(room.first()){
+						update.executeUpdate("INSERT INTO RoomEvent VALUES('" + meet.getId() + "','" + meet.getRoom().getId() + "');");
 					}
-					update.executeUpdate("INSERT INTO Event VALUES('" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
+					update.executeUpdate("INSERT INTO Event VALUES('" + meet.getId() + "','" + date + "','" + start +"','" + end + "','" + meet.getDescription() + "','" + meet.getLocation() + "','1','" + del + "');");
 					update.execute("INSERT INTO UserEvent VALUES('" + meet.getOwner().getUsername() + "','" + meet.getId() + "');" );
 					for (int j = 0; j < meet.getInvitations().size(); j++) {
 						update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
@@ -182,7 +184,6 @@ public class DatabaseUnit {
 					update.execute("INSERT INTO UserEvent VALUES('" + appment.getOwner().getUsername() + "','" + appment.getId() + "');" );
 				}
 			}
-
 			else if(objects.get(i) instanceof Notification){
 				Notification not = (Notification) objects.get(i);
 				Statement stmt = conn.createStatement();
@@ -219,6 +220,7 @@ public class DatabaseUnit {
 			}	
 		}
 	}	
+	
 
 	public ArrayList<User> loadUser() throws SQLException{
 		//method to load user information from database
@@ -333,17 +335,21 @@ public class DatabaseUnit {
 	}
 
 	public ArrayList<Invitation> loadInvitation() throws SQLException{
+		//method to load invitations
 		Statement stmt = conn.createStatement();
+		//selects all information from the invitation database and for each element make a Invitation object
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Invitation");
 		ArrayList<Invitation> invitationArray = new ArrayList<Invitation>();
 		while(rs.next()){
 			int invitationID = rs.getInt("InvitationID");
 			int status = rs.getInt("Status");
 			Statement stm = conn.createStatement();
+			//Execute a select query to find out witch event the chosen invitation is connected to
 			ResultSet rset = stm.executeQuery("SELECT EventID FROM InvitationTo WHERE InvitationID='" + invitationID +"'");
 			rset.first();
 			int eventID = rset.getInt("EventID");
 			int index = 0;
+			//find the corresponding event to the eventID and makes a Invitation object
 			for (int i = 0; i < eventArray.size(); i++) {
 				Appointment obj = eventArray.get(i);
 				int getObjectID = Integer.parseInt(obj.getId());
@@ -351,8 +357,9 @@ public class DatabaseUnit {
 					index = i;
 					i = eventArray.size();
 				}	
-				if(eventArray.get(index)instanceof Meeting){
-					Meeting obj1 = (Meeting) eventArray.get(index);
+				if(eventArray.get(index) instanceof Meeting){
+				Meeting obj1 = (Meeting) eventArray.get(index);
+				// switch for the different types of invitation status
 					switch (status) {
 					case 0:{	
 						Invitation invitation = new Invitation(InvitationStatus.NOT_ANSWERED, obj1 ,(Integer.toString(invitationID)));
@@ -381,17 +388,18 @@ public class DatabaseUnit {
 					}
 					default:
 						break;
-					}			
+					}		
 				}
 			}
 		}
-		
 		return invitationArray;
 	}
 
 	public ArrayList<Notification> loadNotifcation() throws SQLException{
+		//method for load notifications 
 		ArrayList<Notification> notificationArray = new ArrayList<Notification>();
 		java.sql.PreparedStatement pstmt;
+		//execute query to find out witch notification is connected to witch user
 		String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
 		"FROM Notification JOIN UserNotification ON " +
 		"Notification.NotificationID = UserNotification.NotificationID " + 
@@ -405,12 +413,14 @@ public class DatabaseUnit {
 				int type = rs.getInt("type");
 				String triggeredBy = rs.getString("TriggeredBy");
 				int userIndex = 0;
+				//find the TriggeredBy user
 				for (int j = 0; j < userArray.size(); j++) {
 					if(userArray.get(j).getUsername().equalsIgnoreCase(triggeredBy)){
 						userIndex = j;
 						j  = userArray.size();
 					}
 				}
+				//Connect Invitations and Notificaiton 
 				ArrayList<Invitation> invitationArray = loadInvitation();
 				int invitationIndex = 0;
 				for (int j = 0; j < invitationArray.size(); j++) {
@@ -423,6 +433,7 @@ public class DatabaseUnit {
 						j = invitationArray.size();
 					}
 				}
+				//Makes the notification objects with the information found over and with different notifiction types
 				switch (type) {
 				case 0:{
 					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.MEETING_CANCELLED, (Integer.toString(notificationID)), userArray.get(userIndex));				
@@ -475,9 +486,12 @@ public class DatabaseUnit {
 	}
 	
 	public void addParticipants() throws SQLException{
+		//method to addParticipants to a meeting
 		for (int i = 0; i < eventArray.size(); i++) {
+			//goes throu the eventArray to add participants to only the meetings
 			if(eventArray.get(i) instanceof Meeting){				
 				java.sql.PreparedStatement pstmt;
+				//execute query that finds witch meeting is connected to witch user
 				String sel = "SELECT UserNotification.Username, Notification.NotificationID, Invitation.InvitationID, Invitation.Status, Event.EventID"
 											+" FROM UserNotification JOIN Notification ON Notification.NotificationID = UserNotification.NotificationID"
 											+" JOIN BelongsTo ON Notification.NotificationID = BelongsTo.NotificationID"
@@ -489,9 +503,10 @@ public class DatabaseUnit {
 				pstmt.setString(1, ((Meeting)(eventArray.get(i))).getId());
 				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()){
+					//goes throu all the elements in the resultset and finds the rigth participants and add to the list connected to a meeting
 					String username = rs.getString("Username");
 					for (int j = 0; j < userArray.size(); j++) {
-						if(userArray.get(i).getUsername().equalsIgnoreCase(username)){
+						if(userArray.get(j).getUsername().equalsIgnoreCase(username)){
 							((Meeting)(eventArray.get(i))).addParticipant(userArray.get(j));
 						}
 					}
@@ -499,6 +514,7 @@ public class DatabaseUnit {
 			}
 		}
 	}
+	
 	
 	public void addInvitation() throws SQLException{
 		for (int i = 0; i < eventArray.size(); i++) {
@@ -514,8 +530,10 @@ public class DatabaseUnit {
 	}
 	
 	public void addUserSubscription() throws SQLException{
+		//method to add usersubscription to other users
 		for (int i = 0; i < userArray.size(); i++) {
 			Statement stmt = conn.createStatement();
+			//execute a query to find out witch user the chosen user subscribes to
 			ResultSet rs = stmt.executeQuery("SELECT AuthorUsername FROM UserSubscription WHERE SubscriberUsername='"+ userArray.get(i).getUsername()+ "';");
 			while(rs.next()){
 				String username = rs.getString("AuthorUsername");
@@ -526,12 +544,14 @@ public class DatabaseUnit {
 					}
 				}
 			}
-
 		}
 	}
+	
 
 	public String getNewKey(SaveableClass type){
+		//method to get the chosen type key from the database, gets the next vacant key in those tables with auto increment
 		if(type.equals(SaveableClass.Appointment) || type.equals(SaveableClass.Meeting)){
+			//the type is either an appointment or a meeting, select eventIDs from the event table
 			String AppKey = "";
 			try {
 				Statement stmt = conn.createStatement();
@@ -546,42 +566,45 @@ public class DatabaseUnit {
 			return AppKey;
 		}
 		else if(type.equals(SaveableClass.Invitation)){
+			//the type is a invitation, select invitationIDs from the invitaiton table
 			String InvtKey = "";
 			try{
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT InvitationID FROM Invitation");
-			rs.last();
-			int invtID = rs.getInt("InvitationID");
-			int invtKey = invtID + 1;
-			InvtKey = Integer.toString(invtKey);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT InvitationID FROM Invitation");
+				rs.last();
+				int invtID = rs.getInt("InvitationID");
+				int invtKey = invtID + 1;
+				InvtKey = Integer.toString(invtKey);
 			} catch(SQLException e){
 				e.printStackTrace();
 			}
 			return InvtKey;
 		}
 		else if(type.equals(SaveableClass.Notification)){
+			//the type is a notification, select notificationIDs from the notfication table
 			String NotKey = "";
 			try {
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT NotificationID FROM Notification");
-			rs.last();
-			int notID = rs.getInt("NotificationID");
-			int notKey = notID + 1;
-			NotKey = Integer.toString(notKey);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT NotificationID FROM Notification");
+				rs.last();
+				int notID = rs.getInt("NotificationID");
+				int notKey = notID + 1;
+				NotKey = Integer.toString(notKey);
 			} catch(SQLException e){
 				e.printStackTrace();
 			}
 			return NotKey;
 		}
 		else{
+			//the type is a room, select the roomIDs from the room table
 			String RoomKey = "";
 			try{
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT RoomID FROM Room");
-			rs.last();
-			int roomID = rs.getInt("RoomID");
-			int roomKey = roomID + 1;
-			RoomKey = Integer.toString(roomKey);
+				Statement stmt = conn.createStatement();
+				ResultSet rs = stmt.executeQuery("SELECT RoomID FROM Room");
+				rs.last();
+				int roomID = rs.getInt("RoomID");
+				int roomKey = roomID + 1;
+				RoomKey = Integer.toString(roomKey);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
@@ -589,7 +612,9 @@ public class DatabaseUnit {
 		}
 	}
 	
+	
 	public ArrayList<SyncListener> load() throws SQLException{
+		//method to load all the elements in the database
 		ArrayList<SyncListener> loadArray = new ArrayList<SyncListener>();
 		userArray = loadUser();
 		eventArray = loadEvent();
@@ -608,7 +633,4 @@ public class DatabaseUnit {
 		conn.close();
 	}
 
-	public static void main(String[] args) throws ConnectException {
-
-	}
 }
