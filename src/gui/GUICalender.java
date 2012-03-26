@@ -10,7 +10,9 @@ import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -25,6 +27,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 	private int week;
 	GridBagConstraints c = new GridBagConstraints();
 	private JPanel panel2 = new JPanel();
+	private String [] options = {"Meeting","Appointment"};
 	
 	public GUICalender(SmallCalendar cal){
 		cal.addListener(this);
@@ -118,7 +121,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				}
 				else if (occupied[i][j] == 2){
 				}else {
-					button[i][j] = new JButton(new AbstractAction(" - ") {
+					button[i][j] = new JButton(new AbstractAction("") {
 						
 						/**
 						 * 
@@ -127,10 +130,22 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 						
 						// This method is called when the button is pressed
 						public void actionPerformed(ActionEvent evt) {
-							//System.out.println("Tester");
+							int response=JOptionPane.showOptionDialog(null, "Meeting or Apointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
+							if(response==0){
+								System.out.println("Meeting");
+								JDialog mGUI = new MeetingGui();
+								mGUI.setVisible(true);
+							}
+							if(response==1){
+								System.out.println("Apointment");
+								JDialog aGUI = new AppointmentGui();
+								aGUI.setVisible(true);
+								
+							}
 						}
 					});
 					c.gridheight=1;
+					c.fill=GridBagConstraints.BOTH;
 					c.gridx=11+j;
 					c.gridy=4+i;
 					c.ipadx=80;
