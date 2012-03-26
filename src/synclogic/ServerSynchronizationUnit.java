@@ -159,8 +159,91 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * @return			True if the update is valid. False if not
 	 */
 	public boolean isValidUpdate(SyncListener update, SyncListener original, User sentBy) {
-		// TODO: Mye!
 		switch (update.getSaveableClass()) {
+			case Invitation :  {
+				/*
+				 * Server creates new invitations.
+				 * User can update own invitation with status only.
+				 */
+				if (original == null) {
+					return false;
+				}
+				Invitation inv = (Invitation) update;
+				Invitation old = (Invitation) original;
+				//id match?
+				if (!inv.getID().equals(old.getID())) {
+					return false;
+				}
+				//check if user owns notification
+				boolean userGotInv = false;
+				ArrayList<Notification> notlist = sentBy.getNotifications();
+				for (Notification notification : notlist) {
+					Invitation invstored = notification.getInvitation();
+					if (invstored.getID().equals(old.getID())) {
+						userGotInv = true;
+						break;
+					}
+				}
+				if (!userGotInv) {
+					return false;
+				}
+				//check if meeting was changed
+				Meeting invmeeting = inv.getMeeting();
+				Meeting oldmeeting = old.getMeeting();
+				if (!invmeeting.equals(oldmeeting)) {
+					return false;
+				}
+				return true;
+			}
+			case Notification :  {
+				/*
+				 * Server creates new notifications.
+				 * User updates own notification: read
+				 * Invitiation is bundled within.
+				 */
+				Notification notify = (Notification) update;
+				Notification old = null;
+				Invitation inv = notify.getInvitation();
+				Invitation ninv = null;
+				boolean validInvitation = false;
+				if (original != null) {
+					//update of existing notification
+					old = (Notification) original;
+					ninv = old.getInvitation();
+					
+					//same id?
+					if (!notify.getId().equals(old.getId())) {
+						return false;
+					}
+					//right user?
+					boolean userGotNotif = false;
+					ArrayList<Notification> notlist = sentBy.getNotifications();
+					for (Notification notification : notlist) {
+						if (notification.getId().equals(old.getId())) {
+							userGotNotif = true;
+							break;
+						}
+					}
+					
+					//check the invitation
+					validInvitation = isValidUpdate(inv, ninv, sentBy);
+					if (!validInvitation) {
+						return false;
+					}
+					
+					if (!userGotNotif) {
+						return false;
+					}
+					//notification type identical?
+					if (notify.getType() != old.getType()) {
+						return false;
+					}
+				} else {
+					//new notification should not be sent to server
+					return false;
+				}
+				return true;
+			}
 			case Appointment : {
 				//pass down to meeting
 			}
@@ -182,7 +265,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 				}
 			}
 			default : {
-				throw new RuntimeException("NOT YET IMPLEMENTED!");
+				System.out.println("Server does not accept changes in " + update.getClass());
+				return false;
 			}
 		}
 	}
@@ -258,7 +342,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * Get available rooms for the given time span
 	 */
 	@SuppressWarnings("rawtypes")
-	private List<Room> getAvailableRooms(Date start, Date end) {
+	protected List<Room> getAvailableRooms(Date start, Date end) {
 		List<SyncListener> allRooms = getObjectsFromID(SaveableClass.Room, null);
 		List<Room> aRooms = new ArrayList<Room>();
 		List<Appointment> apps = getAllAppointments();
