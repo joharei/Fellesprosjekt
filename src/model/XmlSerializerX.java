@@ -1,5 +1,6 @@
 package model;
 
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -737,7 +738,9 @@ public class XmlSerializerX extends XmlSerializer {
 			ArrayList<String> list = meeting.getUsersToInvite();
 			Iterator<String> it3 = list.iterator();
 			while (it3.hasNext()) {
-				u2inv.appendChild(it3.next());
+				Element head = new Element(User.NAME_PROPERTY_USERNAME);
+				head.appendChild(it3.next());
+				u2inv.appendChild(head);
 			}
 			appElement.appendChild(u2inv);
 		}
@@ -832,7 +835,11 @@ public class XmlSerializerX extends XmlSerializer {
 			if (e != null) {
 				Elements usernames = e.getChildElements();
 				for (int i = 0; i < usernames.size(); i++) {
-					u2invList.add(usernames.get(i).getValue());
+					Element head = usernames.get(i);
+					if (head != null) {
+						u2invList.add(head.getValue());
+						
+					}
 				}
 			}
 			
