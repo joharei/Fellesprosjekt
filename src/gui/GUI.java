@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -87,7 +88,7 @@ public class GUI extends JFrame implements WindowListener{
 		
 		c.gridx=9;
 		c.gridy=5;
-		add(new ScrollPane(),c); //adder kalenderen i mainen
+		add(new ScrollPane(smallCal),c); //adder kalenderen i mainen
 		
 		helpLabel = new JLabel("");
 		c.gridx=9;
@@ -146,7 +147,10 @@ public class GUI extends JFrame implements WindowListener{
 			public void actionPerformed(ActionEvent e) {
 				progressThread = new Thread(new ProgressBar());
 				progressThread.start();
-				XCal.getCSU().disconnect();
+				try {
+					XCal.getCSU().disconnect();
+				} catch (IOException e1) {
+				}
 				LogIn logIn = new LogIn();
 //				logIn.pack();
 				logIn.setVisible(true);
@@ -182,7 +186,10 @@ public class GUI extends JFrame implements WindowListener{
 	public void windowClosed(WindowEvent e) {
 		// TODO Auto-generated method stub
 		System.out.println("WindowClosed");
-		XCal.getCSU().disconnect();
+		try {
+			XCal.getCSU().disconnect();
+		} catch (IOException e1) {
+		}
 		System.exit(0);
 	}
 	@Override
