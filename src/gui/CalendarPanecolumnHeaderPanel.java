@@ -52,6 +52,6 @@ public class CalendarPanecolumnHeaderPanel extends JPanel{
 		add(friday);
 		add(saturday);
 		add(sunday);
-		setPreferredSize(new Dimension(978,30));
+		setPreferredSize(new Dimension(1000,40));
 	}
 }
