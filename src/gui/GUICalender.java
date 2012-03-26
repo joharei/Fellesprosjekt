@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.util.Calendar;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -23,6 +24,7 @@ public class GUICalender extends JPanel{
 		setLayout(new GridBagLayout());
 		String [] teller={"00:00","01:00","02:00","03:00","04:00","05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"};
 		String [] col ={"Mon","Tue","Wed","Thu","Fri","Sat","Sun"};
+		
 		for ( int h = 0; h < kolonner; h++) {
 			
 			button[h][0] = new JButton(teller[h]);
@@ -54,7 +56,7 @@ public class GUICalender extends JPanel{
 					);
 			c.gridx=11+j;
 			c.gridy=4+h;
-			c.ipadx=100;
+			c.ipadx=80;
 			c.ipady=5;
 			c.weightx=1;
 			button[h][j].setBackground(Color.WHITE);
