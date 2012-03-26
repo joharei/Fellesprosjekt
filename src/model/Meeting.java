@@ -55,15 +55,16 @@ public class Meeting extends Appointment {
 	}
 	@SuppressWarnings("unchecked")
 	public ArrayList<User> getParticipants() {
+		if (this.participants == null) {
+			return new ArrayList<User>();
+		}
 		return (ArrayList<User>) participants.clone();
 	}
 	
 	public void addInvitation(Invitation inv) {
-		this.addInvitation(inv.getID());
-		
-//		ArrayList<String> old = getInvitations();
-//		this.invitationIDs.add(inv.getID());
-//		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
+		ArrayList<String> old = getInvitations();
+		this.invitationIDs.add(inv.getID());
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATIONS, old, getInvitations()));
 	}
 	
 	public void addInvitation(String invitationID) {
@@ -87,6 +88,9 @@ public class Meeting extends Appointment {
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<String> getInvitations() {
+		if (this.invitationIDs == null) {
+			return new ArrayList<String>();
+		}
 		return (ArrayList<String>) invitationIDs.clone();
 	}
 
