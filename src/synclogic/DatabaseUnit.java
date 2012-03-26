@@ -116,8 +116,8 @@ public class DatabaseUnit {
 				ResultSet rs = stmt.executeQuery("SELECT * FROM Event WHERE EventID='" + meet.getId() + "';");
 				// getting the rigth usable format of the time of the meeting
 				String date = (Meeting.getDateFormat().format(meet.getDate()));
-				String start = (Meeting.getDateFormat().format(meet.getStartTime()));
-				String end = (Meeting.getDateFormat().format(meet.getEndTime()));
+				String start = (Meeting.getTimeformat().format(meet.getStartTime()));
+				String end = (Meeting.getTimeformat().format(meet.getEndTime()));
 				if(rs.next()){
 					//the meeting is in the database, update the information in the database
 					Statement update = conn.createStatement();
@@ -129,7 +129,7 @@ public class DatabaseUnit {
 					update.executeUpdate("UPDATE Event SET Date='" + date + "', Start='" + start + "', End='" + end +"', Description='" + meet.getDescription() +"', Location='" + meet.getLocation() + "', Type='1', Deleted='" + del + "' WHERE EventID='" + meet.getId() +"';");	
 					for (int j = 0; j < meet.getInvitations().size(); j++) {
 						Statement stm = conn.createStatement();
-						ResultSet set = stm.executeQuery("SELECT * FROM InvitationTo WHERE EventID='" + meet.getId());
+						ResultSet set = stm.executeQuery("SELECT * FROM InvitationTo WHERE EventID='" + meet.getId()+ "'");
 						if(!set.next()){
 							update.executeUpdate("INSERT INTO InvitationTo VALUES('" + meet.getInvitations().get(j) + "','" + meet.getId() + "');");
 						}
@@ -414,7 +414,6 @@ public class DatabaseUnit {
 				ArrayList<Invitation> invitationArray = loadInvitation();
 				int invitationIndex = 0;
 				for (int j = 0; j < invitationArray.size(); j++) {
-					System.out.println("invArray");
 					Statement sstm = conn.createStatement();
 					ResultSet rs1 = sstm.executeQuery("SELECT InvitationID FROM BelongsTo WHERE NotificationID='" + notificationID + "'");
 					rs1.first();
@@ -610,14 +609,6 @@ public class DatabaseUnit {
 	}
 
 	public static void main(String[] args) throws ConnectException {
-		
-		try {
-			DatabaseUnit db= new DatabaseUnit();
-			
-			System.out.println(db.load());
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 	}
 }
