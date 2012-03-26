@@ -288,58 +288,59 @@ public class DatabaseUnit {
 			int deleted = rs.getInt("Deleted");
 			Statement sstm = conn.createStatement();
 			ResultSet rss1 = sstm.executeQuery("SELECT Username FROM UserEvent WHERE EventID ='" +eventID +"'" );
-			rss1.next();
-			rss1.getString("Username");
-			String usser = rss1.getString("Username");
-			int UserIndex = 0;
-			for (int i = 0; i < userArray.size(); i++) {
-				if(userArray.get(i).getUsername().equalsIgnoreCase(usser)){
-					UserIndex = i;
-					i=userArray.size();
+			if(rss1.next()){
+				rss1.getString("Username");
+				String usser = rss1.getString("Username");
+				int UserIndex = 0;
+				for (int i = 0; i < userArray.size(); i++) {
+					if(userArray.get(i).getUsername().equalsIgnoreCase(usser)){
+						UserIndex = i;
+						i=userArray.size();
+					}
 				}
-			}
-			ArrayList<Room> room = loadRoom();
-			int RoomIndex = room.size() + 5;
-			for (int i = 0; i < room.size(); i++) {
-				if(room.get(i).getName().equalsIgnoreCase(roomName)){
-					RoomIndex = i;
-					i=room.size();
+				ArrayList<Room> room = loadRoom();
+				int RoomIndex = room.size() + 5;
+				for (int i = 0; i < room.size(); i++) {
+					if(room.get(i).getName().equalsIgnoreCase(roomName)){
+						RoomIndex = i;
+						i=room.size();
+					}
 				}
-			}
 			
-			if(type == 1 && deleted == 0 && RoomIndex<room.size()){
-				Meeting meeting = new Meeting(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
-				eventArray.add(meeting);
+				if(type == 1 && deleted == 0 && RoomIndex<room.size()){
+					Meeting meeting = new Meeting(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
+					eventArray.add(meeting);
+				}
+				else if(type == 1 && deleted == 0 && RoomIndex>room.size()){
+					Meeting meeting = new Meeting(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false );
+					eventArray.add(meeting);
+				}
+				else if(type == 1 && deleted == 1 && RoomIndex<room.size()){
+					Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true );
+					eventArray.add(meeting);
+				}
+				else if(type == 1 && deleted == 1 && RoomIndex>room.size()){
+					Meeting meeting = new Meeting(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), true );
+					eventArray.add(meeting);
+				}
+				else if(type == 0 && deleted == 0 && RoomIndex<room.size()){
+					Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false);
+					eventArray.add(appment);
+				}
+				else if(type == 0 && deleted == 0 && RoomIndex>room.size()){
+					Appointment appment = new Appointment(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false);
+					eventArray.add(appment);
+				}
+				else if(type == 0 && deleted == 1 && RoomIndex<room.size()){
+					Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true);
+					eventArray.add(appment);
+				}
+				else if(type == 0 && deleted == 0 && RoomIndex>room.size()){
+					Appointment appment = new Appointment(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false);
+					eventArray.add(appment);
+				}
 			}
-			else if(type == 1 && deleted == 0 && RoomIndex>room.size()){
-				Meeting meeting = new Meeting(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false );
-				eventArray.add(meeting);
-			}
-			else if(type == 1 && deleted == 1 && RoomIndex<room.size()){
-				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true );
-				eventArray.add(meeting);
-			}
-			else if(type == 1 && deleted == 1 && RoomIndex>room.size()){
-				Meeting meeting = new Meeting(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), true );
-				eventArray.add(meeting);
-			}
-			else if(type == 0 && deleted == 0 && RoomIndex<room.size()){
-				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false);
-				eventArray.add(appment);
-			}
-			else if(type == 0 && deleted == 0 && RoomIndex>room.size()){
-				Appointment appment = new Appointment(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false);
-				eventArray.add(appment);
-			}
-			else if(type == 0 && deleted == 1 && RoomIndex<room.size()){
-				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), true);
-				eventArray.add(appment);
-			}
-			else if(type == 0 && deleted == 0 && RoomIndex>room.size()){
-				Appointment appment = new Appointment(date, start, end, description, roomName, null, (Integer.toString(eventID)), userArray.get(UserIndex), false);
-				eventArray.add(appment);
-			}
-			}
+		}	
 		return eventArray;
 	}
 	
