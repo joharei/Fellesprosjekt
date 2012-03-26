@@ -22,14 +22,14 @@ public class CalendarPanecolumnHeaderPanel extends JPanel{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private JLabel time = new JLabel("Time"+"                                ");
-	private JLabel monday = new JLabel("Mon"+"                                    ");
-	private JLabel tuesday = new JLabel("Tue"+"                                   ");
-	private JLabel wednesday = new JLabel("Wed"+"                                 ");
-	private JLabel thursday = new JLabel("Thu"+"                                  ");
-	private JLabel friday = new JLabel("Fri"+"                                    ");
-	private JLabel saturday = new JLabel("Sat"+"                                  ");
-	private JLabel sunday = new JLabel("Sun"+"                                    ");
+	private JLabel time = new JLabel("Time"+"                          ");
+	private JLabel monday = new JLabel("Monday"+"                           ");
+	private JLabel tuesday = new JLabel("Tuesday"+"                         ");
+	private JLabel wednesday = new JLabel("Wednesday"+"                     ");
+	private JLabel thursday = new JLabel("Thursday"+"                       ");
+	private JLabel friday = new JLabel("Friday"+"                           ");
+	private JLabel saturday = new JLabel("Saturday"+"                       ");
+	private JLabel sunday = new JLabel("Sunday"+"                           ");
 	GridBagConstraints c = new GridBagConstraints();
 	
 	public CalendarPanecolumnHeaderPanel(SmallCalendar smallCal){
@@ -52,6 +52,6 @@ public class CalendarPanecolumnHeaderPanel extends JPanel{
 		add(friday);
 		add(saturday);
 		add(sunday);
-		setPreferredSize(new Dimension(1000,40));
+		setPreferredSize(new Dimension(1050,40));
 	}
 }

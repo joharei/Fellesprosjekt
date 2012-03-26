@@ -272,7 +272,11 @@ public class LogIn extends JFrame implements WindowListener{
 	@Override
 	public void windowClosed(WindowEvent e) {
 		System.out.println("WindowClosed");
-		XCal.getCSU().disconnect();
+		try {
+			XCal.getCSU().disconnect();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+		}
 		System.exit(0);
 	}
 
