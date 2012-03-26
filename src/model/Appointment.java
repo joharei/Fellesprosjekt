@@ -150,4 +150,14 @@ public class Appointment implements SyncListener {
 	public String getObjectID() {
 		return "" + getId();
 	}
+	
+	public String getTitle(){
+		if (this.description.length()>30){
+			return "<html>"+this.description.substring(0, 12) + "<br/>" + this.description.substring(12, 29)+"</html>";
+		} else if (this.description.length()>15){
+			return "<html>"+this.description.substring(0, 12)+"<br />"+this.description.substring(12, this.description.length())+"</html>";
+		} else {
+			return this.description;
+		}
+	}
 }

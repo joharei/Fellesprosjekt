@@ -42,7 +42,17 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		Calendar end = Calendar.getInstance();
 		end.set(Calendar.HOUR_OF_DAY, 18);
 		end.set(Calendar.MINUTE, 0);
+		Calendar start2 = Calendar.getInstance();
+		start2.set(Calendar.HOUR_OF_DAY, 8);
+		start2.set(Calendar.MINUTE, 0);
+		Calendar end2 = Calendar.getInstance();
+		end2.set(Calendar.HOUR_OF_DAY, 14);
+		end2.set(Calendar.MINUTE, 0);
+		Calendar dato2 = Calendar.getInstance();
+		dato2.set(2012,02,30);
 		addObject(new Appointment(new Date(), start.getTime(), end.getTime(), "Dette er en testavtale", "her", new Room(0, "Kalahari", 20), "1", new User("Johan", "Reitan", "joharei", "123"), false));
+		addObject(new Appointment(dato2.getTime(), start2.getTime(), end2.getTime(), "Enda en testavtale", "Dette skjer også her", null, "2", new User("Johan", "Reitan", "joharei", "123"), false));
+
 	}
 	
 	public void addToSendQueue(String o) {
