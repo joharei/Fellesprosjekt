@@ -10,9 +10,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.List;
-
-import com.mysql.jdbc.PreparedStatement;
-
 import model.Appointment;
 import model.Invitation;
 import model.InvitationStatus;
@@ -281,7 +278,6 @@ public class DatabaseUnit {
 				}
 			}
 			if(type == 1 && deleted == 0){
-				System.out.println(room.get(RoomIndex) +"+" + userArray.get(UserIndex));
 				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
 				eventArray.add(meeting);
 			}
@@ -290,9 +286,6 @@ public class DatabaseUnit {
 				eventArray.add(meeting);
 			}
 			else if(type == 0 && deleted == 0){
-				System.out.println(date);
-				System.out.println(start);
-				System.out.println(end);
 				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false);
 				eventArray.add(appment);
 			}
@@ -326,7 +319,7 @@ public class DatabaseUnit {
 				if(eventArray.get(index)instanceof Meeting){
 					Meeting obj1 = (Meeting) eventArray.get(index);
 					switch (status) {
-					case 0:{
+					case 0:{	
 						Invitation invitation = new Invitation(InvitationStatus.NOT_ANSWERED, obj1 ,(Integer.toString(invitationID)));
 						invitationArray.add(invitation);
 						break;
@@ -363,21 +356,15 @@ public class DatabaseUnit {
 
 	public static ArrayList<Notification> loadNotifcation() throws SQLException{
 		ArrayList<Notification> notificationArray = new ArrayList<Notification>();
+		java.sql.PreparedStatement pstmt;
+		String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
+		"FROM Notification JOIN UserNotification ON " +
+		"Notification.NotificationID = UserNotification.NotificationID " + 
+		"WHERE Username = ?";
+		pstmt = conn.prepareStatement(sel);
 		for (int i = 0; i < userArray.size(); i++) {
-			Statement stmt = conn.createStatement();
-			java.sql.PreparedStatement pstmt;
-			String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
-				"FROM Notification JOIN UserNotification ON " +
-				"Notification.NotificationID = UserNotification.NotificationID " + 
-				"WHERE Username = ?";
-			pstmt = conn.prepareStatement(sel);
 			pstmt.setString(1, userArray.get(i).getUsername());
 			ResultSet rs = pstmt.executeQuery();
-//			ResultSet rs = stmt.executeQuery("SELECT Notification.NotificationID, type , TriggeredBy, Username" 
-//											+ "FROM Notification JOIN UserNotification "
-//											+ "ON Notification.NotificationID = UserNotification.NotificationID");
-									//		+ "AND Username ='OleH';");
-											//(userArray.get(i)).getUsername()+ "
 			while(rs.next()){
 				int notificationID = rs.getInt("NotificationiD");
 				int type = rs.getInt("type");
@@ -454,21 +441,18 @@ public class DatabaseUnit {
 	
 	public static void addParticipants() throws SQLException{
 		for (int i = 0; i < eventArray.size(); i++) {
-			if(eventArray.get(i) instanceof Meeting){
-				Statement stmt = conn.createStatement();
-				System.out.println(((Meeting)(eventArray.get(i))).getId());
-				ResultSet rs = stmt .executeQuery("SELECT Notification.NotificationID, type , TriggeredBy, Username" 
-						+ "FROM Notification JOIN UserNotification ON "
-						+ "Notification.NotificationID = UserNotification.NotificationID");
-				System.out.println("dids it");
-						
-	//					"SELECT UserNotification.Username, Notification.NotificationID, Invitation.InvitationID, Invitation.Status, Event.EventID"
-//											+"FROM UserNotification JOIN Notification ON Notification.NotificationID=UserNotification.NotificationID"
-//											+"JOIN BelongsTo ON Notification.NotificationID = BelongsTo.NotificationID"
-//											+"JOIN Invitation ON BelongsTo.InvitationID = Invitation.InvitationID"
-//											+"JOIN InvitationTo ON Invitation.InvitationID = InvitationTo.InvitationID"
-//											+"JOIN Event ON Event.EventID = InvitationTo.EventID"
-//											+"WHERE Event.EventID = '" + ((Meeting)(eventArray.get(i))).getId() +"' AND Invitation.Status ='1';");
+			if(eventArray.get(i) instanceof Meeting){				
+				java.sql.PreparedStatement pstmt;
+				String sel = "SELECT UserNotification.Username, Notification.NotificationID, Invitation.InvitationID, Invitation.Status, Event.EventID"
+											+" FROM UserNotification JOIN Notification ON Notification.NotificationID = UserNotification.NotificationID"
+											+" JOIN BelongsTo ON Notification.NotificationID = BelongsTo.NotificationID"
+											+" JOIN Invitation ON BelongsTo.InvitationID = Invitation.InvitationID"
+											+" JOIN InvitationTo ON Invitation.InvitationID = InvitationTo.InvitationID"
+											+" JOIN Event ON Event.EventID = InvitationTo.EventID"
+											+" WHERE Event.EventID = ? AND Invitation.Status ='1';";
+				pstmt = conn.prepareStatement(sel);
+				pstmt.setString(1, ((Meeting)(eventArray.get(i))).getId());
+				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()){
 					String username = rs.getString("Username");
 					for (int j = 0; j < userArray.size(); j++) {
@@ -574,7 +558,7 @@ public class DatabaseUnit {
 		ArrayList<SyncListener> loadArray = new ArrayList<SyncListener>();
 		userArray = loadUser();
 		eventArray = loadEvent();
-	//	addParticipants();
+		addParticipants();
 		addUserSubscription();
 		addInvitation();
 		loadArray.addAll(userArray);
@@ -582,9 +566,7 @@ public class DatabaseUnit {
 		loadArray.addAll(eventArray);
 		loadArray.addAll(loadInvitation());
 		loadArray.addAll(loadNotifcation());
-		
-		return loadArray;
-				
+		return loadArray;	
 	} 
 	
 	public void closeConnection() throws SQLException{
