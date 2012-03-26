@@ -135,6 +135,9 @@ public class ClientHandler implements Runnable {
 						List<SyncListener> l = new ArrayList<SyncListener>();
 						l.add((SyncListener) o);
 						this.processReceivedObjects(l);
+					} else if(o instanceof RoomAvailabilityRequest){
+						RoomAvailabilityRequest rar = (RoomAvailabilityRequest) o;
+						rar.setAvailableRooms(this.serverSynchronizationUnit.getAvailableRooms(rar.getStart(), rar.getEnd()));
 					} else {
 						throw new RuntimeException("Oops! Something went wrong.");
 					}

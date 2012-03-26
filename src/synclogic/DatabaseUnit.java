@@ -44,7 +44,7 @@ public class DatabaseUnit {
 		conn = DriverManager.getConnection("jdbc:mysql://mysql.stud.ntnu.no/hannekot_X-cal", props);
 	}
 	
-	public static void objectsToDb(List<SyncListener> objects) throws SQLException{
+	public void objectsToDb(List<SyncListener> objects) throws SQLException{
 		//iterates the list of objects that are to be put i the database, checks what type of SyncListener it is
 		for (int i = 0; i < objects.size(); i++) {
 			if(objects.get(i) instanceof User){
@@ -206,7 +206,7 @@ public class DatabaseUnit {
 		}
 	}	
 
-	public static ArrayList<User> loadUser() throws SQLException{
+	public ArrayList<User> loadUser() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM User");
 		ArrayList<User> userArray = new ArrayList<User>();
@@ -230,7 +230,7 @@ public class DatabaseUnit {
 		return userArray;
 	}
 
-	public static ArrayList<Room> loadRoom() throws SQLException{
+	public ArrayList<Room> loadRoom() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Room");
 		ArrayList<Room> roomArray = new ArrayList<Room>();
@@ -244,7 +244,7 @@ public class DatabaseUnit {
 		return roomArray;
 	}
 
-	public static ArrayList<Appointment> loadEvent() throws SQLException{
+	public ArrayList<Appointment> loadEvent() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Event");
 		ArrayList<Appointment> eventArray = new ArrayList<Appointment>();
@@ -278,7 +278,6 @@ public class DatabaseUnit {
 				}
 			}
 			if(type == 1 && deleted == 0){
-				System.out.println(room.get(RoomIndex) +"+" + userArray.get(UserIndex));
 				Meeting meeting = new Meeting(date, start, end, description, roomName,room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false );
 				eventArray.add(meeting);
 			}
@@ -287,9 +286,6 @@ public class DatabaseUnit {
 				eventArray.add(meeting);
 			}
 			else if(type == 0 && deleted == 0){
-				System.out.println(date);
-				System.out.println(start);
-				System.out.println(end);
 				Appointment appment = new Appointment(date, start, end, description, roomName, room.get(RoomIndex), (Integer.toString(eventID)), userArray.get(UserIndex), false);
 				eventArray.add(appment);
 			}
@@ -301,7 +297,7 @@ public class DatabaseUnit {
 		return eventArray;
 	}
 
-	public static ArrayList<Invitation> loadInvitation() throws SQLException{
+	public ArrayList<Invitation> loadInvitation() throws SQLException{
 		Statement stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery("SELECT * FROM Invitation");
 		ArrayList<Invitation> invitationArray = new ArrayList<Invitation>();
@@ -323,7 +319,7 @@ public class DatabaseUnit {
 				if(eventArray.get(index)instanceof Meeting){
 					Meeting obj1 = (Meeting) eventArray.get(index);
 					switch (status) {
-					case 0:{
+					case 0:{	
 						Invitation invitation = new Invitation(InvitationStatus.NOT_ANSWERED, obj1 ,(Integer.toString(invitationID)));
 						invitationArray.add(invitation);
 						break;
@@ -358,15 +354,17 @@ public class DatabaseUnit {
 		return invitationArray;
 	}
 
-	public static ArrayList<Notification> loadNotifcation() throws SQLException{
+	public ArrayList<Notification> loadNotifcation() throws SQLException{
 		ArrayList<Notification> notificationArray = new ArrayList<Notification>();
+		java.sql.PreparedStatement pstmt;
+		String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
+		"FROM Notification JOIN UserNotification ON " +
+		"Notification.NotificationID = UserNotification.NotificationID " + 
+		"WHERE Username = ?";
+		pstmt = conn.prepareStatement(sel);
 		for (int i = 0; i < userArray.size(); i++) {
-			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT Notification.NotificationID, type , TriggeredBy, Username" 
-											+ "FROM Notification JOIN UserNotification "
-											+ "WHERE Notification.NotificationID=UserNotification.NotificationID");
-									//		+ "AND Username ='OleH';");
-											//(userArray.get(i)).getUsername()+ "
+			pstmt.setString(1, userArray.get(i).getUsername());
+			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()){
 				int notificationID = rs.getInt("NotificationiD");
 				int type = rs.getInt("type");
@@ -441,23 +439,20 @@ public class DatabaseUnit {
 		return notificationArray;
 	}
 	
-	public static void addParticipants() throws SQLException{
+	public void addParticipants() throws SQLException{
 		for (int i = 0; i < eventArray.size(); i++) {
-			if(eventArray.get(i) instanceof Meeting){
-				Statement stmt = conn.createStatement();
-				System.out.println(((Meeting)(eventArray.get(i))).getId());
-				ResultSet rs = stmt .executeQuery("SELECT Notification.NotificationID, type , TriggeredBy, Username" 
-						+ "FROM Notification JOIN UserNotification ON "
-						+ "Notification.NotificationID = UserNotification.NotificationID");
-				System.out.println("dids it");
-						
-	//					"SELECT UserNotification.Username, Notification.NotificationID, Invitation.InvitationID, Invitation.Status, Event.EventID"
-//											+"FROM UserNotification JOIN Notification ON Notification.NotificationID=UserNotification.NotificationID"
-//											+"JOIN BelongsTo ON Notification.NotificationID = BelongsTo.NotificationID"
-//											+"JOIN Invitation ON BelongsTo.InvitationID = Invitation.InvitationID"
-//											+"JOIN InvitationTo ON Invitation.InvitationID = InvitationTo.InvitationID"
-//											+"JOIN Event ON Event.EventID = InvitationTo.EventID"
-//											+"WHERE Event.EventID = '" + ((Meeting)(eventArray.get(i))).getId() +"' AND Invitation.Status ='1';");
+			if(eventArray.get(i) instanceof Meeting){				
+				java.sql.PreparedStatement pstmt;
+				String sel = "SELECT UserNotification.Username, Notification.NotificationID, Invitation.InvitationID, Invitation.Status, Event.EventID"
+											+" FROM UserNotification JOIN Notification ON Notification.NotificationID = UserNotification.NotificationID"
+											+" JOIN BelongsTo ON Notification.NotificationID = BelongsTo.NotificationID"
+											+" JOIN Invitation ON BelongsTo.InvitationID = Invitation.InvitationID"
+											+" JOIN InvitationTo ON Invitation.InvitationID = InvitationTo.InvitationID"
+											+" JOIN Event ON Event.EventID = InvitationTo.EventID"
+											+" WHERE Event.EventID = ? AND Invitation.Status ='1';";
+				pstmt = conn.prepareStatement(sel);
+				pstmt.setString(1, ((Meeting)(eventArray.get(i))).getId());
+				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()){
 					String username = rs.getString("Username");
 					for (int j = 0; j < userArray.size(); j++) {
@@ -470,7 +465,7 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public static void addInvitation() throws SQLException{
+	public void addInvitation() throws SQLException{
 		for (int i = 0; i < eventArray.size(); i++) {
 			if(eventArray.get(i) instanceof Meeting){				
 			Statement stmt = conn.createStatement();
@@ -483,7 +478,7 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public static void addUserSubscription() throws SQLException{
+	public void addUserSubscription() throws SQLException{
 		for (int i = 0; i < userArray.size(); i++) {
 			Statement stmt = conn.createStatement();
 			ResultSet rs = stmt.executeQuery("SELECT AuthorUsername FROM UserSubscription WHERE SubscriberUsername='"+ userArray.get(i).getUsername()+ "';");
@@ -559,11 +554,11 @@ public class DatabaseUnit {
 		}
 	}
 	
-	public static ArrayList<SyncListener> load() throws SQLException{
+	public ArrayList<SyncListener> load() throws SQLException{
 		ArrayList<SyncListener> loadArray = new ArrayList<SyncListener>();
 		userArray = loadUser();
 		eventArray = loadEvent();
-	//	addParticipants();
+		addParticipants();
 		addUserSubscription();
 		addInvitation();
 		loadArray.addAll(userArray);
@@ -571,16 +566,10 @@ public class DatabaseUnit {
 		loadArray.addAll(eventArray);
 		loadArray.addAll(loadInvitation());
 		loadArray.addAll(loadNotifcation());
-		
-		return loadArray;
-				
+		return loadArray;	
 	} 
 	
 	public void closeConnection() throws SQLException{
 		conn.close();
 	}
-	
-	public static void main(String[] args) {
-	}
 }
-	
