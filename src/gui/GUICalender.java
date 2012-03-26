@@ -22,11 +22,13 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 	private JButton [][] button;
 	private Appointment [][] appList;
 	private boolean [][] process;
+	private int week;
 	GridBagConstraints c = new GridBagConstraints();
 	private JPanel panel2 = new JPanel();
 	
 	public GUICalender(SmallCalendar cal){
 		cal.addPropertyChangeListener(this);
+		this.week = cal.getUkeNr();
 		button = new JButton [kolonner][rader];
 		
 		setLayout(new GridBagLayout());
@@ -44,19 +46,24 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 			c.ipady=5;
 			add(button[h][0],c);
 		}
+		buildView();
+	}
+	private void buildView(){
 		appList = new Appointment [kolonner][rader];
 		process = new boolean [kolonner][rader];
 		for (Appointment app : XCal.getCSU().getAllAppointments()) {
 			Calendar day = Calendar.getInstance();
 			day.setTime(app.getDate());
-			Calendar start = Calendar.getInstance();
-			start.setTime(app.getStartTime());
-			Calendar end = Calendar.getInstance();
-			end.setTime(app.getEndTime());
-			System.out.println(day.get(Calendar.DAY_OF_WEEK));
-			for (int i = 0; i < end.get(Calendar.HOUR_OF_DAY)-start.get(Calendar.HOUR_OF_DAY); i++){
-				appList[day.get(Calendar.HOUR_OF_DAY)+i][(7 + day.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7] = app;
-				process[day.get(Calendar.HOUR_OF_DAY)+i][(7 + day.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7] = true;
+			if (day.get(Calendar.WEEK_OF_YEAR) == this.week){
+				Calendar start = Calendar.getInstance();
+				start.setTime(app.getStartTime());
+				Calendar end = Calendar.getInstance();
+				end.setTime(app.getEndTime());
+				System.out.println(day.get(Calendar.DAY_OF_WEEK));
+				for (int i = 0; i < end.get(Calendar.HOUR_OF_DAY)-start.get(Calendar.HOUR_OF_DAY); i++){
+					appList[day.get(Calendar.HOUR_OF_DAY)+i][(7 + day.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7] = app;
+					process[day.get(Calendar.HOUR_OF_DAY)+i][(7 + day.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7] = true;
+				}
 			}
 		}
 		for(int i = 0; i<process.length;i++){
@@ -71,38 +78,42 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		}
 
 
-	for ( int i = 0; i < kolonner; i++) {
-		
-		for (int j = 0; j < rader; j++) {
-//			if(process[cal.get(Calendar.HOUR_OF_DAY)+i][(7 + cal.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7])
-			button[i][j] = new JButton(new AbstractAction(" - ") {
-				
-				/**
-				 * 
-				 */
-				private static final long serialVersionUID = 1L;
-				
-				// This method is called when the button is pressed
-				public void actionPerformed(ActionEvent evt) {
-					//System.out.println("Tester");
+		for ( int i = 0; i < kolonner; i++) {
+			
+			for (int j = 0; j < rader; j++) {
+	//			if(process[cal.get(Calendar.HOUR_OF_DAY)+i][(7 + cal.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7])
+				button[i][j] = new JButton(new AbstractAction(" - ") {
+					
+					/**
+					 * 
+					 */
+					private static final long serialVersionUID = 1L;
+					
+					// This method is called when the button is pressed
+					public void actionPerformed(ActionEvent evt) {
+						//System.out.println("Tester");
+					}
 				}
+						);
+				c.gridx=11+j;
+				c.gridy=4+i;
+				c.ipadx=80;
+				c.ipady=5;
+				c.weightx=1;
+				button[i][j].setBackground(Color.WHITE);
+				button[i][j].setActionCommand(" ");
+				add(button[i][j],c);
 			}
-					);
-			c.gridx=11+j;
-			c.gridy=4+i;
-			c.ipadx=80;
-			c.ipady=5;
-			c.weightx=1;
-			button[i][j].setBackground(Color.WHITE);
-			button[i][j].setActionCommand(" ");
-			add(button[i][j],c);
 		}
-	}
 	}
 
 	@Override
 	public void propertyChange(PropertyChangeEvent arg0) {
-		// TODO Auto-generated method stub
-		
+		System.out.println("Something changed!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+		if (arg0.getPropertyName().equals(SmallCalendar.NAME_PROPERTY_WEEK_NUMBER)){
+			System.out.println("Week number changed!!!!!!!!!!!!!!!!!!!!!!!!!");
+			this.week = (Integer)arg0.getNewValue();
+			buildView();
+		}
 	}
 }
