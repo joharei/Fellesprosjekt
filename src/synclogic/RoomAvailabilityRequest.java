@@ -3,11 +3,12 @@ package synclogic;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import model.Room;
 
 public class RoomAvailabilityRequest {
-	private ArrayList<Room> rooms;
+	private List<Room> rooms;
 	private Date start;
 	private Date end;
 	public final static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
@@ -22,11 +23,11 @@ public class RoomAvailabilityRequest {
 		setEnd(end);
 	}
 	
-	public void setAvailableRooms(ArrayList<Room> rooms) {
+	public void setAvailableRooms(List<Room> rooms) {
 		this.rooms = rooms;
 	}
 	
-	public ArrayList<Room> getAvailableRooms() {
+	public List<Room> getAvailableRooms() {
 		return this.rooms;
 	}
 

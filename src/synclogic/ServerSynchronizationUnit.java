@@ -1,20 +1,21 @@
 package synclogic;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.sql.SQLException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 
-import javax.management.RuntimeErrorException;
-
-import sun.util.calendar.CalendarSystem;
-import sun.util.calendar.CalendarUtils;
+import javax.swing.JFrame;
+import javax.swing.Timer;
 
 import model.Appointment;
 import model.Invitation;
@@ -30,7 +31,9 @@ import no.ntnu.fp.net.co.ConnectionImpl;
 
 public class ServerSynchronizationUnit extends SynchronizationUnit {
 
-	private List<SyncListener> updatedButNotSavedObjects;
+//	private List<SyncListener> updatedButNotSavedObjects;
+	
+	private static final int TIME_BETWEEN_WRITES_TO_DB = 60000;
 	
 	private List<ClientHandler> activeUserConnections;
 	private DatabaseUnit dbUnit;
@@ -41,43 +44,66 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	
 	public ServerSynchronizationUnit() throws ConnectException {
 		super();
-		this.updatedButNotSavedObjects = new ArrayList<SyncListener>();
+//		this.updatedButNotSavedObjects = new ArrayList<SyncListener>();
 		this.activeUserConnections = new ArrayList<ClientHandler>();
 		this.dbUnit = new DatabaseUnit();
 		System.out.println(getNewKey(SaveableClass.Notification));
 		// TODO: LOADING!!!
 		//dbUnit.load();
+		// Lagring
+		ActionListener saver = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				 System.out.println("Writing to database..");
+				 synchronized (this) {
+					Collections.sort(listeners, new SyncListenerComparator());
+					int counter = 1;
+//					for (SyncListener s : listeners) {
+//						System.out.println(counter + ":" + s.getSaveableClass().toString() + ":" + s.getObjectID());
+//					}
+					try {
+						DatabaseUnit.objectsToDb(listeners);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				 }
+				 System.out.println("Done");
+			}
+		};
+		new Timer(TIME_BETWEEN_WRITES_TO_DB, saver).start();
 		// TODO: Maa lagre et sted ogsaa!
-		//TODO: Add sort before save
+		// TODO: Add sort before save
 	}
 
 	public void removeClientConnection(ClientHandler handler) {
 		this.activeUserConnections.remove(handler);
 	}
 	
-	public void addUpdatedObject(SyncListener object) {
-		List<SyncListener> list = new ArrayList<SyncListener>();
-		list.add(object);
-		addUpdatedObjects(list);
-	}
+//	public void addUpdatedObject(SyncListener object) {
+//		List<SyncListener> list = new ArrayList<SyncListener>();
+//		list.add(object);
+//		addUpdatedObjects(list);
+//	}
 
 	/**
 	 * Add the given objects to updatedButNotSavedObjects. Will remove old objects of same class with same ID
 	 * 
 	 * @param objects	The objects to add
 	 */
-	public void addUpdatedObjects(List<SyncListener> objects) {
-		List<SyncListener> toBeRemovedFromUpdatedButNotSavedObjects = new ArrayList<SyncListener>();
-		for (SyncListener listener : this.updatedButNotSavedObjects) {
-			for (SyncListener o : objects) {
-				if(listener.getSaveableClass() == o.getSaveableClass() && listener.getObjectID().equalsIgnoreCase(o.getObjectID())) {
-					toBeRemovedFromUpdatedButNotSavedObjects.add(listener);
-				}
-			}
-		}
-		this.updatedButNotSavedObjects.removeAll(toBeRemovedFromUpdatedButNotSavedObjects);
-		this.updatedButNotSavedObjects.addAll(objects);
-	}
+//	public void addUpdatedObjects(List<SyncListener> objects) {
+//		List<SyncListener> toBeRemovedFromUpdatedButNotSavedObjects = new ArrayList<SyncListener>();
+//		for (SyncListener listener : this.updatedButNotSavedObjects) {
+//			for (SyncListener o : objects) {
+//				if(listener.getSaveableClass() == o.getSaveableClass() && listener.getObjectID().equalsIgnoreCase(o.getObjectID())) {
+//					toBeRemovedFromUpdatedButNotSavedObjects.add(listener);
+//				}
+//			}
+//		}
+//		this.updatedButNotSavedObjects.removeAll(toBeRemovedFromUpdatedButNotSavedObjects);
+//		this.updatedButNotSavedObjects.addAll(objects);
+//	}
 
 	public void listenForUserConnections(int port) {
 		this.connection = new ConnectionImpl(port);
@@ -133,26 +159,90 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * @return			True if the update is valid. False if not
 	 */
 	public boolean isValidUpdate(SyncListener update, SyncListener original, User sentBy) {
-		// TODO: Mye!
 		switch (update.getSaveableClass()) {
+			case Invitation :  {
+				/*
+				 * Server creates new invitations.
+				 * User can update own invitation with status only.
+				 */
+				if (original == null) {
+					return false;
+				}
+				Invitation inv = (Invitation) update;
+				Invitation old = (Invitation) original;
+				//id match?
+				if (!inv.getID().equals(old.getID())) {
+					return false;
+				}
+				//check if user owns notification
+				boolean userGotInv = false;
+				ArrayList<Notification> notlist = sentBy.getNotifications();
+				for (Notification notification : notlist) {
+					Invitation invstored = notification.getInvitation();
+					if (invstored.getID().equals(old.getID())) {
+						userGotInv = true;
+						break;
+					}
+				}
+				if (!userGotInv) {
+					return false;
+				}
+				//check if meeting was changed
+				Meeting invmeeting = inv.getMeeting();
+				Meeting oldmeeting = old.getMeeting();
+				if (!invmeeting.equals(oldmeeting)) {
+					return false;
+				}
+				return true;
+			}
 			case Notification :  {
 				/*
+				 * Server creates new notifications.
 				 * User updates own notification: read
-				 * Invitiation is bundled within
+				 * Invitiation is bundled within.
 				 */
 				Notification notify = (Notification) update;
 				Notification old = null;
 				Invitation inv = notify.getInvitation();
 				Invitation ninv = null;
+				boolean validInvitation = false;
 				if (original != null) {
 					//update of existing notification
 					old = (Notification) original;
 					ninv = old.getInvitation();
+					
+					//same id?
+					if (!notify.getId().equals(old.getId())) {
+						return false;
+					}
+					//right user?
+					boolean userGotNotif = false;
+					ArrayList<Notification> notlist = sentBy.getNotifications();
+					for (Notification notification : notlist) {
+						if (notification.getId().equals(old.getId())) {
+							userGotNotif = true;
+							break;
+						}
+					}
+					
 					//check the invitation
-					boolean validInvitation = isValidUpdate(inv, ninv, sentBy);
+					validInvitation = isValidUpdate(inv, ninv, sentBy);
+					if (!validInvitation) {
+						return false;
+					}
+					
+					if (!userGotNotif) {
+						return false;
+					}
+					//notification type identical?
+					if (notify.getType() != old.getType()) {
+						return false;
+					}
 				} else {
-					boolean validInvitation = isValidUpdate(inv, ninv, sentBy);
+					//new notification should not be sent to server
+					return false;
 				}
+				return true;
 			}
 			case Appointment : {
 				//pass down to meeting
@@ -175,7 +265,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 				}
 			}
 			default : {
-				throw new RuntimeException("NOT YET IMPLEMENTED!");
+				System.out.println("Server does not accept changes in " + update.getClass());
+				return false;
 			}
 		}
 	}
@@ -251,7 +342,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * Get available rooms for the given time span
 	 */
 	@SuppressWarnings("rawtypes")
-	private List<Room> getAvailableRooms(Date start, Date end) {
+	protected List<Room> getAvailableRooms(Date start, Date end) {
 		List<SyncListener> allRooms = getObjectsFromID(SaveableClass.Room, null);
 		List<Room> aRooms = new ArrayList<Room>();
 		List<Appointment> apps = getAllAppointments();
@@ -368,6 +459,21 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		}
 	}
 	
+	public static void main2(String[] args) {
+		try {
+			ServerSynchronizationUnit ssu = new ServerSynchronizationUnit();
+			ssu.listeners.add(new User("Test2", "Testersen2", "test2", "NONE", new Date(), 911));
+			ssu.listeners.add(new User("Test5", "Testersen5", "test5", "NONE", new Date(), 911));
+			ssu.listeners.add(new User("Test3", "Testersen3", "test3", "NONE", new Date(), 911));
+			ssu.listeners.add(new User("Test1", "Testersen1", "test1", "NONE", new Date(), 911));
+			ssu.listeners.add(new User("Test4", "Testersen4", "test4", "NONE", new Date(), 911));
+		} catch (ConnectException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		new JFrame("TEST").setVisible(true);
+	}
+	
 	public static void main(String[] args) {
 		ConnectionImpl.fixLogDirectory();
 		ServerSynchronizationUnit ssu = null;
@@ -377,9 +483,13 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		User stian = new User("Stian", "Weie", "stianwe", "123", "BLANK", new Date(), 113);
 		ssu.listeners.add(new User("Test", "Testersen", "test", "test", "BLANK", new Date(), 911));
 		ssu.listeners.add(new User("Johan", "Reitan", "joharei", "123", "BLANK", new Date(), 113));
-		ssu.listeners.add(new User("Stian", "Weie", "stianwe", "123", "BLANK", new Date(), 113));
+		ssu.listeners.add(stian);
+		String id = ssu.getNewKey(SaveableClass.Appointment);
+		System.out.println("DEN NYE IDEN ER : " + id);
+		ssu.listeners.add(new Appointment(new Date(), new Date(), new Date(), "Dette er en test", "Her", null, id, stian, false));
 		ssu.listenForUserConnections(1337);
 	}
 }
