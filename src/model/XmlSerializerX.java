@@ -853,8 +853,8 @@ public class XmlSerializerX extends XmlSerializer {
 			
 			e = appElement.getFirstChildElement(Meeting.NAME_PROPERTY_INVITATIONS);
 			if (e != null) {
-				int count = e.getChildCount();
 				Elements invites = e.getChildElements();
+				int count = invites.size();
 				for (int i = 0; i < count; i++) {
 					invs.add(invites.get(i).getValue());
 				}
