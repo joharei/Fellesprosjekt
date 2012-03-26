@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Properties;
 import java.util.List;
+
+import com.mysql.jdbc.PreparedStatement;
+
 import model.Appointment;
 import model.Invitation;
 import model.InvitationStatus;
@@ -362,9 +365,17 @@ public class DatabaseUnit {
 		ArrayList<Notification> notificationArray = new ArrayList<Notification>();
 		for (int i = 0; i < userArray.size(); i++) {
 			Statement stmt = conn.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT Notification.NotificationID, type , TriggeredBy, Username" 
-											+ "FROM Notification JOIN UserNotification "
-											+ "WHERE Notification.NotificationID=UserNotification.NotificationID");
+			java.sql.PreparedStatement pstmt;
+			String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
+				"FROM Notification JOIN UserNotification ON " +
+				"Notification.NotificationID = UserNotification.NotificationID " + 
+				"WHERE Username = ?";
+			pstmt = conn.prepareStatement(sel);
+			pstmt.setString(1, userArray.get(i).getUsername());
+			ResultSet rs = pstmt.executeQuery();
+//			ResultSet rs = stmt.executeQuery("SELECT Notification.NotificationID, type , TriggeredBy, Username" 
+//											+ "FROM Notification JOIN UserNotification "
+//											+ "ON Notification.NotificationID = UserNotification.NotificationID");
 									//		+ "AND Username ='OleH';");
 											//(userArray.get(i)).getUsername()+ "
 			while(rs.next()){
