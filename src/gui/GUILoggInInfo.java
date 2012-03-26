@@ -16,7 +16,7 @@ public class GUILoggInInfo extends JPanel{
 	private JLabel nameLabel;
 	private JLabel ansattNrLabel;
 	private JComboBox notificationBox;
-	private String [] notifications;
+	public static String [] notifications;
 	private GridBagConstraints c = new GridBagConstraints();
 	
 	public GUILoggInInfo(){
@@ -66,13 +66,13 @@ public class GUILoggInInfo extends JPanel{
 	public void getSelectedNotification(){
 		Object value = notificationBox.getSelectedItem();
 		if(value.equals("Meeting deleted")){
-			JOptionPane.showMessageDialog(null,"Meeting was deleted");
+			JOptionPane.showMessageDialog(null,"Meeting"+""+" was deleted");
 		}
-		//Her skal det skje noe mer n�r man velger en notification
+		//Her skal det skje noe mer naar man velger en notification
 	}
 	private String getAnsattNr() {
 		// TODO Auto-generated method stub
-		String nr=" 600134";
+		String nr=" 00001";
 		String text="Employee Nr: ";
 		
 		return text+nr;

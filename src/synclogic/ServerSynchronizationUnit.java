@@ -323,7 +323,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		}
 		
 		//verify room
-		if (!getIsRoomAvailable(app.getRoom(), app.getStartTime(), app.getEndTime())) {
+		Room room = app.getRoom();
+		if (room != null && !getIsRoomAvailable(room, app.getStartTime(), app.getEndTime())) {
 			return false;
 		}
 		return true;

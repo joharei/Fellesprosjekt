@@ -168,6 +168,10 @@ public class AppointmentGui extends JDialog{
 		add(cancel, gb);
 		addActionListeners();
 	}
+	public String sendNotification(){
+		
+		return descriptionField.getText();
+	}
 	
 	public JDateChooser getCalIcon(){
 		return calIcon;

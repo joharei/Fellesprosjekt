@@ -1,5 +1,6 @@
 package model;
 
+
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -88,6 +89,15 @@ public class XmlSerializerX extends XmlSerializer {
 		rar = (RoomAvailabilityRequest) toObject(xml);
 		System.out.println("Room count: " + rar.getAvailableRooms().size());
 		System.out.println(RoomAvailabilityRequest.dateFormat.format(rar.getStart()));
+		
+		Meeting m = new Meeting(adate, adate, bdate, "Haha", "Parken", null, null, user, false);
+		xml = toXml(m, m.getSaveableClass());
+		System.out.println(xml);
+		Meeting m2 = (Meeting) toObject(xml);
+		System.out.println("Date: " + m2.getDate());
+		System.out.println("Start: " + m2.getStartTime());
+		System.out.println("End: " + m2.getEndTime());
+		System.out.println(m2.getOwner().getUsername());
 	}
 	
 	/**
@@ -118,9 +128,7 @@ public class XmlSerializerX extends XmlSerializer {
 				return userToXmlElement((User) obj);
 			}
 			case Null : {
-				Element n = new Element("" + SaveableClass.Null);
-//					n.appendChild("null");
-				return n;
+				return nullToXmlElement();
 			}
 			case LoginRequest : {
 				return loginRequestToXmlElement((LoginRequest) obj);
@@ -303,9 +311,7 @@ public class XmlSerializerX extends XmlSerializer {
 			case Week : {
 				return assembleWeek(root);
 			}
-			case Appointment : {
-				return assembleAppointment(root);
-			}
+			case Appointment : {}
 			case Meeting : {
 				return assembleAppointment(root);
 			}
@@ -356,7 +362,6 @@ public class XmlSerializerX extends XmlSerializer {
 			for (int i = 0; i < list.size(); i++) {
 				Element objE = list.get(i);
 				if (objE != null) {
-//					SaveableClass type = SaveableClass.valueOf(objE.getValue());
 					objs.add(assembleObject(objE, objE.getLocalName()));
 				}
 			}
@@ -578,8 +583,9 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Create a week model from the Xml element
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static Week assembleWeek(Element weekElement) throws ParseException {
+	private static Week assembleWeek(Element weekElement) throws ParseException, ParsingException {
 		Date start = null, end = null;
 		ArrayList<Appointment> appointments = new ArrayList<Appointment>();
 		
@@ -608,6 +614,7 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Turn a room into a Xml element
 	 */
 	private static Element roomToXmlElement(Room room) {
+		//TODO: Null?
 		Element roomElement = new Element("" + SaveableClass.Room);
 		
 		Element id = new Element(Room.NAME_PROPERTY_ID);
@@ -632,6 +639,9 @@ public class XmlSerializerX extends XmlSerializer {
 	private static Room assembleRoom(Element roomElement) {
 		int id = 0, capacity = 0;
 		String name = null;
+		if (roomElement.getFirstChildElement("" + SaveableClass.Null) != null) {
+			return null;
+		}
 		Element e = roomElement.getFirstChildElement(Room.NAME_PROPERTY_ID);
 		if (e != null) {
 			id = Integer.parseInt(e.getValue());
@@ -645,6 +655,11 @@ public class XmlSerializerX extends XmlSerializer {
 			capacity = Integer.parseInt(e.getValue());
 		}
 		return new Room(id, name, capacity);
+	}
+	
+	private static Element nullToXmlElement() {
+		Element n = new Element("" + SaveableClass.Null);
+		return n;
 	}
 	
 	/**
@@ -676,8 +691,14 @@ public class XmlSerializerX extends XmlSerializer {
 		Element loc = new Element(Appointment.NAME_PROPERTY_LOCATION);
 		loc.appendChild(event.getLocation());
 		
+		
 		Element room = new Element(Appointment.NAME_PROPERTY_ROOM);
-		room.appendChild(roomToXmlElement(event.getRoom()));
+		Room roomObj = event.getRoom();
+		if (roomObj != null) {
+			room.appendChild(roomToXmlElement(event.getRoom()));
+		} else {
+			room.appendChild(nullToXmlElement());
+		}
 		
 		Element id = new Element(Appointment.NAME_PROPERTY_ID);
 		id.appendChild("" + event.getId());
@@ -724,7 +745,9 @@ public class XmlSerializerX extends XmlSerializer {
 			ArrayList<String> list = meeting.getUsersToInvite();
 			Iterator<String> it3 = list.iterator();
 			while (it3.hasNext()) {
-				u2inv.appendChild(it3.next());
+				Element head = new Element(User.NAME_PROPERTY_USERNAME);
+				head.appendChild(it3.next());
+				u2inv.appendChild(head);
 			}
 			appElement.appendChild(u2inv);
 		}
@@ -734,8 +757,9 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Create a meeting or appointment from their respective elements
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static Appointment assembleAppointment(Element appElement) throws ParseException {
+	private static Appointment assembleAppointment(Element appElement) throws ParseException, ParsingException {
 		Date date = null, start = null, end = null;
 		String desc = null, loc = null;
 		Room room = null;
@@ -748,17 +772,30 @@ public class XmlSerializerX extends XmlSerializer {
 		if (e != null) {
 			DateFormat dFormat = Appointment.getDateFormat();
 			date = dFormat.parse(e.getValue());
+		} else {
+			throw new ParsingException("Could not parse date!");
 		}
 		
 		DateFormat tFormat = Appointment.getTimeformat();
+		Calendar cal = Calendar.getInstance();
+		Calendar cal2 = Calendar.getInstance();
+		cal.setTime(date);
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_START_TIME);
 		if (e != null) {
 			start = tFormat.parse(e.getValue());
+			cal2.setTime(start);
+			cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+			start = cal.getTime();
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_END_TIME);
 		if (e != null) {
 			end = tFormat.parse(e.getValue());
+			cal2.setTime(end);
+			cal.set(Calendar.HOUR_OF_DAY, cal2.get(Calendar.HOUR_OF_DAY));
+			cal.set(Calendar.MINUTE, cal2.get(Calendar.MINUTE));
+			end = cal.getTime();
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DESCRIPTION);
@@ -778,7 +815,15 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_OWNER);
 		if (e != null) {
-			owner = assembleUser(e);
+			System.out.println(e.getLocalName());
+			Element u = e.getFirstChildElement("" + SaveableClass.User);
+			if (u != null) {
+				owner = assembleUser(u);
+			} else {
+				System.out.println("No child found");
+			}
+		} else {
+			System.out.println("Owner element not found!");
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_ID);
@@ -819,7 +864,11 @@ public class XmlSerializerX extends XmlSerializer {
 			if (e != null) {
 				Elements usernames = e.getChildElements();
 				for (int i = 0; i < usernames.size(); i++) {
-					u2invList.add(usernames.get(i).getValue());
+					Element head = usernames.get(i);
+					if (head != null) {
+						u2invList.add(head.getValue());
+						
+					}
 				}
 			}
 			
@@ -859,8 +908,9 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Uses the synchronization unit to retrieve the meeting
 	 * based on the meeting id.
 	 * @throws ParseException 
+	 * @throws ParsingException 
 	 */
-	private static Invitation assembleInvitation(Element invElement) throws ParseException {
+	private static Invitation assembleInvitation(Element invElement) throws ParseException, ParsingException {
 		InvitationStatus status = null;
 		Meeting meeting = null;
 		String id = null;
@@ -914,8 +964,9 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Create a Notification from a Xml element. It contains the source user
 	 * as well as the related Invitation.
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static Notification assembleNotification(Element notifE) throws ParseException {
+	private static Notification assembleNotification(Element notifE) throws ParseException, ParsingException {
 		Invitation inv = null;
 		NotificationType type = null;
 		String id = null;
