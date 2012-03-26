@@ -33,7 +33,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 
 //	private List<SyncListener> updatedButNotSavedObjects;
 	
-	private static final int TIME_BETWEEN_WRITES_TO_DB = 60000;
+	private static final int TIME_BETWEEN_WRITES_TO_DB = 30000;
 	
 	private List<ClientHandler> activeUserConnections;
 	private DatabaseUnit dbUnit;
@@ -64,9 +64,9 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 				 synchronized (this) {
 					Collections.sort(listeners, new SyncListenerComparator());
 					int counter = 1;
-//					for (SyncListener s : listeners) {
-//						System.out.println(counter + ":" + s.getSaveableClass().toString() + ":" + s.getObjectID());
-//					}
+					for (SyncListener s : listeners) {
+						System.out.println(counter + ": " + s.getSaveableClass().toString() + ":" + s.getObjectID());
+					}
 					try {
 						dbUnit.objectsToDb(listeners);
 					} catch (SQLException e) {
@@ -311,7 +311,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 
 	private boolean validateNewAppointment(User sentBy, Appointment app) {
 		// new app, verify owner
-		if (!app.getOwner().equals(sentBy)) {
+		if (!app.getOwner().getObjectID().equals(sentBy.getObjectID())) {
+			System.out.println("OWNER NOT OK");
 			return false;
 		}
 		
@@ -319,12 +320,14 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		Date appDate = app.getStartTime();
 		Date now = Calendar.getInstance().getTime();
 		if (appDate.before(now)) {
+			System.out.println("DATE NOT OK");
 			return false;
 		}
 		
 		//verify room
 		Room room = app.getRoom();
 		if (room != null && !getIsRoomAvailable(room, app.getStartTime(), app.getEndTime())) {
+			System.out.println("ROOM NOT OK");
 			return false;
 		}
 		return true;
@@ -432,8 +435,13 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			this.addListener(newNot);
 			userToInvite.addNotification(newNot);
 			// TODO: Er det greit aa sende bare notificationen, eller maa jeg legge den i User og sende User paa nytt?
-			this.getClientHandler(userToInvite).addToSendQueue(newNot);
+			ClientHandler ch = this.getClientHandler(userToInvite);
+			if(ch != null) {
+				ch.addToSendQueue(newNot);
+			}
 			m.addInvitation(newInv);
+			System.out.println("New invitation sent: " + newInv.getObjectID());
+			System.out.println("Notification: " + newNot.getObjectID());
 		}
 		m.setUsersToInvite(new ArrayList<String>());
 		this.getClientHandler(m.getOwner()).addToSendQueue(m);

@@ -220,10 +220,11 @@ public class DatabaseUnit {
 					update.executeUpdate("UPDATE Invitation SET Status='" + inv.getStatus().ordinal() + "' WHERE InvitationID='" + inv.getID() + "';");
 				}
 				else{
+					System.out.println("HEI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 					//the Invitation is not in the database, insert the information into the database
 					Statement insertInto = conn.createStatement();
 					insertInto.executeUpdate("INSERT INTO Invitation VALUES('" + inv.getStatus().ordinal() + "','" + inv.getID() + "');");
-					insertInto.executeUpdate("INSERT INTO InvitationTo VALUES('" + inv.getID() + "','" + inv.getMeeting().getId() + "');");
+//					insertInto.executeUpdate("INSERT INTO InvitationTo VALUES('" + inv.getID() + "','" + inv.getMeeting().getId() + "');");
 				}
 			}	
 		}

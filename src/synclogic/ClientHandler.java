@@ -145,9 +145,9 @@ public class ClientHandler implements Runnable {
 				}
 			} catch (Exception e) {
 				// TODO Er denne ok?
-				if(!(e instanceof NullPointerException)) {
+//				if(!(e instanceof NullPointerException)) {
 					e.printStackTrace();
-				}
+//				}
 				System.out.println("Connection was closed by client (or died for some reason)!");
 				if(this.user != null) {
 					this.user.setOnline(false);
@@ -173,6 +173,7 @@ public class ClientHandler implements Runnable {
 	
 	public void processReceivedObjects(List<SyncListener> objects) {
 		for (SyncListener o : objects) {
+			System.out.println("Behandler: " + o.getSaveableClass() + ":" + o.getObjectID());
 			SyncListener original = this.serverSynchronizationUnit.getObjectFromID(o.getSaveableClass(), o.getObjectID());
 			if(!this.serverSynchronizationUnit.isValidUpdate(o, original, this.getUser())) {
 				System.out.println("ERROR! Consult Fossum!");
