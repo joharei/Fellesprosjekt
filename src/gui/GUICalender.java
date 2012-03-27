@@ -103,7 +103,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		for ( int i = 0; i < rader; i++) {
 			
 			for (int j = 0; j < kolonner; j++) {
-				if(button[i][j] != null && button[i][j].getBackground()!=Color.DARK_GRAY){
+				if(button[i][j] != null && button[i][j].getBackground()!=Color.CYAN){
 					remove(button[i][j]);
 				}
 				if(occupied[i][j]==1){
