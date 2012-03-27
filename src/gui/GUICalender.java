@@ -141,7 +141,10 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				}
 				else if (occupied[i][j] == 2){
 				}else {
-					button[i][j] = new JButton(new CustomAction("", weekDates[j]) {
+					weekDates[j].set(Calendar.HOUR_OF_DAY, i);
+					Calendar rightNow = Calendar.getInstance();
+					rightNow.setTime(weekDates[j].getTime());
+					button[i][j] = new JButton(new CustomAction("", rightNow) {
 						
 						/**
 						 * 
