@@ -100,6 +100,16 @@ public class MeetingGui extends AppointmentGui{
 		addActionListeners();
 	}
 	
+	public JButton getNewCreate(){
+		return newCreate;
+	}
+	public JButton getNewCancel(){
+		return newCancel;
+	}
+	public JList getAddPersons(){
+		return addPersons;
+	}
+	
 	class RemoveButtonAction implements ActionListener{
 
 		@Override

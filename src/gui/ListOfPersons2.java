@@ -153,19 +153,21 @@ public class ListOfPersons2 extends JDialog{
 				
 			};
 			tableOfPersons.setModel(model);
-
-			for (User user : allUsers) {
-				String tempTyped = typed.toLowerCase();
-
-				String tempFirstName = user.getFirstname().toLowerCase();
-				String tempSureName = user.getSurname().toLowerCase();
-				String tempEmail = user.getEmail().toLowerCase();
-				
-				if(tempFirstName.contains(tempTyped) || tempSureName.contains(tempTyped) || tempEmail.contains(tempTyped)){
-					personName = user.getFirstname() + " " + user.getSurname();
-					model.insertRow(tableOfPersons.getModel().getRowCount(), new Object[]{user.getName(), user.getEmail()});
+			
+				for (User user : allUsers) {
+					String tempTyped = typed.toLowerCase();
+					
+					String tempFirstName = user.getFirstname().toLowerCase();
+					String tempSureName = user.getSurname().toLowerCase();
+					String tempEmail = user.getEmail().toLowerCase();
+					
+					if(tempFirstName.contains(tempTyped) || tempSureName.contains(tempTyped) || tempEmail.contains(tempTyped)){
+						personName = user.getFirstname() + " " + user.getSurname();
+						model.insertRow(tableOfPersons.getModel().getRowCount(), new Object[]{user.getName(), user.getEmail()});
+					}
+					
 				}
-			}
+
 		}
 		
 	}
