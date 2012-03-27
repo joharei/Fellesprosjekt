@@ -393,6 +393,9 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		String resDay = dFormat.format(start);
 		while (it.hasNext()) {
 			Appointment a = (Appointment) it.next();
+			if(a.isDeleted()) {
+				continue;
+			}
 			Calendar cal = Calendar.getInstance();
 			Date aDate = a.getDate();
 			cal.setTime(aDate);
