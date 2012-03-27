@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import model.Room;
 
@@ -11,7 +12,7 @@ public class RoomAvailabilityRequest {
 	private List<Room> rooms;
 	private Date start;
 	private Date end;
-	public final static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL);
+	public final static DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.FULL, DateFormat.FULL, Locale.ENGLISH);
 	
 	public static final String NAME_PROPERTY_ROOM_LIST = "roomlist";
 	public static final String NAME_PROPERTY_START_DATE = "sdate";
