@@ -50,8 +50,6 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		end2.set(Calendar.MINUTE, 0);
 		Calendar dato2 = Calendar.getInstance();
 		dato2.set(2012,02,30);
-		addObject(new Appointment(new Date(), start.getTime(), end.getTime(), "Dette er en testavtale", "her", new Room(0, "Kalahari", 20), "1", new User("Johan", "Reitan", "joharei", "123"), false));
-		addObject(new Appointment(dato2.getTime(), start2.getTime(), end2.getTime(), "Enda en testavtale", "Dette skjer også her", null, "2", new User("Johan", "Reitan", "joharei", "123"), false));
 
 	}
 	
