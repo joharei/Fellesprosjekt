@@ -59,15 +59,17 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 	}
 	public void buildView(){
 		weekDates = new Calendar[7];
-		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.WEEK_OF_YEAR, this.week);        
+		int p = 0;
 		for (int day : days) {
-			cal.set(Calendar.DAY_OF_WEEK, day);
+			Calendar today = Calendar.getInstance();
+			today.set(Calendar.WEEK_OF_YEAR, this.week);
+			today.set(Calendar.DAY_OF_WEEK, day);
+			weekDates[p]=today;
+			p++;
 		}
-//		for (int i = 1; i<8; i++){
-//			weekDates[i-1] = Calendar.getInstance();
-//			weekDates[i-1].setWeekDate(cal.getYear(), cal.getUkeNr(), i);
-//		}
+		for (Calendar day : weekDates) {
+			System.out.println(day.toString());
+		}
 		appList = new Appointment [rader][kolonner];
 		occupied = new int [rader][kolonner];
 		for (Appointment app : XCal.getCSU().getAllAppointments()) {
@@ -139,7 +141,6 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				}
 				else if (occupied[i][j] == 2){
 				}else {
-					System.out.println(weekDates[j]);
 					button[i][j] = new JButton(new CustomAction("", weekDates[j]) {
 						
 						/**
@@ -149,7 +150,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 						
 						// This method is called when the button is pressed
 						public void actionPerformed(ActionEvent evt) {
-							int response=JOptionPane.showOptionDialog(null, "Meeting or Apointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
+							int response=JOptionPane.showOptionDialog(null, "Meeting or Appointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
 							if(response==0){
 								System.out.println("Meeting");
 								JDialog mGUI = new MeetingGui();
