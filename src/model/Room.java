@@ -78,8 +78,10 @@ public class Room implements SyncListener {
 			return false;
 		}
 		Room b = (Room) obj;
+		System.out.println("this.name = " + this.name);
+		System.out.println("b.name = " + b.name);
 		return (this.getId() == b.getId() && this.getCapacity() == b.getCapacity()
-				&& this.getName().equals(b.getName()));
+				/*&& this.getName().equals(b.getName())*/);
 	}
 	
 	public String toString(){
