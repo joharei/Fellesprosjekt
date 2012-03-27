@@ -389,7 +389,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			Date aDate = a.getDate();
 			cal.setTime(aDate);
 			String appDay = dFormat.format(aDate);
-			if (a.getRoom().equals(room) && resDay.equals(appDay)) {
+			Room room2 = a.getRoom();
+			if (room2 != null && room2.equals(room) && resDay.equals(appDay)) {
 				//app uses room on the same day
 				System.out.println(resDay);
 				Date aStart = a.getStartTime();

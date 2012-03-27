@@ -72,4 +72,13 @@ public class Room implements SyncListener {
 	public String getObjectID() {
 		return "" + getId();
 	}
+	
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Room)) {
+			return false;
+		}
+		Room b = (Room) obj;
+		return (this.getId() == b.getId() && this.getCapacity() == b.getCapacity()
+				&& this.getName().equals(b.getName()));
+	}
 }
