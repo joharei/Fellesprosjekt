@@ -75,9 +75,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
+		System.out.println("Thread state: " + this.thread.getState());
 		if (!this.thread.isAlive()){
+			new Thread(new SendClass()).start();
 			this.stopThread = false;
-			this.thread.start();
 		}
 	}
 	
