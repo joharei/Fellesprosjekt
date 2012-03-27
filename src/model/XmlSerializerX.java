@@ -87,16 +87,22 @@ public class XmlSerializerX extends XmlSerializer {
 		xml = toXml(rar, type);
 		System.out.println(xml);
 		rar = (RoomAvailabilityRequest) toObject(xml);
-		System.out.println("Room count: " + rar.getAvailableRooms().size());
+		List<Room> availableRooms = rar.getAvailableRooms();
+		System.out.println("Room count: " + availableRooms.size());
+		System.out.println("Room 1 id: " + availableRooms.get(0).getId() + " and name: " + availableRooms.get(0).getName());
+		Room room = availableRooms.get(1);
+		System.out.println("Room 2 id: " + room.getId() + " and name: " + room.getName());
 		System.out.println(RoomAvailabilityRequest.dateFormat.format(rar.getStart()));
 		
-		Meeting m = new Meeting(adate, adate, bdate, "Haha", "Parken", null, null, user, false);
+		Meeting m = new Meeting(adate, adate, bdate, "Haha", "", room, null, user, false);
 		xml = toXml(m, m.getSaveableClass());
 		System.out.println(xml);
 		Meeting m2 = (Meeting) toObject(xml);
+		room = m2.getRoom();
 		System.out.println("Date: " + m2.getDate());
 		System.out.println("Start: " + m2.getStartTime());
 		System.out.println("End: " + m2.getEndTime());
+		System.out.println("Meeting room: ID " + room.getId() + " Name " + room.getName());
 		System.out.println(m2.getOwner().getUsername());
 	}
 	
@@ -810,7 +816,12 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_ROOM);
 		if (e != null) {
-			room = assembleRoom(e);
+			System.out.println(e.getLocalName());
+			Element roomE = e.getFirstChildElement("" + SaveableClass.Room);
+			//TODO: Evaluate potensial problems with saved nulls
+			if (roomE != null) {
+				room = assembleRoom(roomE);
+			}
 		}
 		
 		e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_OWNER);
