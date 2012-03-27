@@ -81,4 +81,8 @@ public class Room implements SyncListener {
 		return (this.getId() == b.getId() && this.getCapacity() == b.getCapacity()
 				&& this.getName().equals(b.getName()));
 	}
+	
+	public String toString(){
+		return this.name;
+	}
 }
