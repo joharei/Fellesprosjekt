@@ -129,7 +129,7 @@ public class GUI extends JFrame implements WindowListener{
 	private void addActionListeners() {
 		createButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				int response=JOptionPane.showOptionDialog(null, "Meeting or Apointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
+				int response=JOptionPane.showOptionDialog(null, "Meeting or Appointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
 				if(response==0){
 					System.out.println("Meeting");
 					JDialog mGUI = new MeetingGui();

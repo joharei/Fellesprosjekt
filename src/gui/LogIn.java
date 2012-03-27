@@ -61,16 +61,6 @@ public class LogIn extends JFrame implements WindowListener{
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		
 		subPanel = new JPanel();
-		/*
-		 * 
-		 * Glemte hva du viste meg f�r du dro for � lage den progressbar greia. 
-		 * Lette litt rundt omkring p� nettet, men fant ikke noe s�rlig. Lykke til :)
-		 * Sees p� fredag :)
-		 * 
-		 * Magnus
-		 * 
-		 * 
-		 */
 		
 		//main layout
 		gbLayoutMain = new GridBagLayout();
