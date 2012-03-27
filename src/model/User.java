@@ -14,7 +14,6 @@ public class User implements SyncListener {
 	private String firstname, surname, username, email, password;
 	private Date dateOfBirth;
 	private ArrayList<Notification> notifications;
-	private ArrayList<Week> weekModels;
 	private int phone;
 	private boolean isOnline;
 	private boolean isDeleted;
@@ -34,7 +33,6 @@ public class User implements SyncListener {
 	public final static String NAME_PROPERTY_DELETED = "del";
 	public final static String NAME_PROPERTY_SUBSCRIBES_TO = "substo";
 	public final static String NAME_PROPERTY_IS_ONLINE = "isonline";
-	public final static String NAME_PROPERTY_WEEK_MODELS = "weeks";
 	
 	/**
 	 * Creates a user without a password.
@@ -48,7 +46,6 @@ public class User implements SyncListener {
 		setPhone(phone);
 		setUsername(username);
 		notifications = new ArrayList<Notification>();
-		weekModels = new ArrayList<Week>();
 	}
 	
 	public User(String firstname, String surname, String username, String password) {
@@ -57,7 +54,6 @@ public class User implements SyncListener {
 		setUsername(username);
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
-		weekModels = new ArrayList<Week>();
 	}
 	
 	/**
@@ -73,14 +69,8 @@ public class User implements SyncListener {
 		setUsername(username);
 		setPassword(password);
 		notifications = new ArrayList<Notification>();
-		weekModels = new ArrayList<Week>();
 	}
 	
-	public void addWeekModel(Week week) {
-		ArrayList<Week> old = getWeekModels();
-		weekModels.add(week);
-		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_WEEK_MODELS, old, week));
-	}
 	
 	public void addNotification(Notification notification) {
 		notifications.add(notification);
@@ -149,9 +139,6 @@ public class User implements SyncListener {
 		return notifications;
 	}
 
-	public ArrayList<Week> getWeekModels() {
-		return weekModels;
-	}
 
 	public int getPhone() {
 		return phone;
