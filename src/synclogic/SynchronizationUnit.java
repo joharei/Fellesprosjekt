@@ -72,8 +72,10 @@ public abstract class SynchronizationUnit {
 	public boolean fire(SaveableClass c, String objectID, SyncListener newObject){
 		SyncListener oldObject = this.getObjectFromID(c, objectID);
 		if(oldObject == null) {
+			System.out.println("FIRE: OldObject = null");
 			return false;
 		} else {
+			System.out.println("FIRE: OldObject != null");
 			oldObject.fire(oldObject.getSaveableClass(), newObject);
 			return true;
 		}

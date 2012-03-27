@@ -280,10 +280,12 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			Appointment app) {
 		Appointment oApp = (Appointment) original;
 		//don't change owner or id
-		if (!oApp.getOwner().equals(app.getOwner())) {
+		if (!oApp.getOwner().getObjectID().equals(app.getOwner().getObjectID())) {
+			System.out.println("OWNER FAILED");
 			return false;
 		}
 		if (!oApp.getId().equals(app.getId())) {
+			System.out.println("ID FAILED");
 			return false;
 		}
 		
@@ -292,18 +294,21 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		Date appDate = app.getDate();
 		Date now = Calendar.getInstance().getTime();
 		if ((!oAppDate.equals(appDate)) && appDate.before(now)) {
+			System.out.println("OLD DATE FAILED");
 			return false;
 		}
 		//Same as above, but for time
 		oAppDate = oApp.getStartTime();
 		appDate = app.getStartTime();
 		if (((!oAppDate.equals(appDate)) && appDate.before(now))) {
+			System.out.println("OLD TIME FAILED");
 			return false;
 		}
 		//changed room? if so, validate
 		Room appR = app.getRoom();
 		Room origR = oApp.getRoom();
-		if (!appR.equals(origR) && !getIsRoomAvailable(appR, appDate, app.getEndTime())) {
+		if((appR != null && origR != null && !appR.equals(origR) && !getIsRoomAvailable(appR, appDate, app.getEndTime())) || !getIsRoomAvailable(appR, appDate, app.getEndTime())) {
+			System.out.println("ROOM FAILED!");
 			return false;
 		}
 		return true;
@@ -371,6 +376,9 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	 * of appointments.
 	 */
 	private boolean getIsRoomAvailable(Room room, Date start, Date end) {
+		if(room == null) {
+			return true;
+		}
 		return getIsRoomAvailable(room, start, end, getAllAppointments());
 	}
 	
