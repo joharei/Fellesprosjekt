@@ -9,8 +9,8 @@ public class XCal {
 	
 	private static ClientSynchronizationUnit CSU;
 	static JTextField usernameField;
-//	private static String serverIp = "78.91.80.42";
-	private static String serverIp = "localhost";
+	private static String serverIp = "78.91.80.54";
+//	private static String serverIp = "localhost";
 	public static void main(String[] args) {
 		CSU=new ClientSynchronizationUnit();
 		LogIn logIn = new LogIn();

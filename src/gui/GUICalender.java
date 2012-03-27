@@ -150,7 +150,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 							}
 							if(response==1){
 								System.out.println("Apointment");
-								JDialog aGUI = new AppointmentGui(thisCopy);
+								JDialog aGUI = new AppointmentGui();
 								aGUI.setVisible(true);
 								
 							}

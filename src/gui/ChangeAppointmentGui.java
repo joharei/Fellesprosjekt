@@ -17,6 +17,8 @@ import model.Appointment;
 import model.Room;
 import model.SaveableClass;
 
+import gui.GUICalender;;
+
 public class ChangeAppointmentGui extends AppointmentGui{
 	
 	/**
@@ -30,7 +32,7 @@ public class ChangeAppointmentGui extends AppointmentGui{
 	
 	public ChangeAppointmentGui(Appointment app){
 		
-		super(GUICalender.thisCopy);
+		super();
 		this.app = app;
 		this.setModal(true);
 		this.setPreferredSize(new Dimension(600,700));
@@ -142,9 +144,10 @@ public class ChangeAppointmentGui extends AppointmentGui{
 			Object[] options = {"Yes", "No"};
 			int selection = JOptionPane.showOptionDialog(frame, "Are you sure you want to delete this appointment?", "Final confirmation", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, null);
 			if(selection == JOptionPane.YES_OPTION){
-				if (app.getOwner() == XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())){
+				if (app.getOwner().getObjectID().equalsIgnoreCase(XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText()).getObjectID())){
 					app.setDeleted(true);
 					XCal.getCSU().addToSendQueue(app);
+					((GUICalender) GUICalender.thisCopy).buildView();
 					JOptionPane.showMessageDialog(frame, "<HTML>Appointment deleted.");
 				} else{
 					JOptionPane.showMessageDialog(frame, "<HTML>You are not the owner of this appointment, and cannot delete it.");

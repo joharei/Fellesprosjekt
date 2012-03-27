@@ -30,7 +30,7 @@ public class MeetingGui extends AppointmentGui{
 	
 	public MeetingGui(){
 		
-		super(GUICalender.thisCopy);
+		super();
 
 
 		this.setModal(true);

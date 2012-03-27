@@ -137,7 +137,7 @@ public class GUI extends JFrame implements WindowListener{
 				}
 				if(response==1){
 					System.out.println("Apointment");
-					JDialog aGUI = new AppointmentGui(GUICalender.thisCopy);
+					JDialog aGUI = new AppointmentGui();
 					aGUI.setVisible(true);
 					
 				}

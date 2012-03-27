@@ -51,7 +51,6 @@ public class AppointmentGui extends JDialog{
 	protected JButton create, cancel;
 	private JTextField placeField1;
 	private JScrollPane descriptionScroll;
-	private JPanel guiCalendar;
 	
 	private JDateChooser calIcon;
 	
@@ -59,12 +58,11 @@ public class AppointmentGui extends JDialog{
 	protected GridBagLayout gbLayout;
 	
 	
-	public AppointmentGui(JPanel guiCalendar) {
+	public AppointmentGui() {
 		
 		this.setModal(true);
 		this.setPreferredSize(new Dimension(500,600));
 		pack();
-		this.guiCalendar = guiCalendar;
 		
 		gb = new GridBagConstraints();
 		gbLayout = new GridBagLayout();
@@ -232,7 +230,6 @@ public class AppointmentGui extends JDialog{
 				}
 				else{
 					JFrame frame = null;
-					JOptionPane.showMessageDialog(frame, "<HTML>Appointment created " );
 					
 					Calendar cal = Calendar.getInstance();
 					cal.setTime(calIcon.getDate());
@@ -255,7 +252,8 @@ public class AppointmentGui extends JDialog{
 					XCal.getCSU().addObject(app);
 					XCal.getCSU().addToSendQueue(app);
 					
-					((GUICalender) guiCalendar).buildView();
+					((GUICalender) GUICalender.thisCopy).buildView();
+					JOptionPane.showMessageDialog(frame, "<HTML>Appointment created " );
 					
 					dispose();
 					
@@ -277,13 +275,13 @@ public class AppointmentGui extends JDialog{
 					String start = (String) startTimeField.getSelectedItem();
 					start = start.substring(0, 2);
 					int startTime = Integer.parseInt(start);
-					cal.set(Calendar.HOUR, startTime);
+					cal.set(Calendar.HOUR_OF_DAY, startTime);
 					Date startT = cal.getTime();
 					
 					String end = (String) endTimeField.getSelectedItem();
 					end = end.substring(0, 2);
 					int endTime = Integer.parseInt(end);
-					cal.set(Calendar.HOUR, endTime);
+					cal.set(Calendar.HOUR_OF_DAY, endTime);
 					Date endT = cal.getTime();
 					((JComboBox) arg0.getSource()).removeAllItems();
 					((JComboBox) arg0.getSource()).addItem("Choose");
