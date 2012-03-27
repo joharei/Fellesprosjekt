@@ -16,6 +16,7 @@ public class GUILoggInInfo extends JPanel{
 	private JLabel nameLabel;
 	private JLabel ansattNrLabel;
 	private JComboBox notificationBox;
+	private String messageFromAppointment;
 	public static String [] notifications;
 	private GridBagConstraints c = new GridBagConstraints();
 	
@@ -35,7 +36,7 @@ public class GUILoggInInfo extends JPanel{
 		c.gridy=2;
 		add(ansattNrLabel,c);
 		
-		notifications = new String[10];
+		notifications = new String[20];
 		notifications[0]=("Notifications");
 		for (int i = 1; i < notifications.length-1; i++) {
 			
@@ -53,12 +54,19 @@ public class GUILoggInInfo extends JPanel{
 		notificationBox.addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
 		        getSelectedNotification();
+		        
 		    }
 		});
 		getSelectedNotification();
 		
 	}
+//	public void setNotificationText(){
+//		AppointmentGui aGui = new AppointmentGui();
+//		messageFromAppointment=aGui.descriptionField.getText();
+//		System.out.println(messageFromAppointment);
+//	}
 	public String sendNotification(int a){
+		
 		String message []={"Notifications","Meeting deleted","Invitation","Meeting declined","Meeting accepted"};
 		
 		return message[a];

@@ -77,6 +77,14 @@ public class ConnectionImpl extends AbstractConnection {
     	this.lastValidPacketReceived = packet;
     	
     	// Send SYN-ACK
+    	synchronized (this) {
+    		try {
+    			wait(100);
+    		} catch (InterruptedException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+		}
     	sendAck(this.lastValidPacketReceived, true);
     	this.state = State.SYN_RCVD;
     	// Wait for ACK
