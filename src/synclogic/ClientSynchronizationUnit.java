@@ -66,8 +66,9 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	public List<Room> getAvailableRooms(Date start, Date end) {
 		this.addToSendQueue(XmlSerializerX.toXml(new RoomAvailabilityRequest(start, end), SaveableClass.RoomAvailabilityRequest));
 		try {
-			return (List<Room>) XmlSerializerX.toObject(this.connection.receive());
+			return (List<Room>) ((RoomAvailabilityRequest) XmlSerializerX.toObject(this.connection.receive())).getAvailableRooms();
 		} catch (Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 	}

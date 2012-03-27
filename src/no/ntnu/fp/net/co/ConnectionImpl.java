@@ -47,7 +47,6 @@ public class ConnectionImpl extends AbstractConnection {
 
     private static boolean shouldInitPortNumbers = true;
     
-    //Testing the A2 framework
     private KtnDatagram datagram;
     /**
      * Initialise initial sequence number and setup state machine.
@@ -180,20 +179,14 @@ public class ConnectionImpl extends AbstractConnection {
 			e.printStackTrace();
 		}
         this.state = State.SYN_SENT;
-        this.lastValidPacketReceived = internalReceiveAck(true, synPacket);
+        KtnDatagram ack = internalReceiveAck(true, synPacket);
+        if(ack == null){
+        	throw new SocketTimeoutException("Did not receive SYN-ACK!");
+        }
+        this.lastValidPacketReceived = ack;
         this.remotePort = this.lastValidPacketReceived.getSrc_port();
         sendAck(this.lastValidPacketReceived, false);
         this.state = State.ESTABLISHED;
-        
-        
-        
-        if(this.state != State.ESTABLISHED) {
-        	throw new SocketTimeoutException("Did not receive SYN-ACK!");
-        }
-        
-        
-//        this.lastValidPacketReceived = sendDataPacketWithRetransmit(synPacket);
-//        sendAck(this.lastValidPacketReceived, false);
     }
     
     /**
