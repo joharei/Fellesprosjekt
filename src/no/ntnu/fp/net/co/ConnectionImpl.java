@@ -79,7 +79,7 @@ public class ConnectionImpl extends AbstractConnection {
     	// Send SYN-ACK
     	synchronized (this) {
     		try {
-    			wait(100);
+    			wait(500);
     		} catch (InterruptedException e) {
     			// TODO Auto-generated catch block
     			e.printStackTrace();
