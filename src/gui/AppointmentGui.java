@@ -12,7 +12,9 @@ import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -23,6 +25,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import synclogic.RoomAvailabilityRequest;
+
+import model.Appointment;
+import model.Room;
+import model.User;
 
 
 import com.toedter.calendar.JDateChooser;
@@ -144,9 +152,13 @@ public class AppointmentGui extends JDialog{
 		placeField2 = new JComboBox();
 		placeField2.addItem("choose");
 		
-		//dummy inputs
-		placeField2.addItem("G032");
-		placeField2.addItem("R8");
+		Date start = (Date) startTimeField.getSelectedItem();
+		Date end = (Date) endTimeField.getSelectedItem();
+		placeField2.addItem(XCal.getCSU().getAvailableRooms(start, end));
+		
+//		//dummy inputs
+//		placeField2.addItem("G032");
+//		placeField2.addItem("R8");
 		
 		
 		gb.insets = new Insets(10, 0, 0, 0);
@@ -175,6 +187,12 @@ public class AppointmentGui extends JDialog{
 	
 	public JDateChooser getCalIcon(){
 		return calIcon;
+	}
+	public JComboBox getStartTimeField(){
+		return startTimeField;
+	}
+	public JComboBox getEndTimeField(){
+		return endTimeField;
 	}
 	public JTextArea getDescriptionField(){
 		return descriptionField;
@@ -213,8 +231,27 @@ public class AppointmentGui extends JDialog{
 					JFrame frame = null;
 					JOptionPane.showMessageDialog(frame, "<HTML>Appointment created " );
 					
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(calIcon.getDate());
 					
-					System.out.println("goes back");
+					String start = (String) startTimeField.getSelectedItem();
+					start = start.substring(0, 2);
+					int startTime = Integer.parseInt(start);
+					cal.set(Calendar.HOUR, startTime);
+					Date startT = cal.getTime();
+					
+					String end = (String) endTimeField.getSelectedItem();
+					end = end.substring(0, 2);
+					int endTime = Integer.parseInt(end);
+					cal.set(Calendar.HOUR, endTime);
+					Date endT = cal.getTime();
+					
+					
+					// have to fix this!!!
+					Room room = (Room) placeField2.getSelectedItem();
+					
+					XCal.getCSU().addObject(new Appointment(calIcon.getDate(), startT, endT, descriptionField.getText(), placeField1.getText(), room, room.getObjectID(), new User("test", "Testesen", "tTest", "123"), false));
+					
 					dispose();
 					
 				}
@@ -222,6 +259,8 @@ public class AppointmentGui extends JDialog{
 			}
 		});
 	}
+	
+	
 	
 
 	class PlaceTextFieldAction implements FocusListener{
