@@ -25,11 +25,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JPanel;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import synclogic.RoomAvailabilityRequest;
 
 import model.Appointment;
 import model.Room;
+import model.SaveableClass;
 import model.User;
 
 
@@ -47,6 +51,7 @@ public class AppointmentGui extends JDialog{
 	protected JButton create, cancel;
 	private JTextField placeField1;
 	private JScrollPane descriptionScroll;
+	private JPanel guiCalendar;
 	
 	private JDateChooser calIcon;
 	
@@ -54,11 +59,12 @@ public class AppointmentGui extends JDialog{
 	protected GridBagLayout gbLayout;
 	
 	
-	public AppointmentGui() {
+	public AppointmentGui(JPanel guiCalendar) {
 		
 		this.setModal(true);
 		this.setPreferredSize(new Dimension(500,600));
 		pack();
+		this.guiCalendar = guiCalendar;
 		
 		gb = new GridBagConstraints();
 		gbLayout = new GridBagLayout();
@@ -152,9 +158,6 @@ public class AppointmentGui extends JDialog{
 		placeField2 = new JComboBox();
 		placeField2.addItem("choose");
 		
-		Date start = (Date) startTimeField.getSelectedItem();
-		Date end = (Date) endTimeField.getSelectedItem();
-		placeField2.addItem(XCal.getCSU().getAvailableRooms(start, end));
 		
 //		//dummy inputs
 //		placeField2.addItem("G032");
@@ -237,6 +240,43 @@ public class AppointmentGui extends JDialog{
 					String start = (String) startTimeField.getSelectedItem();
 					start = start.substring(0, 2);
 					int startTime = Integer.parseInt(start);
+					cal.set(Calendar.HOUR_OF_DAY, startTime);
+					Date startT = cal.getTime();
+					
+					String end = (String) endTimeField.getSelectedItem();
+					end = end.substring(0, 2);
+					int endTime = Integer.parseInt(end);
+					cal.set(Calendar.HOUR_OF_DAY, endTime);
+					Date endT = cal.getTime();
+					
+					
+					Room room = (Room) placeField2.getSelectedItem();
+					Appointment app = new Appointment(calIcon.getDate(), startT, endT, descriptionField.getText(), placeField1.getText(), room, room.getObjectID(), (User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText()), false);
+					XCal.getCSU().addObject(app);
+					XCal.getCSU().addToSendQueue(app);
+					
+					((GUICalender) guiCalendar).buildView();
+					
+					dispose();
+					
+				}
+				
+			}
+		});
+		placeField2.addPopupMenuListener(new PopupMenuListener() {
+			
+			@Override
+			public void popupMenuWillBecomeVisible(PopupMenuEvent arg0) {
+				if(calIcon.getDate() == null || endTimeField.getSelectedIndex()-startTimeField.getSelectedIndex() == 0){
+					JFrame frame = null;
+					JOptionPane.showMessageDialog(frame, "<HTML>You have to specify a time to see the available rooms!" );
+				}else{
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(calIcon.getDate());
+					
+					String start = (String) startTimeField.getSelectedItem();
+					start = start.substring(0, 2);
+					int startTime = Integer.parseInt(start);
 					cal.set(Calendar.HOUR, startTime);
 					Date startT = cal.getTime();
 					
@@ -245,16 +285,24 @@ public class AppointmentGui extends JDialog{
 					int endTime = Integer.parseInt(end);
 					cal.set(Calendar.HOUR, endTime);
 					Date endT = cal.getTime();
-					
-					
-					// have to fix this!!!
-					Room room = (Room) placeField2.getSelectedItem();
-					
-					XCal.getCSU().addObject(new Appointment(calIcon.getDate(), startT, endT, descriptionField.getText(), placeField1.getText(), room, room.getObjectID(), new User("test", "Testesen", "tTest", "123"), false));
-					
-					dispose();
-					
+					((JComboBox) arg0.getSource()).removeAllItems();
+					((JComboBox) arg0.getSource()).addItem("Choose");
+					for (Room room : XCal.getCSU().getAvailableRooms(startT, endT)) {
+						((JComboBox) arg0.getSource()).addItem(room);
+					}
 				}
+				
+			}
+			
+			@Override
+			public void popupMenuWillBecomeInvisible(PopupMenuEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void popupMenuCanceled(PopupMenuEvent arg0) {
+				// TODO Auto-generated method stub
 				
 			}
 		});
@@ -321,11 +369,11 @@ public class AppointmentGui extends JDialog{
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
-		AppointmentGui gui = new AppointmentGui();
-		gui.pack();
-		gui.setVisible(true);
-	}
+//	public static void main(String[] args) {
+//		// TODO Auto-generated method stub
+//		AppointmentGui gui = new AppointmentGui();
+//		gui.pack();
+//		gui.setVisible(true);
+//	}
 
 }

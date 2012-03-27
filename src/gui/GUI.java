@@ -38,7 +38,6 @@ public class GUI extends JFrame implements WindowListener{
 	//protected static final Color COLOR_IN_DELIVERY = new Color(206, 219, 239);
 	protected static final Font FONT_HEADER = new Font("", Font.PLAIN, 20);
 	protected static final Font FONT_FIELD = new Font("", Font.PLAIN, 18);
-	
 	protected GridBagConstraints c;
 	JPanel panel = new JPanel();
 	
@@ -138,7 +137,7 @@ public class GUI extends JFrame implements WindowListener{
 				}
 				if(response==1){
 					System.out.println("Apointment");
-					JDialog aGUI = new AppointmentGui();
+					JDialog aGUI = new AppointmentGui(GUICalender.thisCopy);
 					aGUI.setVisible(true);
 					
 				}

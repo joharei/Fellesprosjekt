@@ -65,7 +65,7 @@ public class SmallCalendar extends JPanel{
 				calender.setTime(jDate.getDate());
 				calender.setMinimalDaysInFirstWeek(4);  
 				calender.setFirstDayOfWeek(Calendar.MONDAY);
-				year=calender.get(calender.YEAR);
+				year=calender.get(Calendar.YEAR);
 				setUkeNr(calender.get(Calendar.WEEK_OF_YEAR));
 				//setDateInWeek(calender.get(Calendar.));
 				calender.set(Calendar.WEEK_OF_YEAR, ukenr);
@@ -73,7 +73,7 @@ public class SmallCalendar extends JPanel{
 //				setDagIUken(calender.get(Calendar.DAY_OF_WEEK));
 //				setMonth(calender.get(Calendar.MONTH)+1);
 //				setMaxDays(calender.getActualMaximum(Calendar.DAY_OF_MONTH));
-				//System.out.println("Dato på første dag i uken:"+calender.getTime());
+				//System.out.println("Dato pï¿½ fï¿½rste dag i uken:"+calender.getTime());
 				cal.set(cal.WEEK_OF_YEAR,ukenr);
 				cal.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
 				cal.get(Calendar.DAY_OF_MONTH);
@@ -82,7 +82,7 @@ public class SmallCalendar extends JPanel{
 				//System.out.println("Takk igjen: "+cal.get(Calendar.DAY_OF_MONTH)+" - "+ cal.get(Calendar.MONTH));
 				
 			//	System.out.println("Ukenr: "+calender.get(Calendar.WEEK_OF_YEAR));
-			//	System.out.println("Dag i uken: "+dagIUken+" Måned nr: "+maaned + " Dato i mnd: "+datoIMnd);
+			//	System.out.println("Dag i uken: "+dagIUken+" Mï¿½ned nr: "+maaned + " Dato i mnd: "+datoIMnd);
 			}
 
 		});
@@ -99,6 +99,9 @@ public class SmallCalendar extends JPanel{
 		return ukenr;
 	}
 	
+	public int getYear(){
+		return this.year;
+	}
 	
 	public void addListener(PropertyChangeListener listener){
 		support.addPropertyChangeListener(listener);
