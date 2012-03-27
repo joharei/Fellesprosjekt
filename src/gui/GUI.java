@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
+import java.util.Calendar;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -131,13 +132,13 @@ public class GUI extends JFrame implements WindowListener{
 			public void actionPerformed(ActionEvent e) {
 				int response=JOptionPane.showOptionDialog(null, "Meeting or Appointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
 				if(response==0){
-					System.out.println("Meeting");
 					JDialog mGUI = new MeetingGui();
 					mGUI.setVisible(true);
 				}
 				if(response==1){
-					System.out.println("Apointment");
-					JDialog aGUI = new AppointmentGui();
+					Calendar now = Calendar.getInstance();
+					now.set(Calendar.HOUR_OF_DAY, now.get(Calendar.HOUR_OF_DAY)+1);
+					JDialog aGUI = new AppointmentGui(now);
 					aGUI.setVisible(true);
 					
 				}

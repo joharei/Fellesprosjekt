@@ -31,6 +31,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 	private Calendar[] weekDates;
 	private SmallCalendar cal;
 	public static JPanel thisCopy;
+	private int[] days = {Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY, Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY};
 	
 	public GUICalender(SmallCalendar cal){
 		cal.addListener(this);
@@ -42,7 +43,6 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		setLayout(new GridBagLayout());
 		String [] teller={"00:00","01:00","02:00","03:00","04:00","05:00","06:00","07:00","08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"};
 		String [] col ={"Mon","Tue","Wed","Thu","Fri","Sat","Sun"};
-//		enum [] days = {Calendar.MONDAY, Calendar};
 		
 		for ( int h = 0; h < rader; h++) {
 			
@@ -58,7 +58,12 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		buildView();
 	}
 	public void buildView(){
-//		weekDates = new Calendar[7];
+		weekDates = new Calendar[7];
+		Calendar cal = Calendar.getInstance();
+		cal.set(Calendar.WEEK_OF_YEAR, this.week);        
+		for (int day : days) {
+			cal.set(Calendar.DAY_OF_WEEK, day);
+		}
 //		for (int i = 1; i<8; i++){
 //			weekDates[i-1] = Calendar.getInstance();
 //			weekDates[i-1].setWeekDate(cal.getYear(), cal.getUkeNr(), i);
@@ -68,7 +73,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		for (Appointment app : XCal.getCSU().getAllAppointments()) {
 			Calendar day = Calendar.getInstance();
 			day.setTime(app.getDate());
-			if (day.get(Calendar.WEEK_OF_YEAR) == this.week){
+			if (day.get(Calendar.WEEK_OF_YEAR) == this.week && !app.isDeleted()){
 				Calendar start = Calendar.getInstance();
 				start.setTime(app.getStartTime());
 				Calendar end = Calendar.getInstance();
@@ -134,7 +139,8 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				}
 				else if (occupied[i][j] == 2){
 				}else {
-					button[i][j] = new JButton(new AbstractAction("") {
+					System.out.println(weekDates[j]);
+					button[i][j] = new JButton(new CustomAction("", weekDates[j]) {
 						
 						/**
 						 * 
@@ -151,7 +157,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 							}
 							if(response==1){
 								System.out.println("Apointment");
-								JDialog aGUI = new AppointmentGui();
+								JDialog aGUI = new AppointmentGui(getDate());
 								aGUI.setVisible(true);
 								
 							}
@@ -170,6 +176,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				}
 			}
 		}
+		this.updateUI();
 	}
 
 	@Override
@@ -182,9 +189,16 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 	
 	class CustomAction extends AbstractAction{
 		private Appointment app;
+		private Calendar date;
 		public CustomAction(String title, Appointment app){
 			super(title);
 			this.setApp(app);
+			this.setDate(date);
+			
+		}
+		public CustomAction(String title, Calendar date){
+			super(title);
+			this.setDate(date);
 		}
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
@@ -196,6 +210,12 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		}
 		public void setApp(Appointment app) {
 			this.app = app;
+		}
+		public Calendar getDate(){
+			return date;
+		}
+		public void setDate(Calendar date) {
+			this.date = date;
 		}
 	}
 }

@@ -44,8 +44,12 @@ public class ChangeAppointmentGui extends AppointmentGui{
 //		remove(getNewCancel());
 		
 		getCalIcon().setDate(app.getDate());
-		getStartTimeField().setSelectedItem(app.getStartTime());
-		getEndTimeField().setSelectedItem(app.getEndTime());
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(app.getStartTime());
+		getStartTimeField().setSelectedIndex(startCal.get(Calendar.HOUR_OF_DAY));
+		Calendar endCal = Calendar.getInstance();
+		endCal.setTime(app.getEndTime());
+		getEndTimeField().setSelectedItem(endCal.get(Calendar.HOUR_OF_DAY));
 		getDescriptionField().setText(app.getDescription());
 		getPlaceField1().setText(app.getLocation());
 		getPlaceField2().setSelectedItem(app.getRoom());

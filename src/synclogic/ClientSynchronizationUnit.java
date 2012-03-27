@@ -36,20 +36,6 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		this.sendQueue = new MessageQueue();
 		this.sendQueue.addPropertyChangeListener(this);
 		this.thread = new Thread(new SendClass());
-		Calendar start = Calendar.getInstance();
-		start.set(Calendar.HOUR_OF_DAY, 15);
-		start.set(Calendar.MINUTE, 0);
-		Calendar end = Calendar.getInstance();
-		end.set(Calendar.HOUR_OF_DAY, 18);
-		end.set(Calendar.MINUTE, 0);
-		Calendar start2 = Calendar.getInstance();
-		start2.set(Calendar.HOUR_OF_DAY, 8);
-		start2.set(Calendar.MINUTE, 0);
-		Calendar end2 = Calendar.getInstance();
-		end2.set(Calendar.HOUR_OF_DAY, 14);
-		end2.set(Calendar.MINUTE, 0);
-		Calendar dato2 = Calendar.getInstance();
-		dato2.set(2012,02,30);
 
 	}
 	

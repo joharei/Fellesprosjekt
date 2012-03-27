@@ -57,9 +57,7 @@ public class AppointmentGui extends JDialog{
 	protected GridBagConstraints gb;
 	protected GridBagLayout gbLayout;
 	
-	
-	public AppointmentGui() {
-		
+	public AppointmentGui(){
 		this.setModal(true);
 		this.setPreferredSize(new Dimension(500,600));
 		pack();
@@ -181,6 +179,139 @@ public class AppointmentGui extends JDialog{
 		add(cancel, gb);
 		addActionListeners();
 	}
+	public AppointmentGui(Calendar date) {
+		
+		this.setModal(true);
+		this.setPreferredSize(new Dimension(500,600));
+		pack();
+		
+		gb = new GridBagConstraints();
+		gbLayout = new GridBagLayout();
+		setLayout(gbLayout);
+		
+		//date
+		gb.gridx = 0;
+		gb.gridy = 0;
+		dateSelect = new JLabel("Select date: ");
+		gb.insets = new Insets(0, 10, 0, 0);
+		add(dateSelect, gb);
+		
+		
+		//date field with calendar
+		gb.gridx = 1;
+		gb.gridy = 0;
+		calIcon = new JDateChooser();
+		calIcon.setPreferredSize(new Dimension(100,20));
+		gb.insets = new Insets(0, 0, 0, 15);
+		add(calIcon, gb);
+		
+		//start time label
+		gb.gridx = 0;
+		gb.gridy = 1;
+		startTime = new JLabel("Start time: ");
+		gb.insets = new Insets(50, 10, 0, 0);
+		add(startTime, gb);
+		
+		//start time field
+		gb.gridx = 1;
+		gb.gridy = 1;
+		startTimeField = new JComboBox();
+		populateTextComboBox(0, 23, startTimeField);
+		startTimeField.setPreferredSize(new Dimension(75, 20));
+		startTimeField.addItemListener(new TimeSelectionAction());
+		gb.insets = new Insets(50, 0, 0, 40);
+		add(startTimeField, gb);
+		
+		//end time label
+		gb.gridx = 0;
+		gb.gridy = 2;
+		endTime = new JLabel("End time: ");
+		gb.insets = new Insets(10, 18, 0, 0);
+		add(endTime, gb);
+		
+		//end time field
+		gb.gridx = 1;
+		gb.gridy = 2; 
+		endTimeField = new JComboBox();
+		populateTextComboBox(0, 23, endTimeField);
+		endTimeField.setPreferredSize(new Dimension(75, 20));
+		gb.insets = new Insets(10, 0, 0, 40);
+		add(endTimeField, gb);
+		
+		//description
+		gb.gridx = 0;
+		gb.gridy = 3;
+		description = new JLabel("Description: ");
+		gb.insets = new Insets(0, 0, 100, 0);
+		add(description, gb);
+		
+		//description field
+		gb.gridx = 1;
+		gb.gridy = 3;
+		descriptionField = new JTextArea(10, 15);
+		descriptionField.setLineWrap(true);
+		gb.insets = new Insets(50, 50, 0, 0);
+		descriptionField.setBounds(gb.gridx = 1, gb.gridy = 3, 0, 0);
+		descriptionScroll = new JScrollPane(descriptionField);
+		add(descriptionScroll, gb);
+		
+		//place
+		gb.gridx = 0;
+		gb.gridy = 4;
+		place = new JLabel("Place: ");
+		gb.insets = new Insets(10, 30, 0, 0);
+		add(place, gb);
+		
+		//place text field
+		gb.gridx = 1;
+		gb.gridy = 4;
+		placeField1 = new JTextField("Type or click button");
+		placeField1.setColumns(15);
+		gb.insets = new Insets(10, 50, 0, 0);
+		placeField1.addFocusListener(new PlaceTextFieldAction());
+		add(placeField1, gb);
+		
+		//place button field
+		gb.gridx = 2;
+		gb.gridy = 4;
+		placeField2 = new JComboBox();
+		placeField2.addItem("choose");
+		
+		
+//		//dummy inputs
+//		placeField2.addItem("G032");
+//		placeField2.addItem("R8");
+		
+		getCalIcon().setDate(date.getTime());
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(date.getTime());
+		getStartTimeField().setSelectedIndex(startCal.get(Calendar.HOUR_OF_DAY));
+		Calendar endCal = Calendar.getInstance();
+		endCal.setTime(date.getTime());
+		endCal.set(Calendar.HOUR_OF_DAY, endCal.get(Calendar.HOUR_OF_DAY)+1);
+		getEndTimeField().setSelectedItem(endCal.get(Calendar.HOUR_OF_DAY));
+		
+		
+		
+		gb.insets = new Insets(10, 0, 0, 0);
+		placeField2.setPreferredSize(new Dimension(75, 20));
+		add(placeField2, gb);
+		
+		//create button
+		gb.gridx = 1;
+		gb.gridy = 5;
+		create = new JButton("Create");
+		gb.insets = new Insets(75, 0, 0, 50);
+		add(create, gb);
+		
+		//cancel button
+		gb.gridx = 1;
+		gb.gridy = 5;
+		cancel = new JButton("Cancel");
+		gb.insets = new Insets(75, 100, 0, 0);
+		add(cancel, gb);
+		addActionListeners();
+	}
 	public String sendNotification(){
 		
 		return descriptionField.getText();
@@ -246,9 +377,13 @@ public class AppointmentGui extends JDialog{
 					cal.set(Calendar.HOUR_OF_DAY, endTime);
 					Date endT = cal.getTime();
 					
-					
-					Room room = (Room) placeField2.getSelectedItem();
-					Appointment app = new Appointment(calIcon.getDate(), startT, endT, descriptionField.getText(), placeField1.getText(), room, room.getObjectID(), (User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText()), false);
+					Room room;
+					if (placeField2.getSelectedItem() instanceof Room){
+						room = (Room) placeField2.getSelectedItem();
+					} else{
+						room = null;
+					}
+					Appointment app = new Appointment(calIcon.getDate(), startT, endT, descriptionField.getText(), placeField1.getText(), room, null, (User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText()), false);
 					XCal.getCSU().addObject(app);
 					XCal.getCSU().addToSendQueue(app);
 					
@@ -277,12 +412,15 @@ public class AppointmentGui extends JDialog{
 					int startTime = Integer.parseInt(start);
 					cal.set(Calendar.HOUR_OF_DAY, startTime);
 					Date startT = cal.getTime();
+					System.out.println(RoomAvailabilityRequest.dateFormat.format(cal.getTime()));
+					System.out.println(RoomAvailabilityRequest.dateFormat.format(startT));
 					
 					String end = (String) endTimeField.getSelectedItem();
 					end = end.substring(0, 2);
 					int endTime = Integer.parseInt(end);
 					cal.set(Calendar.HOUR_OF_DAY, endTime);
 					Date endT = cal.getTime();
+					System.out.println(RoomAvailabilityRequest.dateFormat.format(endT));
 					((JComboBox) arg0.getSource()).removeAllItems();
 					((JComboBox) arg0.getSource()).addItem("Choose");
 					for (Room room : XCal.getCSU().getAvailableRooms(startT, endT)) {

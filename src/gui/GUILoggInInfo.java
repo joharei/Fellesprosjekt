@@ -30,11 +30,11 @@ public class GUILoggInInfo extends JPanel{
 		c.gridy=1;
 		add(nameLabel,c);
 		
-		ansattNrLabel = new JLabel();
-		ansattNrLabel.setText(getAnsattNr());
-		c.gridx=1;
-		c.gridy=2;
-		add(ansattNrLabel,c);
+//		ansattNrLabel = new JLabel();
+//		ansattNrLabel.setText(getAnsattNr());
+//		c.gridx=1;
+//		c.gridy=2;
+//		add(ansattNrLabel,c);
 		
 		notifications = new String[20];
 		notifications[0]=("Notifications");
@@ -78,13 +78,13 @@ public class GUILoggInInfo extends JPanel{
 		}
 		//Her skal det skje noe mer naar man velger en notification
 	}
-	private String getAnsattNr() {
-		// TODO Auto-generated method stub
-		String nr=" 00001";
-		String text="Employee Nr: ";
-		
-		return text+nr;
-	}
+//	private String getAnsattNr() {
+//		// TODO Auto-generated method stub
+//		String nr=" 00001";
+//		String text="Employee Nr: ";
+//		
+//		return text+nr;
+//	}
 	
 	public String getName(){
 		//hent opp info fra Logg inn siden
