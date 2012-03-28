@@ -48,38 +48,34 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		this.activeUserConnections = new ArrayList<ClientHandler>();
 		this.dbUnit = new DatabaseUnit();
 		System.out.println(getNewKey(SaveableClass.Notification));
-		// TODO: LOADING!!!
 		try {
 			this.listeners = this.dbUnit.load();
+			// Lagring
+			ActionListener saver = new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					System.out.println("Writing to database..");
+					synchronized (this) {
+						Collections.sort(listeners, new SyncListenerComparator());
+						int counter = 1;
+						for (SyncListener s : listeners) {
+							System.out.println(counter + ": " + s.getSaveableClass().toString() + ":" + s.getObjectID());
+						}
+						try {
+							dbUnit.objectsToDb(listeners);
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					}
+					System.out.println("Done");
+				}
+			};
+			new Timer(TIME_BETWEEN_WRITES_TO_DB, saver).start();
 		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			System.out.println("Something went wrong. Terminating..");
 		}
-		// Lagring
-		ActionListener saver = new ActionListener() {
-			
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				 System.out.println("Writing to database..");
-				 synchronized (this) {
-					Collections.sort(listeners, new SyncListenerComparator());
-					int counter = 1;
-					for (SyncListener s : listeners) {
-						System.out.println(counter + ": " + s.getSaveableClass().toString() + ":" + s.getObjectID());
-					}
-					try {
-						dbUnit.objectsToDb(listeners);
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				 }
-				 System.out.println("Done");
-			}
-		};
-		new Timer(TIME_BETWEEN_WRITES_TO_DB, saver).start();
-		// TODO: Maa lagre et sted ogsaa!
-		// TODO: Add sort before save
 	}
 
 	public void removeClientConnection(ClientHandler handler) {
@@ -116,10 +112,8 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			try {
 				startUserSession(this.connection.accept());
 			} catch (SocketTimeoutException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -494,7 +488,6 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			ssu.listeners.add(new User("Test1", "Testersen1", "test1", "NONE", new Date(), 911));
 			ssu.listeners.add(new User("Test4", "Testersen4", "test4", "NONE", new Date(), 911));
 		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		new JFrame("TEST").setVisible(true);
@@ -506,7 +499,6 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		try {
 			ssu = new ServerSynchronizationUnit();
 		} catch (ConnectException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		for (SyncListener s : ssu.listeners) {
