@@ -495,6 +495,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	
 	public static void main(String[] args) {
 		ConnectionImpl.fixLogDirectory();
+		ConnectionImpl.initPortNumbers();
 		ServerSynchronizationUnit ssu = null;
 		try {
 			ssu = new ServerSynchronizationUnit();

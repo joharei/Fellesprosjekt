@@ -55,7 +55,7 @@ public class ConnectionImpl extends AbstractConnection {
      *            - the local port to associate with this connection
      */
     public ConnectionImpl(int myPort) {
-    	initPortNumbers();
+//    	initPortNumbers();
     	this.myAddress = getIPv4Address();
     	datagram = new KtnDatagram();
     	this.myPort = myPort;
@@ -69,7 +69,7 @@ public class ConnectionImpl extends AbstractConnection {
      * @throws IOException
      */
     public ConnectionImpl(KtnDatagram packet) throws ConnectException, IOException {
-    	initPortNumbers();
+//    	initPortNumbers();
     	this.myAddress = getIPv4Address();
     	this.myPort = packet.getDest_port();
     	this.remotePort = packet.getSrc_port();
@@ -232,8 +232,20 @@ public class ConnectionImpl extends AbstractConnection {
     	}
     }
     
+    public static void main(String[] args) {
+		try {
+			initPortNumbers();
+			System.out.println(getNextPortNumber());
+			System.out.println(getNextPortNumber());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+    
     private static int getNextPortNumber() throws IOException {
     	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
+    		System.out.println("Port " + i + " is used: " + usedPorts.get(i));
 			if(!usedPorts.get(i)) {
 				usedPorts.put(i, true);
 				return i;
