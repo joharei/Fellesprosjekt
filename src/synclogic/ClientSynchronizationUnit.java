@@ -1,5 +1,7 @@
 package synclogic;
 
+import gui.GUILoggInInfo;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -9,11 +11,8 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -38,6 +37,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	private UpdateRequest updateRequest;
 	private Thread thread;
 	private boolean stopThread = false;
+	private GUILoggInInfo notificationShower;
 	
 	private static final int TIME_BETWEEN_UPDATES = 20000;
 	
@@ -66,6 +66,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		};
 		new Timer(TIME_BETWEEN_UPDATES, updater).start();
 
+	}
+	
+	public void setNotificationShower(GUILoggInInfo notificationShower) {
+		this.notificationShower = notificationShower;
 	}
 	
 	public void handleError(ErrorMessage error) {
@@ -214,6 +218,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		} catch (ParsingException e) {
 			throw new ConnectException();
 		}
+		this.notificationShower.loadNotifications();
 		return errorMessages;
 	}
 	
