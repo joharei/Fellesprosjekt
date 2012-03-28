@@ -73,6 +73,8 @@ public class GUI extends JFrame implements WindowListener{
 		c.gridy=0;
 		c.anchor=GridBagConstraints.NORTHWEST;
 		this.notificationShower = new GUILoggInInfo();
+		XCal.getCSU().setNotificationShower(this.notificationShower);
+		this.notificationShower.loadNotifications();
 		add(this.notificationShower,c);
 		
 		overskrift = new JLabel("CAL - X");

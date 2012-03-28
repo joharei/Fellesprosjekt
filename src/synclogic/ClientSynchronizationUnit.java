@@ -21,6 +21,7 @@ import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import model.Appointment;
+import model.Invitation;
 import model.Meeting;
 import model.Notification;
 import model.Room;
@@ -220,6 +221,9 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			for (int i = 0; i<respons.size(); i++) {
 				if (respons.getObject(i) instanceof SyncListener){
 					SyncListener object = (SyncListener) respons.getObject(i);
+					if(object instanceof Notification) {
+						System.out.println("Er denne feil naa, saa er det Fossum sin skyld!!!!!!! " + ((Notification) object).getInvitation().getStatus());
+					}
 					if (getObjectFromID(object.getSaveableClass(), object.getObjectID()) != null){
 						fire(object.getSaveableClass(), object.getObjectID(), object);
 					} else{
@@ -267,7 +271,6 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		for (SyncListener object : this.listeners) {
 			if (object instanceof Meeting){
-				System.out.println(((Meeting) object).getDescription());
 				appointments.add((Meeting) object);
 			} else if (object instanceof Appointment){
 				appointments.add((Appointment) object);
@@ -327,11 +330,48 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			this.listeners.add(o);
 			for (Notification not : ((User) o).getNotifications()) {
 				this.listeners.add(not);
+				Invitation inv = not.getInvitation();
+				if (inv != null){
+					if (getObjectFromID(inv.getSaveableClass(), inv.getObjectID()) != null){
+						fire(inv.getSaveableClass(), inv.getObjectID(), inv);
+					}else{
+						this.listeners.add(inv);
+						Meeting meeting = inv.getMeeting();
+						if (getObjectFromID(meeting.getSaveableClass(), meeting.getObjectID()) != null){
+							fire(meeting.getSaveableClass(), meeting.getObjectID(), meeting);
+						}else{
+							this.listeners.add(meeting);
+						}
+					}
+				}
 			}
-		} else if (o instanceof Appointment){
+		} else if (o instanceof Notification){
 			this.listeners.add(o);
+			Notification not = (Notification) o;
+			Invitation inv = not.getInvitation();
+			if (inv != null){
+				if (getObjectFromID(inv.getSaveableClass(), inv.getObjectID()) != null){
+					fire(inv.getSaveableClass(), inv.getObjectID(), inv);
+				}else{
+					this.listeners.add(inv);
+					Meeting meeting = inv.getMeeting();
+					if (getObjectFromID(meeting.getSaveableClass(), meeting.getObjectID()) != null){
+						fire(meeting.getSaveableClass(), meeting.getObjectID(), meeting);
+					}else{
+						this.listeners.add(meeting);
+					}
+				}
+			}
+		}
+		else if (o instanceof Invitation){
+			this.listeners.add(o);
+			Meeting meeting = ((Invitation) o).getMeeting();
+			if (getObjectFromID(meeting.getSaveableClass(), meeting.getObjectID()) != null){
+				fire(meeting.getSaveableClass(), meeting.getObjectID(), meeting);
+			}else{
+				this.listeners.add(meeting);
+			}
 		} else {
-			// TODO: Quick fix here!
 			this.listeners.add(o);
 		}
 		
