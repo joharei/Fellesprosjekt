@@ -32,93 +32,20 @@ public class XmlSerializerX extends XmlSerializer {
 //		list.add(new User("Donald", "Duck", "ducky", "d@d.ab", Calendar.getInstance().getTime(), 42445588));
 		User user = new User("Onkel", "Skrue", "richie", "1234a", "s@r.ab", Calendar.getInstance().getTime(), 22445598);
 		User user3 = new User("Onkel", "Skrue", "richie", "666", "s@r.ab", Calendar.getInstance().getTime(), 22445598);
-		String xml = toXml(user, SaveableClass.User);
-		System.out.println(xml);
-		User user2 = (User) toObject(xml);
-		System.out.println(user2.toString());
+		Calendar cal = Calendar.getInstance();
+		Date a = cal.getTime();
+		cal.add(Calendar.HOUR_OF_DAY, 3);
+		Date b = cal.getTime();
+		Meeting m = new Meeting(a, a, b, "Test", "Somehwere", null, "1", user, false);
 		
-		LoginRequest lr = new LoginRequest(user.getUsername(), user.getPassword());
-		lr.setLoginAccepted(true);
-		xml = toXml(lr, SaveableClass.LoginRequest);
-		System.out.println(xml);
-		LoginRequest lr2 = (LoginRequest) toObject(xml);
-		System.out.println("Uname: " + lr2.getUsername());
-		System.out.println("Password: " + lr2.getPassword());
-		System.out.println("Accepted: " + lr2.getLoginAccepted());
-		
-		//test errormessage
-		ErrorMessage errm = new ErrorMessage(user, user3);
-		xml = toXml(errm, SaveableClass.ErrorMessage);
-		System.out.println(xml);
-		errm = (ErrorMessage) toObject(xml);
-		System.out.println("Valid:\n" + errm.getValidObject() + "Invalid:\n" +  errm.getInvalidObject());
-		
-		//test updaterequest
-		UpdateRequest updt = new UpdateRequest();
-		SaveableClass type = SaveableClass.UpdateRequest;
-		xml = toXml(updt, type);
-		System.out.println(xml);
-		updt = (UpdateRequest) toObject(xml);
-		System.out.println("Received updatereq from client: " + updt.size());
-		updt.addObject(user);
-		xml = toXml(updt, type);
-		System.out.println(xml);
-		updt = (UpdateRequest) toObject(xml);
-		System.out.println("Received updatereq response from server:" + updt.getObject(0));
-		
-		//test roomavailabilityrequest
-		System.out.println("\nStarting test of RoomAvailabilityRequest...");
-		Calendar a = Calendar.getInstance();
-		a.set(2012, 3, 12, 10, 15, 0);
-		Date adate = a.getTime();
-		a.set(Calendar.HOUR_OF_DAY, 16);
-		Date bdate = a.getTime();
-		RoomAvailabilityRequest rar = new RoomAvailabilityRequest(adate, bdate);
-		type = SaveableClass.RoomAvailabilityRequest;
-		xml = toXml(rar, type);
-		System.out.println(xml);
-		rar = (RoomAvailabilityRequest) toObject(xml);
-		System.out.println(rar.getStart());
-		System.out.println(rar.getEnd());
-		ArrayList<Room> rooms = new ArrayList<Room>();
-		rooms.add(new Room(0, "Hepp", 60));
-		rooms.add(new Room(3, "Klaustrofobi", 1));
-		rar.setAvailableRooms(rooms);
-		xml = toXml(rar, type);
-		System.out.println(xml);
-		rar = (RoomAvailabilityRequest) toObject(xml);
-		List<Room> availableRooms = rar.getAvailableRooms();
-		System.out.println("Room count: " + availableRooms.size());
-		System.out.println("Room 1 id: " + availableRooms.get(0).getId() + " and name: " + availableRooms.get(0).getName());
-		Room room = availableRooms.get(1);
-		System.out.println("Room 2 id: " + room.getId() + " and name: " + room.getName());
-		System.out.println(RoomAvailabilityRequest.dateFormat.format(rar.getStart()));
-		
-		Meeting m = new Meeting(adate, adate, bdate, "Haha", "", room, null, user, false);
-		xml = toXml(m, m.getSaveableClass());
-		System.out.println(xml);
-		Meeting m2 = (Meeting) toObject(xml);
-		room = m2.getRoom();
-		System.out.println("Date: " + m2.getDate());
-		System.out.println("Start: " + m2.getStartTime());
-		System.out.println("End: " + m2.getEndTime());
-		System.out.println("Meeting room: ID " + room.getId() + " Name " + room.getName());
-		System.out.println(m2.getOwner().getUsername());
-		
-		Invitation inv = new Invitation(InvitationStatus.NOT_ANSWERED, m2, "1");
+		Invitation inv = new Invitation(InvitationStatus.NOT_ANSWERED, m, "1");
 		Notification not = new Notification(inv, NotificationType.INVITATION_RECEIVED, "1", user);
-		xml = toXml(not, SaveableClass.Notification);
+		not.setRecipient(user3);
+		user3.addNotification(not);
+		String xml = toXml(not, not.getSaveableClass());
 		System.out.println(xml);
 		not = (Notification) toObject(xml);
-		inv = not.getInvitation();
-		System.out.println("Invitationstatus: " + inv.getStatus());
-		System.out.println(inv);
-		
-		user3.addNotification(not);
-		xml = toXml(user3, user3.getSaveableClass());
-		System.out.println(xml);
-		user3 = (User) toObject(xml);
-		System.out.println(user3.getNotifications().size());
+		System.out.println("Notification id: " + not.getId());
 	}
 	
 	/**
