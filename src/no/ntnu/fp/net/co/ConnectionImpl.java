@@ -32,7 +32,7 @@ import no.ntnu.fp.net.cl.KtnDatagram.Flag;
  * of the functionality, leaving message passing and error handling to this
  * implementation.
  * 
- * @author Sebj�rn Birkeland and Stein Jakob Nordb�
+ * @author Sebj���rn Birkeland and Stein Jakob Nordb���
  * @see no.ntnu.fp.net.co.Connection
  * @see no.ntnu.fp.net.cl.ClSocket
  */
@@ -88,7 +88,8 @@ public class ConnectionImpl extends AbstractConnection {
     	sendAck(this.lastValidPacketReceived, true);
     	this.state = State.SYN_RCVD;
     	// Wait for ACK
-    	this.lastValidPacketReceived = internalReceiveAck(false, this.lastValidPacketReceived);
+//    	this.lastValidPacketReceived = internalReceiveAck(false, this.lastValidPacketReceived);
+    	this.lastValidPacketReceived = internalReceiveAck(false, this.lastDataPacketSent);
     	this.state = State.ESTABLISHED;
     	
 //    	this.lastValidPacketReceived = receiveAck();
