@@ -78,6 +78,7 @@ public class User implements SyncListener {
 	
 	public void addNotification(Notification notification) {
 		notifications.add(notification);
+		notification.setRecipient(this);
 	}
 	
 	public void setName(String n1, String n2) {
