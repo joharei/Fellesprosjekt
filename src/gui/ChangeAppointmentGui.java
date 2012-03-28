@@ -11,14 +11,21 @@ import java.util.Date;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
 
 import model.Appointment;
+import model.Meeting;
 import model.Room;
 import model.SaveableClass;
 import model.User;
+import model.XmlSerializerX;
 
-import gui.GUICalender;;
+import gui.GUICalender;
+import gui.MeetingGui.AddButtonAction;
+import gui.MeetingGui.RemoveButtonAction;
 
 public class ChangeAppointmentGui extends AppointmentGui{
 	
@@ -26,9 +33,12 @@ public class ChangeAppointmentGui extends AppointmentGui{
 	 * This class is for editing or deleting a appointment created by a user
 	 */
 	
-	private JButton change, newCancel, delete;
+	private JButton change, newCancel, delete, add, remove;
 	private GridBagConstraints gb;
 	private Appointment app;
+	private JLabel invite;
+	private JList addPersons;
+	private JScrollPane addPersonsScroll;
 	
 	
 	public ChangeAppointmentGui(Appointment app){
@@ -50,11 +60,56 @@ public class ChangeAppointmentGui extends AppointmentGui{
 		getStartTimeField().setSelectedIndex(startCal.get(Calendar.HOUR_OF_DAY));
 		Calendar endCal = Calendar.getInstance();
 		endCal.setTime(app.getEndTime());
-		getEndTimeField().setSelectedIndex(endCal.get(Calendar.HOUR_OF_DAY)-startCal.get(Calendar.HOUR_OF_DAY));
+		getEndTimeField().setSelectedIndex(endCal.get(Calendar.HOUR_OF_DAY)-startCal.get(Calendar.HOUR_OF_DAY)-1);
 		getDescriptionField().setText(app.getDescription());
 		getPlaceField1().setText(app.getLocation());
 		getPlaceField2().setSelectedItem(app.getRoom());
-//		getAddPersons();
+		
+		if(app instanceof Meeting){
+			//invite
+			gb.gridx = 0;
+			gb.gridy = 5;
+			invite = new JLabel("Invite: ");
+			gb.insets = new Insets(10, 30, 50, 0);
+			add(invite, gb);
+			
+			
+			//add persons field
+			gb.gridx = 1;
+			gb.gridy = 5;
+			addPersons = new JList();
+			addPersons.setModel(new DefaultListModel());
+			
+			for (String username : ((Meeting) app).getInvitations()) {
+				((DefaultListModel) addPersons.getModel()).addElement((User) XCal.getCSU().getObjectFromID(SaveableClass.User, username));
+			}
+			
+			gb.insets = new Insets(48, 50, 0, 0);
+			
+			addPersonsScroll = new JScrollPane(addPersons);
+			addPersonsScroll.setPreferredSize(new Dimension(170, 100));
+			add(addPersonsScroll, gb);
+			
+			
+			//add button
+			gb.gridx = 2;
+			gb.gridy = 5;
+			add = new JButton("add");
+			add.setPreferredSize(new Dimension(80, 30));
+			gb.insets = new Insets(10, 0, 32, 0);
+			add.addActionListener(new AddButtonAction());
+			add(add, gb);
+			
+			//remove button
+			gb.gridx = 2;
+			gb.gridy = 5;
+			remove = new JButton("remove");
+			remove.setPreferredSize(new Dimension(80, 30));
+			gb.insets = new Insets(45, 0, 0, 0);
+			remove.addActionListener(new RemoveButtonAction());
+			add(remove, gb);
+			
+		}
 		
 		
 		
@@ -77,7 +132,11 @@ public class ChangeAppointmentGui extends AppointmentGui{
 		//adding a delete button with action listener 
 		gb.gridx = 1;
 		gb.gridy = 7;
-		delete = new JButton("Delete Appointment");
+		if(app instanceof Meeting){
+			delete = new JButton("Delete meeting");
+		} else{
+			delete = new JButton("Delete appointment");
+		}
 		gb.insets = new Insets(10, 30, 0, 0);
 		delete.addActionListener(new DeleteAction());
 		add(delete, gb);
@@ -94,8 +153,11 @@ public class ChangeAppointmentGui extends AppointmentGui{
 					&& getPlaceField2().getSelectedItem().equals("choose"))){
 				JOptionPane.showMessageDialog(frame, "<HTML>Some fields are empty, please take care of the empty fields :) " );
 			} else if (!app.getOwner().getUsername().equals(((User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())).getUsername())){
-				
-				JOptionPane.showMessageDialog(frame, "<HTML>You are not the owner of this appointment, and cannot change it.");
+				if(app instanceof Meeting){
+					JOptionPane.showMessageDialog(frame, "<HTML>You are not the host of this meeting, and cannot change it.");
+				} else{
+					JOptionPane.showMessageDialog(frame, "<HTML>You are not the owner of this appointment, and cannot change it.");
+				}
 			}
 			else{
 				app.setDate(getCalIcon().getDate());
@@ -163,6 +225,32 @@ public class ChangeAppointmentGui extends AppointmentGui{
 				}
 				setVisible(false);
 			}
+		}
+		
+	}
+	
+	class RemoveButtonAction implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			Object[] userStrings = addPersons.getSelectedValues();
+			DefaultListModel model = (DefaultListModel) addPersons.getModel();
+			for(int i = 0; i<userStrings.length; i++){
+				 model.removeElement(userStrings[i]);
+			}
+		}
+		
+	}
+	
+	class AddButtonAction implements ActionListener{
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			// TODO Auto-generated method stub
+			JButton b = (JButton) e.getSource();
+			MeetingGui m = (MeetingGui) b.getParent().getParent().getParent().getParent();
+			ListOfPersons2 selectPersons = new ListOfPersons2(m);
 		}
 		
 	}
