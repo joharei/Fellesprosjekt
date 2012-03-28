@@ -62,6 +62,7 @@ public class SmallCalendar extends JPanel{
 	private JScrollPane addPersonsScroll;
 	private JLabel sokLabel;
 	private JTextField sokeField;
+	private JButton getUserButton;
 	//ArrayList<User> allUsers;
 	public int getValue (){
 		return mndText.getSelectedIndex();
@@ -171,7 +172,18 @@ public class SmallCalendar extends JPanel{
 		addPersonsScroll.setPreferredSize(new Dimension(170, 100));
 		add(addPersonsScroll, c);
 		
-	
+		c.gridx=3;
+		c.gridy=4;
+		getUserButton = new JButton("Hent");
+		getUserButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println(addPersons.getSelectedValue());
+			}
+		});
+		add(getUserButton,c);
 	}
 	public void setUkeNr(int ukenr){
 		int temp=this.ukenr;
