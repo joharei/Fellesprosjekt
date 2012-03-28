@@ -50,6 +50,11 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		System.out.println(getNewKey(SaveableClass.Notification));
 		try {
 			this.listeners = this.dbUnit.load();
+			for (SyncListener s : this.listeners) {
+				if(s instanceof Notification) {
+					System.out.println("STATUUUUUUUUUUUUUUUUUS: " + ((Notification)s).getInvitation().getStatus());
+				}
+			}
 			// Lagring
 			ActionListener saver = new ActionListener() {
 				
@@ -61,6 +66,12 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 						int counter = 1;
 						for (SyncListener s : listeners) {
 							System.out.println(counter + ": " + s.getSaveableClass().toString() + ":" + s.getObjectID());
+							if(s instanceof User) {
+								User user = (User) s;
+								if(user.isOnline()) {
+									System.out.println(user.getUsername() + " is online");
+								}
+							}
 						}
 						try {
 							dbUnit.objectsToDb(listeners);
@@ -499,6 +510,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 		ServerSynchronizationUnit ssu = null;
 		try {
 			ssu = new ServerSynchronizationUnit();
+//			ssu.listeners.add(new Notification(new Invitation(InvitationStatus.NOT_ANSWERED, (Meeting)ssu.getObjectFromID(SaveableClass.Meeting, "19"), "99"), NotificationType.INVITATION_RECEIVED, "100", (User)ssu.getObjectFromID(SaveableClass.User, "kalle")));
 		} catch (ConnectException e) {
 			e.printStackTrace();
 		}

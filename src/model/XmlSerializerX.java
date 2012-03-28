@@ -104,6 +104,15 @@ public class XmlSerializerX extends XmlSerializer {
 		System.out.println("End: " + m2.getEndTime());
 		System.out.println("Meeting room: ID " + room.getId() + " Name " + room.getName());
 		System.out.println(m2.getOwner().getUsername());
+		
+		Invitation inv = new Invitation(InvitationStatus.NOT_ANSWERED, m2, "1");
+		Notification not = new Notification(inv, NotificationType.INVITATION_RECEIVED, "1", user);
+		xml = toXml(not, SaveableClass.Notification);
+		System.out.println(xml);
+		not = (Notification) toObject(xml);
+		inv = not.getInvitation();
+		System.out.println("Invitationstatus: " + inv.getStatus());
+		System.out.println(inv);
 	}
 	
 	/**
@@ -777,11 +786,17 @@ public class XmlSerializerX extends XmlSerializer {
 		boolean delFlag = false;
 		
 		Element e = appElement.getFirstChildElement(Appointment.NAME_PROPERTY_DATE);
+//		System.out.println("Local name before date: " + appElement.getLocalName());
+//		System.out.println("Constant: " + Appointment.NAME_PROPERTY_DATE);
+//		Elements gah = appElement.getChildElements();
+//		for (int i = 0; i < gah.size(); i++) {
+//			System.out.println("Child " + i + ": " + gah.get(i).getLocalName());
+//		}
 		if (e != null) {
 			DateFormat dFormat = Appointment.getDateFormat();
 			date = dFormat.parse(e.getValue());
 		} else {
-			throw new ParsingException("Could not parse date!");
+			throw new ParsingException("Could not find a date to parse!");
 		}
 		
 		DateFormat tFormat = Appointment.getTimeformat();
@@ -820,7 +835,7 @@ public class XmlSerializerX extends XmlSerializer {
 		if (e != null) {
 			System.out.println(e.getLocalName());
 			Element roomE = e.getFirstChildElement("" + SaveableClass.Room);
-			//TODO: Evaluate potensial problems with saved nulls
+			//TODO: Evaluate potential problems with saved nulls
 			if (roomE != null) {
 				room = assembleRoom(roomE);
 			}
@@ -930,12 +945,18 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		Element e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_STATUS);
 		if (e != null) {
+			System.out.println("===Invitation status!!===\nLocal name: " + e.getLocalName());
+			System.out.println("\nString value: " + e.getValue());
 			status = InvitationStatus.valueOf(e.getValue());
+			System.out.println("\nParsed status: " + status);
 		}
 		
 		e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_MEETING);
 		if (e != null) {
-			meeting = (Meeting) assembleAppointment(e);
+			Element meetE = e.getFirstChildElement("" + SaveableClass.Meeting);
+			if (meetE != null) {
+				meeting = (Meeting) assembleAppointment(meetE);
+			}
 		}
 		
 		e = invElement.getFirstChildElement(Invitation.NAME_PROPERTY_ID);
@@ -987,7 +1008,14 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		Element e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_INVITATION);
 		if (e != null) {
-			inv = assembleInvitation(e);
+			Element invE = e.getFirstChildElement("" + SaveableClass.Invitation);
+			if (invE != null) {
+				inv = assembleInvitation(invE);
+			} else {
+				throw new ParsingException("Invitation data corrupt");
+			}
+		} else {
+			throw new ParsingException("Invitation data corrupt");
 		}
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TYPE);

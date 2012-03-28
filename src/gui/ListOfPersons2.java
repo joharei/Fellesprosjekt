@@ -27,7 +27,7 @@ public class ListOfPersons2 extends JDialog{
 	private GridBagConstraints gb;
 	private GridBagLayout gbLayout;
 	private JLabel searchImg, guideText;
-	private JButton searchButton, add;
+	private JButton searchButton, add, close;
 	private JScrollPane scrollPane;
 	private JTextField searchBox;
 	private JTable tableOfPersons;
@@ -126,8 +126,19 @@ public class ListOfPersons2 extends JDialog{
 		add.addActionListener(new AddButtonAction());
 		add(add, gb);
 		
+		gb.gridx = 5;
+		close = new JButton("Close");
+		close.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("goes back");
+				dispose();
+			}
+		});
+		add(close, gb);
+		
 		
 		pack();
+		setLocation(motherPanel.getWidth(), 0);
 		setVisible(true);
 	}
 	

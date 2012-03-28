@@ -1,5 +1,7 @@
 package gui;
 
+import gui.ListOfPersons2.SearchAction;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -12,6 +14,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import javax.swing.DefaultListModel;
@@ -21,7 +24,13 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+
+import synclogic.ClientSynchronizationUnit;
+
+import model.User;
 
 import com.toedter.calendar.JCalendar;
 
@@ -34,7 +43,7 @@ public class SmallCalendar extends JPanel{
 	protected JComboBox mndText;
 	private JCalendar jDate;
 	private int ukenr;
-	
+	private Object[] colNames =  {"Name", "e-mail"};
 	private int year;
 	private Calendar calender=Calendar.getInstance();
 	private Calendar cal = Calendar.getInstance();
@@ -49,12 +58,13 @@ public class SmallCalendar extends JPanel{
 	public final static String NAME_PROPERTY_DATE_IN_MONTH="datoIMnd";
 	public static String navnSokes;
 	private JList addPersons;
+	private JTable tableOfPersons;
 	private JScrollPane addPersonsScroll;
-	private JButton sok;
 	private JLabel sokLabel;
 	private JTextField sokeField;
-	private JList listeMedFolk = new JList();
-	
+	private JButton getUserButton;
+	private JButton removeUserButton;
+	//ArrayList<User> allUsers;
 	public int getValue (){
 		return mndText.getSelectedIndex();
 	}
@@ -115,8 +125,27 @@ public class SmallCalendar extends JPanel{
 				// TODO Auto-generated method stub
 				//System.out.println(e.getKeyChar());
 				navnSokes+=e.getKeyChar();
-				System.out.println(navnSokes);
-				System.out.println("Her skal det komme: "+XCal.getCSU().getAllUsers());
+				//System.out.println(navnSokes);
+				//System.out.println("Her skal det komme: "+XCal.getCSU().getAllUsers());
+				ArrayList<User> userlist = (ArrayList<User>) XCal.getCSU().getAllUsers();
+				//String temp =XCal.getCSU().getAllUsers().toString();
+				//System.out.println(temp);
+				User [] tempe=null;
+				
+				int count = userlist.size();
+				
+				for(int i = 0; i<count; i++){
+					if(userlist.get(i) != null){
+//							String userString = selectedNames[i] + " ; " + selectedEmails[i];
+						DefaultListModel model = (DefaultListModel) addPersons.getModel();
+						if(!model.contains(userlist.get(i))){
+							model.addElement(userlist.get(i));
+						}
+					}
+					continue;
+				}
+				
+				
 			}
 			
 			@Override
@@ -131,6 +160,7 @@ public class SmallCalendar extends JPanel{
 				
 			}
 		});
+		
 		c.insets = new Insets(10, 50, 0, 0);
 		add(sokeField, c);
 		
@@ -142,7 +172,30 @@ public class SmallCalendar extends JPanel{
 		addPersonsScroll = new JScrollPane(addPersons);
 		addPersonsScroll.setPreferredSize(new Dimension(170, 100));
 		add(addPersonsScroll, c);
-	
+		
+		c.gridx=3;
+		c.gridy=4;
+		getUserButton = new JButton("Hent");
+		getUserButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println(addPersons.getSelectedValue());
+			}
+		});
+		add(getUserButton,c);
+		c.gridx=3;
+		c.gridy=5;
+		removeUserButton = new JButton("remove");
+		getUserButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				addPersons.getSelectedValue();
+			}
+		});
 	}
 	public void setUkeNr(int ukenr){
 		int temp=this.ukenr;
@@ -150,6 +203,7 @@ public class SmallCalendar extends JPanel{
 		
 		support.firePropertyChange(NAME_PROPERTY_WEEK_NUMBER, temp, ukenr);
 	}
+	
 	
 	public int getUkeNr(){
 		return ukenr;
@@ -165,5 +219,6 @@ public class SmallCalendar extends JPanel{
 	public void removeListener(PropertyChangeListener listener){
 		support.removePropertyChangeListener(listener);
 	}
+	
 	
 }

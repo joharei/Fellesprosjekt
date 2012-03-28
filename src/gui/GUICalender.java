@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 
 import model.Appointment;
 import model.Meeting;
+import model.User;
 
 public class GUICalender extends JPanel implements PropertyChangeListener{
 	private int kolonner =7;
@@ -73,7 +74,19 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 		for (Appointment app : XCal.getCSU().getAllAppointments()) {
 			Calendar day = Calendar.getInstance();
 			day.setTime(app.getDate());
-			if (day.get(Calendar.WEEK_OF_YEAR) == this.week && !app.isDeleted()){
+			boolean showMeeting = false;
+			if (app instanceof Meeting){
+				for (User user : ((Meeting) app).getParticipants()) {
+					if (user.getUsername().equals(XCal.usernameField.getText())){
+						showMeeting = true;
+						break;
+					}
+				}
+				if (!showMeeting && ((Meeting) app).getOwner().getUsername().equals(XCal.usernameField.getText())){
+					showMeeting = true;
+				}
+			}
+			if (day.get(Calendar.WEEK_OF_YEAR) == this.week && !app.isDeleted() && (app instanceof Meeting && showMeeting)){
 				Calendar start = Calendar.getInstance();
 				start.setTime(app.getStartTime());
 				Calendar end = Calendar.getInstance();
