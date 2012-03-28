@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import model.Appointment;
 import model.Room;
 import model.SaveableClass;
+import model.User;
 
 import gui.GUICalender;;
 
@@ -92,7 +93,7 @@ public class ChangeAppointmentGui extends AppointmentGui{
 			if(getCalIcon().getDate() == null || getDescriptionField().getText().isEmpty() || getEndTimeField().getSelectedIndex()-getStartTimeField().getSelectedIndex() == 0 || ((getPlaceField1().getText().isEmpty() || getPlaceField1().getText().equals("Type or click button"))
 					&& getPlaceField2().getSelectedItem().equals("choose"))){
 				JOptionPane.showMessageDialog(frame, "<HTML>Some fields are empty, please take care of the empty fields :) " );
-			} else if (app.getOwner() != XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())){
+			} else if (!app.getOwner().getUsername().equals(((User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())).getUsername())){
 				
 				JOptionPane.showMessageDialog(frame, "<HTML>You are not the owner of this appointment, and cannot change it.");
 			}
@@ -118,6 +119,10 @@ public class ChangeAppointmentGui extends AppointmentGui{
 				app.setDescription(getDescriptionField().getText());
 				app.setLocation(getPlaceField1().getText());
 				app.setRoom((Room)getPlaceField2().getSelectedItem());
+				
+				XCal.getCSU().addToSendQueue(app);
+				
+				((GUICalender) GUICalender.thisCopy).buildView();
 				
 				JOptionPane.showMessageDialog(frame, "<HTML>Changes saved.");
 
