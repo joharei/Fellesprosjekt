@@ -355,10 +355,12 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 				}else{
 					this.listeners.add(inv);
 					Meeting meeting = inv.getMeeting();
-					if (getObjectFromID(meeting.getSaveableClass(), meeting.getObjectID()) != null){
-						fire(meeting.getSaveableClass(), meeting.getObjectID(), meeting);
-					}else{
-						this.listeners.add(meeting);
+					if (meeting != null){
+						if (getObjectFromID(meeting.getSaveableClass(), meeting.getObjectID()) != null){
+							fire(meeting.getSaveableClass(), meeting.getObjectID(), meeting);
+						}else{
+							this.listeners.add(meeting);
+						}
 					}
 				}
 			}
