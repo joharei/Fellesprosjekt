@@ -107,10 +107,12 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		Invitation inv = new Invitation(InvitationStatus.NOT_ANSWERED, m2, "1");
 		Notification not = new Notification(inv, NotificationType.INVITATION_RECEIVED, "1", user);
-		xml = toXml(inv, SaveableClass.Invitation);
+		xml = toXml(not, SaveableClass.Notification);
 		System.out.println(xml);
-		inv = (Invitation) toObject(xml);
+		not = (Notification) toObject(xml);
+		inv = not.getInvitation();
 		System.out.println("Invitationstatus: " + inv.getStatus());
+		System.out.println(inv);
 	}
 	
 	/**
@@ -1006,7 +1008,14 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		Element e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_INVITATION);
 		if (e != null) {
-			inv = assembleInvitation(e);
+			Element invE = e.getFirstChildElement("" + SaveableClass.Invitation);
+			if (invE != null) {
+				inv = assembleInvitation(invE);
+			} else {
+				throw new ParsingException("Invitation data corrupt");
+			}
+		} else {
+			throw new ParsingException("Invitation data corrupt");
 		}
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TYPE);
