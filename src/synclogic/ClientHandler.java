@@ -120,9 +120,9 @@ public class ClientHandler implements Runnable {
 						} else {
 							System.out.println("Sender noe naa!");
 							System.out.println("Item count: " + updateReq.getObjects().size());
-							Object obj = updateReq.getObject(0);
-							SyncListener object = (SyncListener) obj; 
-							System.out.println("Dette blir sendt: " + object.getSaveableClass().toString() + " : " + object.getObjectID());
+//							Object obj = updateReq.getObject(0);
+//							SyncListener object = (SyncListener) obj; 
+//							System.out.println("Dette blir sendt: " + object.getSaveableClass().toString() + " : " + object.getObjectID());
 							if(updateReq.getObjects().get(0) instanceof User) {
 								User asd = (User) updateReq.getObjects().get(0);
 								System.out.println("Bruker som sendes: " + asd.getUsername());

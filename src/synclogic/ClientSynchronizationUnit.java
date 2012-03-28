@@ -221,6 +221,9 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			for (int i = 0; i<respons.size(); i++) {
 				if (respons.getObject(i) instanceof SyncListener){
 					SyncListener object = (SyncListener) respons.getObject(i);
+					if(object instanceof Notification) {
+						System.out.println("Er denne feil naa, saa er det Fossum sin skyld!!!!!!! " + ((Notification) object).getInvitation().getStatus());
+					}
 					if (getObjectFromID(object.getSaveableClass(), object.getObjectID()) != null){
 						fire(object.getSaveableClass(), object.getObjectID(), object);
 					} else{
