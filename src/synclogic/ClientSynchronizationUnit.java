@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.Timer;
 
 import model.Appointment;
+import model.Meeting;
 import model.Notification;
 import model.Room;
 import model.SaveableClass;
@@ -240,6 +241,9 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		for (SyncListener object : this.listeners) {
 			if (object.getSaveableClass() == SaveableClass.Appointment){
 				appointments.add((Appointment) object);
+			} else if (object.getSaveableClass() == SaveableClass.Meeting){
+				System.out.println(((Meeting) object).getDescription());
+				appointments.add((Meeting) object);
 			}
 		}
 		return appointments;
@@ -299,9 +303,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			}
 		} else if (o instanceof Appointment){
 			this.listeners.add(o);
-			System.out.println("Description: " + ((Appointment) o).getDescription());
-			System.out.println("Time: " + ((Appointment) o).getDate());
-		}
+		} 
 		
 	}
 }
