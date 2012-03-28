@@ -3,6 +3,7 @@ package synclogic;
 import gui.GUICalender;
 import gui.GUILoggInInfo;
 import gui.ChangeAppointmentGui;
+import gui.XCal;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -361,7 +362,9 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			// TODO Må legges til i User når den kommer inn!
 			this.listeners.add(o);
 			Notification not = (Notification) o;
-			not.getRecipient().addNotification(not);
+			((User) getObjectFromID(SaveableClass.User, not.getRecipient().getObjectID())).addNotification(not);
+			System.out.println("Notificationen "+not.getObjectID() + " ble lagt til brukeren "+not.getRecipient().getObjectID());
+			System.out.println("Number of notifications for " + (User) getObjectFromID(SaveableClass.User, XCal.usernameField.getText()) + ": " + ((User) getObjectFromID(SaveableClass.User, XCal.usernameField.getText())).getNotifications().size());
 			Invitation inv = not.getInvitation();
 			if (inv != null){
 				if (getObjectFromID(inv.getSaveableClass(), inv.getObjectID()) != null){
