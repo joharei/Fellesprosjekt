@@ -58,6 +58,7 @@ public class GUI extends JFrame implements WindowListener{
 		
 //		this.setPreferredSize(new Dimension(800,600));
 		SmallCalendar smallCal = new SmallCalendar();
+		SokePaAndre sokPanel = new SokePaAndre();
 		
 		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel();
 		
@@ -95,6 +96,10 @@ public class GUI extends JFrame implements WindowListener{
 		c.gridx=9;
 		c.gridy=6;
 		add(helpLabel, c);
+		
+		c.gridx=0;
+		c.gridy=5;
+		add(sokPanel,c);
 		
 		createButton = new JButton("Create");
 		c.gridx=0;
