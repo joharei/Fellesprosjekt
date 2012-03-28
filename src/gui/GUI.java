@@ -98,12 +98,12 @@ public class GUI extends JFrame implements WindowListener{
 		add(helpLabel, c);
 		
 		c.gridx=0;
-		c.gridy=5;
+		c.gridy=6;
 		add(sokPanel,c);
 		
 		createButton = new JButton("Create");
 		c.gridx=0;
-		c.gridy=6;
+		c.gridy=7;
 		add(createButton,c);
 		
 		logOutButton = new JButton("Log Out");
