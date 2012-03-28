@@ -88,22 +88,11 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				}
 			}
 		}
-		for(int i = 0; i<occupied.length;i++){
-			for(int j = 0; j<occupied[i].length; j++){
-				if (occupied[i][j]==1){
-					System.out.print("x");
-				} else{
-					System.out.print("-");
-				}
-			}
-			System.out.println();
-		}
-
 
 		for ( int i = 0; i < rader; i++) {
 			
 			for (int j = 0; j < kolonner; j++) {
-				if(button[i][j] != null && button[i][j].getBackground()!=Color.CYAN){
+				if(button[i][j] != null && button[i][j].getBackground()!=Color.DARK_GRAY){
 					remove(button[i][j]);
 				}
 				if(occupied[i][j]==1){
