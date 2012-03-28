@@ -1,6 +1,7 @@
 package synclogic;
 
 import gui.GUILoggInInfo;
+import gui.ChangeAppointmentGui;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 import model.Appointment;
@@ -78,6 +80,23 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			// Opprettelse av objekt var ikke lovlig
 			this.listeners.remove(this.getObjectFromID(error.getInvalidObject().getSaveableClass(), error.getInvalidObject().getObjectID()));
 			// TODO: La brukeren bestemme hva som skal skje
+			SaveableClass type = error.getValidObject().getSaveableClass();
+			switch (type) {
+			case Appointment : {
+				//yes: 0, no: 1
+				int ans = JOptionPane.showConfirmDialog(null,
+						"Appointment could not be created!\nEdit it?", "Error",
+						JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+				if (ans == 0) {
+					new ChangeAppointmentGui((Appointment) error.getInvalidObject());
+				} else {
+					System.out.println("User chose not to edit failed appointment.");
+				}
+			}
+			default : {
+				System.out.println("Class not error-handled yet: " + type);
+			}
+			}
 		}
 		// TODO: Gjoer mer!
 	}
