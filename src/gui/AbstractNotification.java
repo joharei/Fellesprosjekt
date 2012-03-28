@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import model.Invitation;
 import model.Meeting;
 import model.Notification;
+import model.NotificationType;
 import model.Room;
 
 public abstract class AbstractNotification extends JDialog{
@@ -131,6 +132,27 @@ public abstract class AbstractNotification extends JDialog{
 		
 		
 		
+	}
+	
+	public JDialog getInstance(Notification notification) {
+		// TODO
+		switch(notification.getType()) {
+		case INVITATION_ACCEPTED:
+			
+		case INVITATION_RECEIVED:
+			return new InvitationPromt(notification);
+		case INVITATION_REJECTED:
+			
+		case INVITATION_REVOKED:
+			
+		case MEETING_CANCELLED:
+			
+		case MEETING_CHANGE_REJECTED:
+			
+		case MEETING_TIME_CHANGED:
+			
+		}
+		return null;
 	}
 	
 	protected abstract void setHeader();
