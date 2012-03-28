@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 import model.Appointment;
+import model.Meeting;
 
 public class GUICalender extends JPanel implements PropertyChangeListener{
 	private int kolonner =7;
@@ -67,9 +68,6 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 			weekDates[p]=today;
 			p++;
 		}
-		for (Calendar day : weekDates) {
-			System.out.println(day.toString());
-		}
 		appList = new Appointment [rader][kolonner];
 		occupied = new int [rader][kolonner];
 		for (Appointment app : XCal.getCSU().getAllAppointments()) {
@@ -80,7 +78,6 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 				start.setTime(app.getStartTime());
 				Calendar end = Calendar.getInstance();
 				end.setTime(app.getEndTime());
-				System.out.println(day.get(Calendar.DAY_OF_WEEK));
 				for (int i = 0; i < end.get(Calendar.HOUR_OF_DAY)-start.get(Calendar.HOUR_OF_DAY); i++){
 					// (7 + day.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7 <--- finner ukedagen :)
 					appList[start.get(Calendar.HOUR_OF_DAY)+i][(7 + day.get(Calendar.DAY_OF_WEEK) - Calendar.MONDAY) % 7] = app;
@@ -116,7 +113,6 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 						occupied[k][j] = 2;
 						k++;
 					}
-					System.out.println(duration);
 					c.gridheight=duration;
 					c.fill=GridBagConstraints.BOTH;
 					c.gridx=11+j;
@@ -124,7 +120,11 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 					c.ipadx=0;
 					c.ipady=5;
 					c.weightx=0;
-					button[i][j].setBackground(Color.CYAN);
+					if (appList[i][j] instanceof Meeting){
+						button[i][j].setBackground(Color.MAGENTA);
+					}else{
+						button[i][j].setBackground(Color.CYAN);
+					}
 					button[i][j].setActionCommand(" ");
 					add(button[i][j],c);
 				}
@@ -144,12 +144,10 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 						public void actionPerformed(ActionEvent evt) {
 							int response=JOptionPane.showOptionDialog(null, "Meeting or Appointment?", "Options", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, "none of your business");
 							if(response==0){
-								System.out.println("Meeting");
-								JDialog mGUI = new MeetingGui();
+								JDialog mGUI = new MeetingGui(getDate());
 								mGUI.setVisible(true);
 							}
 							if(response==1){
-								System.out.println("Apointment");
 								JDialog aGUI = new AppointmentGui(getDate());
 								aGUI.setVisible(true);
 								

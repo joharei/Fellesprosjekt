@@ -40,8 +40,8 @@ public class ChangeAppointmentGui extends AppointmentGui{
 		
 		gb = new GridBagConstraints();
 		
-//		remove(getNewCreate());
-//		remove(getNewCancel());
+		remove(create);
+		remove(cancel);
 		
 		getCalIcon().setDate(app.getDate());
 		Calendar startCal = Calendar.getInstance();

@@ -31,6 +31,7 @@ public class ListOfPersons2 extends JDialog{
 	private JScrollPane scrollPane;
 	private JTextField searchBox;
 	private JTable tableOfPersons;
+	ArrayList<User> allUsers;
 	
 	private DefaultTableModel model;
 
@@ -90,7 +91,7 @@ public class ListOfPersons2 extends JDialog{
 		gb.gridy = 1;
 		tableOfPersons = new JTable(testData, colNames);
 		tableOfPersons.setFillsViewportHeight(true);
-		ArrayList<User> allUsers = (ArrayList<User>) XCal.getCSU().getAllUsers();
+		allUsers = (ArrayList<User>) XCal.getCSU().getAllUsers();
 		testData = new Object[allUsers.size()][2];
 		int count = 0;
 		for (User user : allUsers) {
@@ -184,18 +185,20 @@ public class ListOfPersons2 extends JDialog{
 			// TODO Auto-generated method stub
 				int rowCount = tableOfPersons.getModel().getRowCount();
 				int k = 0;
-				String[] selectedNames = new String[rowCount];
-				String[] selectedEmails = new String[rowCount];
+//				String[] selectedNames = new String[rowCount];
+//				String[] selectedEmails = new String[rowCount];
+				User[] selectedUsers = new User[rowCount];
 				for(int i = 0; i< rowCount; i++){
 					if(tableOfPersons.isRowSelected(i)){
-						String name = (String) tableOfPersons.getValueAt(i, 0);
-						String email = (String) tableOfPersons.getValueAt(i, 1);
-						selectedNames[k] = name;
-						selectedEmails[k] = email;
+//						String name = (String) tableOfPersons.getValueAt(i, 0);
+//						String email = (String) tableOfPersons.getValueAt(i, 1);
+//						selectedNames[k] = name;
+//						selectedEmails[k] = email;
+						selectedUsers[k] = allUsers.get(i);
 						k++;
 					}
 				}
-				motherPanel.fillInvitationList(selectedNames, selectedEmails);
+				motherPanel.fillInvitationList(selectedUsers);
 			}
 		
 	}

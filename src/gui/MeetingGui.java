@@ -5,6 +5,10 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -13,6 +17,11 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+
+import model.Meeting;
+import model.Room;
+import model.SaveableClass;
+import model.User;
 
 public class MeetingGui extends AppointmentGui{
 	
@@ -100,6 +109,19 @@ public class MeetingGui extends AppointmentGui{
 		addActionListeners();
 	}
 	
+	public MeetingGui(Calendar date){
+		this();
+		
+		getCalIcon().setDate(date.getTime());
+		Calendar startCal = Calendar.getInstance();
+		startCal.setTime(date.getTime());
+		getStartTimeField().setSelectedIndex(startCal.get(Calendar.HOUR_OF_DAY));
+		Calendar endCal = Calendar.getInstance();
+		endCal.setTime(date.getTime());
+		endCal.set(Calendar.HOUR_OF_DAY, endCal.get(Calendar.HOUR_OF_DAY)+1);
+		getEndTimeField().setSelectedItem(endCal.get(Calendar.HOUR_OF_DAY));
+	}
+	
 	public JButton getNewCreate(){
 		return newCreate;
 	}
@@ -145,14 +167,48 @@ public class MeetingGui extends AppointmentGui{
 		});
 		newCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("goes back");
 				DefaultListModel model = (DefaultListModel) addPersons.getModel();
+				
 				if(model.isEmpty() || getCalIcon().getDate() == null || getDescriptionField().getText().isEmpty() || ((getPlaceField1().getText().isEmpty() || getPlaceField1().getText().equals("Type or click button"))
 						&& getPlaceField2().getSelectedItem().equals("choose"))){
 					JFrame frame = null;
 					JOptionPane.showMessageDialog(frame, "<HTML>Some fields are empty, please take care of the empty fields :) " );
 				}
 				else{
+					
+					Calendar cal = Calendar.getInstance();
+					cal.setTime(getCalIcon().getDate());
+					
+					String start = (String) getStartTimeField().getSelectedItem();
+					start = start.substring(0, 2);
+					int startTime = Integer.parseInt(start);
+					cal.set(Calendar.HOUR_OF_DAY, startTime);
+					Date startT = cal.getTime();
+					
+					String end = (String) getEndTimeField().getSelectedItem();
+					end = end.substring(0, 2);
+					int endTime = Integer.parseInt(end);
+					cal.set(Calendar.HOUR_OF_DAY, endTime);
+					Date endT = cal.getTime();
+					
+					Room room;
+					if (getPlaceField2().getSelectedItem() instanceof Room){
+						room = (Room) getPlaceField2().getSelectedItem();
+					} else{
+						room = null;
+					}
+					Meeting meeting = new Meeting(getCalIcon().getDate(), startT, endT, getDescriptionField().getText(), getPlaceField1().getText(), room, null, (User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText()), false);
+					ArrayList<String> usernameList = new ArrayList<String>();
+					
+					for(int i = 0; i<model.getSize(); i++){
+						usernameList.add(((User) model.get(i)).getUsername());
+					}
+					
+					meeting.setUsersToInvite(usernameList);
+					XCal.getCSU().addObject(meeting);
+					XCal.getCSU().addToSendQueue(meeting);
+					
+					((GUICalender) GUICalender.thisCopy).buildView();
 					JFrame frame = null;
 					JOptionPane.showMessageDialog(frame, "<HTML>A new meeting has been created. <P> Message has been sent to: " + addPersons.getModel() );
 					
@@ -163,16 +219,15 @@ public class MeetingGui extends AppointmentGui{
 		});
 	}
 
-	public void fillInvitationList(String[] selectedNames,
-			String[] selectedEmails) {
+	public void fillInvitationList(User[] selectedUsers) {
 		// TODO Auto-generated method stub
-		int count = selectedNames.length;
+		int count = selectedUsers.length;
 		for(int i = 0; i<count; i++){
-			if(selectedNames[i] != null){
-				String userString = selectedNames[i] + " ; " + selectedEmails[i];
+			if(selectedUsers[i] != null){
+//				String userString = selectedNames[i] + " ; " + selectedEmails[i];
 				DefaultListModel model = (DefaultListModel) addPersons.getModel();
-				if(!model.contains(userString)){
-					model.addElement(userString);
+				if(!model.contains(selectedUsers[i])){
+					model.addElement(selectedUsers[i]);
 				}
 			}
 			continue;
