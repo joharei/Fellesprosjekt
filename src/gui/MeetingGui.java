@@ -68,7 +68,6 @@ public class MeetingGui extends AppointmentGui{
 		addPersons = new JList();
 		addPersons.setModel(new DefaultListModel());
 		gb.insets = new Insets(48, 50, 0, 0);
-		
 		addPersonsScroll = new JScrollPane(addPersons);
 		addPersonsScroll.setPreferredSize(new Dimension(170, 100));
 		add(addPersonsScroll, gb);
