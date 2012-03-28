@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 
 import synclogic.ClientSynchronizationUnit;
 
+import model.SaveableClass;
 import model.User;
 
 import com.toedter.calendar.JCalendar;
@@ -181,10 +182,20 @@ public class SmallCalendar extends JPanel{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				System.out.println(addPersons.getSelectedValue());
+				System.out.println(addPersons.getSelectedValues());
+				addPersons.getSelectedValues();
+				int temp=0;
+				temp=addPersons.getSelectedValues().length;
+				User user =(User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText());
+				for (int i = 0; i < temp; i++) {
+					user.addSubscription((User)addPersons.getModel().getElementAt(i));
+					
+				}
+				XCal.getCSU().addToSendQueue(user);
 			}
 		});
 		add(getUserButton,c);
+		
 		c.gridx=3;
 		c.gridy=5;
 		removeUserButton = new JButton("remove");
@@ -194,8 +205,17 @@ public class SmallCalendar extends JPanel{
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				addPersons.getSelectedValue();
+				int temp=0;
+				temp=addPersons.getSelectedValues().length;
+				User user =(User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText());
+				for (int i = 0; i < temp; i++) {
+					//user.addSubscription((User)addPersons.getModel().getElementAt(i));
+					user.removeSubscription((User)addPersons.getModel().getElementAt(i));
+				}
+				XCal.getCSU().addToSendQueue(user);
 			}
 		});
+		add(removeUserButton,c);
 	}
 	public void setUkeNr(int ukenr){
 		int temp=this.ukenr;
