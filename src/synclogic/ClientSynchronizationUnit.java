@@ -1,5 +1,6 @@
 package synclogic;
 
+import gui.GUICalender;
 import gui.GUILoggInInfo;
 import gui.ChangeAppointmentGui;
 
@@ -221,9 +222,6 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			for (int i = 0; i<respons.size(); i++) {
 				if (respons.getObject(i) instanceof SyncListener){
 					SyncListener object = (SyncListener) respons.getObject(i);
-					if(object instanceof Notification) {
-						System.out.println("Er denne feil naa, saa er det Fossum sin skyld!!!!!!! " + ((Notification) object).getInvitation().getStatus());
-					}
 					if (getObjectFromID(object.getSaveableClass(), object.getObjectID()) != null){
 						fire(object.getSaveableClass(), object.getObjectID(), object);
 					} else{
@@ -241,9 +239,11 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		} catch (ParsingException e) {
 			throw new ConnectException();
 		}
-		// TODO: uncomment under!
 		if(this.notificationShower != null) {
 			this.notificationShower.loadNotifications();
+		}
+		if (GUICalender.thisCopy != null){
+			((GUICalender) GUICalender.thisCopy).buildView();
 		}
 		return errorMessages;
 	}
@@ -346,8 +346,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 				}
 			}
 		} else if (o instanceof Notification){
+			// TODO Må legges til i User når den kommer inn!
 			this.listeners.add(o);
 			Notification not = (Notification) o;
+//			not.getReceipient().addNotification(not);
 			Invitation inv = not.getInvitation();
 			if (inv != null){
 				if (getObjectFromID(inv.getSaveableClass(), inv.getObjectID()) != null){
@@ -361,7 +363,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 						}else{
 							this.listeners.add(meeting);
 						}
-					}
+					}	
 				}
 			}
 		}
