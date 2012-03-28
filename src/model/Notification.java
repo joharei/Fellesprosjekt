@@ -10,6 +10,7 @@ public class Notification implements SyncListener {
 	private NotificationType type;
 	private String id;
 	private User triggeredBy;
+	private User recipient;
 	private PropertyChangeSupport pcs;
 	
 	//constants
@@ -18,6 +19,8 @@ public class Notification implements SyncListener {
 	public static final String NAME_PROPERTY_TYPE = "type";
 	public static final String NAME_PROPERTY_ID = "id";
 	public static final String NAME_PROPERTY_TRIGGERED_BY = "triggeredBy";
+	public static final String NAME_PROPERTY_RECIPIENT = "recipient";
+	
 	
 	public Notification(Invitation invitation, NotificationType type, String id, User triggeredBy){
 		pcs = new PropertyChangeSupport(this);
@@ -78,6 +81,7 @@ public class Notification implements SyncListener {
 		setRead(notif.isRead());
 		setTriggeredBy(notif.getTriggeredBy());
 		setType(notif.getType());
+		setRecipient(notif.getRecipient());
 		System.out.println("Notification updated!");
 	}
 
@@ -89,5 +93,15 @@ public class Notification implements SyncListener {
 	@Override
 	public String getObjectID() {
 		return getId();
+	}
+
+	public void setRecipient(User recipient) {
+		User old = getRecipient();
+		this.recipient = recipient;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_RECIPIENT, old, getRecipient()));
+	}
+
+	public User getRecipient() {
+		return recipient;
 	}
 }

@@ -81,26 +81,38 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		if(error.getValidObject() == null) {
 			// Opprettelse av objekt var ikke lovlig
 			this.listeners.remove(this.getObjectFromID(error.getInvalidObject().getSaveableClass(), error.getInvalidObject().getObjectID()));
-			// TODO: La brukeren bestemme hva som skal skje
-			SaveableClass type = error.getValidObject().getSaveableClass();
+			((GUICalender) GUICalender.thisCopy).buildView();
+			if (error.getInvalidObject() == null) {
+				System.out.println("Invalid obj was null, No action taken!");
+				return;
+			}
+			SaveableClass type = error.getInvalidObject().getSaveableClass();
 			switch (type) {
-			case Appointment : {
-				//yes: 0, no: 1
-				int ans = JOptionPane.showConfirmDialog(null,
-						"Appointment could not be created!\nEdit it?", "Error",
-						JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-				if (ans == 0) {
-					new ChangeAppointmentGui((Appointment) error.getInvalidObject());
-				} else {
-					System.out.println("User chose not to edit failed appointment.");
+				case Appointment : {
+					//handle as meeting
+				}
+				case Meeting : {
+					//yes: 0, no: 1
+					int ans = JOptionPane.showConfirmDialog(null,
+							"Event could not be created!\nWould you like to edit it?", "Error",
+							JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+					if (ans == 0) {
+						ChangeAppointmentGui appchange = new ChangeAppointmentGui((Appointment) error.getInvalidObject());
+						appchange.setVisible(true);
+					} else {
+						System.out.println("User chose not to edit failed event.");
+					}
+					break;
+				}
+				default : {
+					System.out.println("Class " + type + " can't be created client side at all");
 				}
 			}
-			default : {
-				System.out.println("Class not error-handled yet: " + type);
-			}
-			}
+		} else {
+			// TODO: Gjoer mer!
+			//updated object!
+			
 		}
-		// TODO: Gjoer mer!
 	}
 	
 	public void addToSendQueue(String o) {
