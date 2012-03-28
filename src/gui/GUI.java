@@ -124,7 +124,8 @@ public class GUI extends JFrame implements WindowListener{
 		this.addWindowListener(this);
 		addActionListeners();
 //		this.setResizable(false);
-		this.setMinimumSize(new Dimension(1421, 505));
+//		this.setMinimumSize(new Dimension(1421, 505));
+		this.setMinimumSize(new Dimension(1621, 605));
 		pack();
 		setLocationRelativeTo(null);
 		
