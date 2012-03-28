@@ -186,7 +186,6 @@ public class ClientHandler implements Runnable {
 				if(original != null) {
 					System.out.println("Object already exists!");
 					// Object exists and should be updated
-					// TODO Maa ogsaa gaa inn i alle referansene i objektet for aa oppdatere disse!!!!!!!!!!
 					switch(o.getSaveableClass()) {
 					case Meeting:
 						Meeting originalM = (Meeting) original;
@@ -299,6 +298,24 @@ public class ClientHandler implements Runnable {
 						break;
 					case User:
 						// TODO: Hvis ny user blir subscribet to, maa dennes appointments sendes
+						User newUser = (User) o;
+						User oldUser = (User) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.User, newUser.getObjectID());
+						for(String userId : newUser.getSubscriptionsToAdd()) {
+							newUser.addSubscription((User) this.serverSynchronizationUnit.getObjectFromID(SaveableClass.User, userId));
+						}
+						for (User subto : newUser.getSubscribesTo()) {
+							if(!oldUser.getSubscribesTo().contains(subto)) {
+								// New subscription discovered
+								ClientHandler ch = this.serverSynchronizationUnit.getClientHandler(oldUser);
+								for(SyncListener sl : this.serverSynchronizationUnit.listeners) {
+									if(sl instanceof Appointment) {
+										if(((Appointment) sl).getOwner().getObjectID().equalsIgnoreCase(subto.getObjectID())) {
+											ch.addToSendQueue(sl);
+										}
+									}
+								}
+							}
+						}
 						break;
 					default:
 						throw new RuntimeException("An unexpected object was received!");
