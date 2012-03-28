@@ -4,12 +4,19 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import synclogic.SyncListener;
+
+import model.Notification;
+import model.SaveableClass;
 import model.User;
 
 public class GUILoggInInfo extends JPanel{
@@ -17,13 +24,14 @@ public class GUILoggInInfo extends JPanel{
 	private JLabel ansattNrLabel;
 	private JComboBox notificationBox;
 	private String messageFromAppointment;
-	public static String [] notifications;
+	private String [] notificationStrings;
+	private List<Notification> notifications;
 	private GridBagConstraints c = new GridBagConstraints();
 	
 	public GUILoggInInfo(){
 		
 		setLayout(new GridBagLayout());
-		
+		this.notifications = new ArrayList<Notification>();
 		nameLabel = new JLabel();
 		nameLabel.setText(getName());
 		c.gridx=1;
@@ -36,18 +44,18 @@ public class GUILoggInInfo extends JPanel{
 //		c.gridy=2;
 //		add(ansattNrLabel,c);
 		
-		notifications = new String[20];
-		notifications[0]=("Notifications");
-		for (int i = 1; i < notifications.length-1; i++) {
-			
-			try {
-				notifications[i]=(sendNotification(i));
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-			}
-		}
+//		notifications = new String[20];
+//		notifications[0]=("Notifications");
+//		for (int i = 1; i < notifications.length-1; i++) {
+//			
+//			try {
+//				notifications[i]=(sendNotification(i));
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//			}
+//		}
 		
-		notificationBox = new JComboBox(notifications);
+		notificationBox = new JComboBox();
 		c.gridx=1;
 		c.gridy=4;
 		add(notificationBox,c);
@@ -60,6 +68,73 @@ public class GUILoggInInfo extends JPanel{
 		getSelectedNotification();
 		
 	}
+	
+	public void addNotification(Notification not) {
+		this.notifications.add(not);
+	}
+	
+	public void loadNotifications() {
+		for (SyncListener listener : XCal.getCSU().getObjectsFromID(SaveableClass.Notification, null)) {
+			if(!this.notifications.contains(listener)) {
+				this.notifications.add((Notification) listener);
+			}
+		}
+		DefaultListModel model = ((DefaultListModel)this.notificationBox.getModel());
+		for (String text : this.getNotificationStrings()) {
+			model.set(model.getSize() + 1, text);
+		}
+	}
+	
+	public String[] getNotificationStrings() {
+		List<String> nots = new ArrayList<String>();
+		for (Notification no : this.notifications) {
+			if(no.isRead()) {
+				continue;
+			}
+			switch(no.getType()) {
+			case MEETING_CANCELLED:
+				nots.add("Meeting at " + no.getInvitation().getMeeting().getStartTime() + " has been cancelled!");
+				break;
+			case INVITATION_RECEIVED:
+				nots.add("Meeting: " + no.getInvitation().getMeeting().getStartTime());
+				break;
+			case INVITATION_ACCEPTED:
+				nots.add("Invitation was accepted by " + no.getTriggeredBy().getUsername());
+				break;
+			case INVITATION_REJECTED:
+				nots.add("Invitation was rejected by " + no.getTriggeredBy().getUsername());
+				break;
+			case INVITATION_REVOKED:
+				nots.add("Your invitation for " + no.getInvitation().getMeeting().getStartTime() + " has been revoked.");
+				break;
+			case MEETING_TIME_CHANGED:
+				nots.add("Meeting blablabla's time has changed");
+				break;
+			case MEETING_CHANGE_REJECTED:
+				nots.add("Your meeting change was rejected by " + no.getTriggeredBy().getUsername());
+				break;
+			}
+//			switch(no.getInvitation().getStatus()) {
+//			case NOT_ANSWERED:
+//				nots.add("");
+//				break;
+//			case ACCEPTED:
+//				
+//				break;
+//			case REJECTED:
+//				
+//				break;
+//			case REVOKED:
+//				
+//				break;
+//			case NOT_ANSWERED_TIME_CHANGED:
+//				
+//				break;
+//			}
+		}
+		return (String[]) nots.toArray();
+	}
+	
 //	public void setNotificationText(){
 //		AppointmentGui aGui = new AppointmentGui();
 //		messageFromAppointment=aGui.descriptionField.getText();
