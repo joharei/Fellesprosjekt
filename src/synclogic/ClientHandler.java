@@ -78,9 +78,9 @@ public class ClientHandler implements Runnable {
 				}
 				// Notifications
 				for (SyncListener not : this.serverSynchronizationUnit.getObjectsFromID(SaveableClass.Notification, null)) {
-					if(this.user.getNotifications().contains(not)) {
+//					if(this.user.getNotifications().contains(not)) {
 						this.addToSendQueue(not);
-					}
+//					}
 				}
 			}
 			return loginRequest.getLoginAccepted();

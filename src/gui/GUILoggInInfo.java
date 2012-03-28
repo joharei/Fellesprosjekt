@@ -75,7 +75,10 @@ public class GUILoggInInfo extends JPanel{
 	}
 	
 	public void loadNotifications() {
-		for (SyncListener listener : XCal.getCSU().getObjectsFromID(SaveableClass.Notification, null)) {
+		User loggedInUser = (User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText());
+//		for (SyncListener listener : XCal.getCSU().getObjectsFromID(SaveableClass.Notification, null)) {
+		for(SyncListener listener : ((User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())).getNotifications()) {
+			// Check if its this user's notification
 			System.out.println("Fant notification: " + listener.getObjectID());
 			if(!this.notifications.contains(listener)) {
 				System.out.println("Added notification: " + listener.getObjectID());
@@ -87,7 +90,7 @@ public class GUILoggInInfo extends JPanel{
 		DefaultComboBoxModel model = ((DefaultComboBoxModel)this.notificationBox.getModel());
 		model.removeAllElements();
 		System.out.println("SHOULD ADD 'Notifications'");
-		model.addElement("Notifications");
+		model.addElement("Notifications       ");
 		for (String text : this.getNotificationStrings()) {
 			System.out.println("Should add notification: " + text);
 			model.addElement(text);
@@ -101,44 +104,44 @@ public class GUILoggInInfo extends JPanel{
 			if(no.isRead()) {
 				continue;
 			}
-//			switch(no.getType()) {
-//			case MEETING_CANCELLED:
-//				nots.add("Meeting at " + no.getInvitation().getMeeting().getStartTime().toString() + " has been cancelled!");
-//				break;
-//			case INVITATION_RECEIVED:
-//				nots.add("Meeting: " + no.getInvitation().getMeeting().getStartTime());
-//				break;
-//			case INVITATION_ACCEPTED:
-//				nots.add("Invitation was accepted by " + no.getTriggeredBy().getUsername());
-//				break;
-//			case INVITATION_REJECTED:
-//				nots.add("Invitation was rejected by " + no.getTriggeredBy().getUsername());
-//				break;
-//			case INVITATION_REVOKED:
-//				nots.add("Your invitation for " + no.getInvitation().getMeeting().getStartTime() + " has been revoked.");
-//				break;
-//			case MEETING_TIME_CHANGED:
-//				nots.add("Meeting blablabla's time has changed");
-//				break;
-//			case MEETING_CHANGE_REJECTED:
-//				nots.add("Your meeting change was rejected by " + no.getTriggeredBy().getUsername());
-//				break;
-//			}
-			try {
-				nots.add(no.getInvitation().getStatus().toString());
-			} catch (NullPointerException e) {
-				nots.add("Notification som kaster NullPointerException");
-				System.out.println("========== NOTIFICATION ==========");
-				System.out.println("ID: " + no.getObjectID());
-				System.out.println("Type: " + no.getType().toString());
-				System.out.println("Invitation: " + no.getInvitation());
-				if(no.getInvitation() != null) {
-					System.out.println("Invitation status: " + no.getInvitation().getStatus());
-				} else {
-					System.out.println("Invitataion var null");
-				}
-				System.out.println("========== END NOTIFICA ==========");
+			switch(no.getType()) {
+			case MEETING_CANCELLED:
+				nots.add("Meeting cancelled");
+				break;
+			case INVITATION_RECEIVED:
+				nots.add("Invitation received");
+				break;
+			case INVITATION_ACCEPTED:
+				nots.add("User accepted invitation");
+				break;
+			case INVITATION_REJECTED:
+				nots.add("User rejected invitation");
+				break;
+			case INVITATION_REVOKED:
+				nots.add("Invitation revoked");
+				break;
+			case MEETING_TIME_CHANGED:
+				nots.add("Meeting time changed");
+				break;
+			case MEETING_CHANGE_REJECTED:
+				nots.add("Meeting change rejected");
+				break;
 			}
+//			try {
+//				nots.add(no.getInvitation().getStatus().toString());
+//			} catch (NullPointerException e) {
+//				nots.add("Notification som kaster NullPointerException");
+//				System.out.println("========== NOTIFICATION ==========");
+//				System.out.println("ID: " + no.getObjectID());
+//				System.out.println("Type: " + no.getType().toString());
+//				System.out.println("Invitation: " + no.getInvitation());
+//				if(no.getInvitation() != null) {
+//					System.out.println("Invitation status: " + no.getInvitation().getStatus());
+//				} else {
+//					System.out.println("Invitataion var null");
+//				}
+//				System.out.println("========== END NOTIFICA ==========");
+//			}
 		}
 		String[] arr = new String[nots.size()];
 		int counter = 0;
@@ -163,9 +166,10 @@ public class GUILoggInInfo extends JPanel{
 //		return message[a];
 //	}
 	public void getSelectedNotification(){
-		if(this.notificationBox.getSelectedItem() != null &&!this.notificationBox.getSelectedItem().equals("Notifications")) {
+		if(this.notificationBox.getSelectedItem() != null && !((String)this.notificationBox.getSelectedItem()).trim().equals("Notifications")) {
 			JOptionPane.showMessageDialog(null,"Noe skal skje her!");
 			// TODO
+//			AbstractNotification.get
 		}
 		
 //		Object value = notificationBox.getSelectedItem();

@@ -53,6 +53,11 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 			for (SyncListener s : this.listeners) {
 				if(s instanceof Notification) {
 					System.out.println("STATUUUUUUUUUUUUUUUUUS: " + ((Notification)s).getInvitation().getStatus());
+				} else if(s instanceof User) {
+					User user = (User) s;
+					for (Notification noto : user.getNotifications()) {
+						System.out.println(user.getUsername() + " har notification: " + noto.getId());
+					}
 				}
 			}
 			// Lagring
