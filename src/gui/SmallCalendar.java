@@ -6,6 +6,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -45,11 +47,13 @@ public class SmallCalendar extends JPanel{
 	public final static String NAME_PROPERTY_MONTH="maaned";
 	public final static String NAME_PROPERTY_DAYS_IN_WEEK="dagIUken";
 	public final static String NAME_PROPERTY_DATE_IN_MONTH="datoIMnd";
+	public static String navnSokes;
 	private JList addPersons;
 	private JScrollPane addPersonsScroll;
 	private JButton sok;
 	private JLabel sokLabel;
 	private JTextField sokeField;
+	private JList listeMedFolk = new JList();
 	
 	public int getValue (){
 		return mndText.getSelectedIndex();
@@ -96,32 +100,48 @@ public class SmallCalendar extends JPanel{
 		//label
 		sokLabel = new JLabel("Søk");
 		c.gridx=1;
-		c.gridy=2;
+		c.gridy=3;
 		add(sokLabel,c);
 		
 		//sokefelt
 		c.gridx = 2;
-		c.gridy = 2;
-		sokeField = new JTextField("Type or click button");
+		c.gridy = 3;
+		sokeField = new JTextField();
 		sokeField.setColumns(15);
+		sokeField.addKeyListener(new KeyListener() {
+			
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				//System.out.println(e.getKeyChar());
+				navnSokes+=e.getKeyChar();
+				System.out.println(navnSokes);
+				System.out.println("Her skal det komme: "+XCal.getCSU().getAllUsers());
+			}
+			
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		c.insets = new Insets(10, 50, 0, 0);
 		add(sokeField, c);
 		
 		//liste
 		c.gridx=2;
-		c.gridy=3;
+		c.gridy=4;
 		addPersons = new JList();
 		addPersons.setModel(new DefaultListModel());
 		addPersonsScroll = new JScrollPane(addPersons);
 		addPersonsScroll.setPreferredSize(new Dimension(170, 100));
 		add(addPersonsScroll, c);
-		
-		
-		//sokeknapp
-		sok = new JButton("Søk");
-		c.gridx=3;
-		c.gridy=2;
-		add(sok,c);
 	
 	}
 	public void setUkeNr(int ukenr){
