@@ -239,12 +239,12 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	public List<Appointment> getAllAppointments() {
 		List<Appointment> appointments = new ArrayList<Appointment>();
 		for (SyncListener object : this.listeners) {
-			if (object.getSaveableClass() == SaveableClass.Appointment){
-				appointments.add((Appointment) object);
-			} else if (object.getSaveableClass() == SaveableClass.Meeting){
+			if (object instanceof Meeting){
 				System.out.println(((Meeting) object).getDescription());
 				appointments.add((Meeting) object);
-			}
+			} else if (object instanceof Appointment){
+				appointments.add((Appointment) object);
+			} 
 		}
 		return appointments;
 	}

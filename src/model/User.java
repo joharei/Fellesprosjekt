@@ -174,17 +174,7 @@ public class User implements SyncListener {
 	}
 	
 	public String toString() {
-		String s = "===BEGIN USER===" + 
-		"\nName: " + getName() +
-		"\nUsername: " + getUsername() +
-		"\nPassword: " + getPassword() +
-		"\nEmail: " + getEmail() +
-		"\nBirthdate: " + getDateFormat().format(getDateOfBirth()) +
-		"\nPhone number: " + getPhone() +
-		"\nSubscribes to: " + getSubscribesTo() +
-		"\nDeleted: " + isDeleted() +
-		"\n===END USER===";
-		return s;
+		return this.firstname + " " + this.surname + " ; " + this.email;
 	}
 
 	public void setDeleted(boolean isDeleted) {
