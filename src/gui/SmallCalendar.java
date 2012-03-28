@@ -211,11 +211,14 @@ public class SmallCalendar extends JPanel{
 				addPersons.getSelectedValue();
 				int temp=0;
 				temp=addPersons.getSelectedValues().length;
+				String usernameTemp="";
 				User user =(User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText());
 				for (int i = 0; i < temp; i++) {
 					//user.addSubscription((User)addPersons.getModel().getElementAt(i));
-					user.removeSubscription((User)addPersons.getModel().getElementAt(i));
+					usernameTemp=((((User) addPersons.getModel().getElementAt(i)).getUsername()));
+					
 				}
+				user.removeSubscriptionToAdd(usernameTemp);
 				XCal.getCSU().addToSendQueue(user);
 			}
 		});

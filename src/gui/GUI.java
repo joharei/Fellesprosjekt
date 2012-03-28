@@ -107,10 +107,9 @@ public class GUI extends JFrame implements WindowListener{
 		add(createButton,c);
 		
 		logOutButton = new JButton("Log Out");
-		c.gridx=9;
-		c.gridy=0;
-		c.gridwidth=2;
 		c.anchor=GridBagConstraints.SOUTHEAST;
+		c.gridx=10;
+		c.gridy=0;
 		add(logOutButton,c);
 		
 		JFrame nullFrame = null;
