@@ -361,7 +361,7 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			// TODO Må legges til i User når den kommer inn!
 			this.listeners.add(o);
 			Notification not = (Notification) o;
-//			not.getReceipient().addNotification(not);
+			not.getRecipient().addNotification(not);
 			Invitation inv = not.getInvitation();
 			if (inv != null){
 				if (getObjectFromID(inv.getSaveableClass(), inv.getObjectID()) != null){
