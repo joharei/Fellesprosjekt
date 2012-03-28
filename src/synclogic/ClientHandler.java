@@ -95,6 +95,7 @@ public class ClientHandler implements Runnable {
 		while(true) {
 			try {
 				// TODO: Timeout!
+				System.out.println("Waiting for incomming stuff..");
 				Object o = XmlSerializerX.toObject(this.connection.receive());
 				if(o instanceof LoginRequest && !isloggedIn) {
 					isloggedIn = this.login((LoginRequest) o);
@@ -181,9 +182,6 @@ public class ClientHandler implements Runnable {
 				System.out.println("ERROR! Consult Fossum!");
 				this.sendQueue.add(new ErrorMessage(original, o));
 			} else {
-				if(o instanceof Appointment) {
-					System.out.println("RoomID: " + ((Appointment)o).getRoom().getObjectID());
-				}
 				// Execute update
 				if(original != null) {
 					System.out.println("Object already exists!");

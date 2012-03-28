@@ -1,5 +1,7 @@
 package synclogic;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
@@ -7,11 +9,15 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+
+import javax.swing.Timer;
 
 import model.Appointment;
 import model.Notification;
@@ -32,11 +38,43 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 	private Thread thread;
 	private boolean stopThread = false;
 	
+	private static final int TIME_BETWEEN_UPDATES = 20000;
+	
 	public ClientSynchronizationUnit(){
 		this.sendQueue = new MessageQueue();
 		this.sendQueue.addPropertyChangeListener(this);
 		this.thread = new Thread(new SendClass());
+		
+		ActionListener updater = new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Looking for updates");
+				synchronized (this) {
+					try {
+						List<ErrorMessage> errors = update();
+						for (ErrorMessage error : errors) {
+							handleError(error);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				System.out.println("Done");
+			}
+		};
+		new Timer(TIME_BETWEEN_UPDATES, updater).start();
 
+	}
+	
+	public void handleError(ErrorMessage error) {
+		System.out.println("Behandler error...");
+		if(error.getValidObject() == null) {
+			// Opprettelse av objekt var ikke lovlig
+			this.listeners.remove(this.getObjectFromID(error.getInvalidObject().getSaveableClass(), error.getInvalidObject().getObjectID()));
+			// TODO: La brukeren bestemme hva som skal skje
+		}
+		// TODO: Gjoer mer!
 	}
 	
 	public void addToSendQueue(String o) {
