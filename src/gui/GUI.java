@@ -47,6 +47,7 @@ public class GUI extends JFrame implements WindowListener{
 	private JButton createButton;
 	private JLabel helpLabel;
 	private JLabel overskrift;
+	private GUILoggInInfo notificationShower;
 	
 	private String [] options = {"Meeting","Appointment"};
 	
@@ -58,7 +59,6 @@ public class GUI extends JFrame implements WindowListener{
 		
 //		this.setPreferredSize(new Dimension(800,600));
 		SmallCalendar smallCal = new SmallCalendar();
-		SokePaAndre sokPanel = new SokePaAndre();
 		
 		CalendarPanecolumnHeaderPanel calPanel = new CalendarPanecolumnHeaderPanel();
 		
@@ -72,7 +72,8 @@ public class GUI extends JFrame implements WindowListener{
 		c.gridx=0;
 		c.gridy=0;
 		c.anchor=GridBagConstraints.NORTHWEST;
-		add(new GUILoggInInfo(),c);
+		this.notificationShower = new GUILoggInInfo();
+		add(this.notificationShower,c);
 		
 		overskrift = new JLabel("CAL - X");
 		c.gridx=7;
@@ -96,10 +97,6 @@ public class GUI extends JFrame implements WindowListener{
 		c.gridx=9;
 		c.gridy=6;
 		add(helpLabel, c);
-		
-		c.gridx=0;
-		c.gridy=6;
-		add(sokPanel,c);
 		
 		createButton = new JButton("Create");
 		c.gridx=0;
