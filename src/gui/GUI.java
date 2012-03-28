@@ -78,8 +78,9 @@ public class GUI extends JFrame implements WindowListener{
 		add(this.notificationShower,c);
 		
 		overskrift = new JLabel("CAL - X");
-		c.gridx=7;
+		c.gridx=9;
 		c.gridy=0;
+		c.anchor=GridBagConstraints.NORTHWEST;
 		add(overskrift,c);
 		
 		c.gridx=0;
@@ -106,8 +107,10 @@ public class GUI extends JFrame implements WindowListener{
 		add(createButton,c);
 		
 		logOutButton = new JButton("Log Out");
-		c.gridx=30;
+		c.gridx=9;
 		c.gridy=0;
+		c.gridwidth=2;
+		c.anchor=GridBagConstraints.SOUTHEAST;
 		add(logOutButton,c);
 		
 		JFrame nullFrame = null;

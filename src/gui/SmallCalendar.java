@@ -16,6 +16,7 @@ import java.beans.PropertyChangeSupport;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -185,12 +186,14 @@ public class SmallCalendar extends JPanel{
 				System.out.println(addPersons.getSelectedValues());
 				addPersons.getSelectedValues();
 				int temp=0;
+				ArrayList <String> users= new ArrayList<String>();
 				temp=addPersons.getSelectedValues().length;
 				User user =(User)XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText());
 				for (int i = 0; i < temp; i++) {
-					user.addSubscription((User)addPersons.getModel().getElementAt(i));
-					
+					//user.addSubscription();
+					users.add(((User)addPersons.getModel().getElementAt(i)).getUsername());
 				}
+				user.setSubscriptionsToAdd(users);
 				XCal.getCSU().addToSendQueue(user);
 			}
 		});
