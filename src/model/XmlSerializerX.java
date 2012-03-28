@@ -265,12 +265,14 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		Element valid = new Element(ErrorMessage.NAME_PROPERTY_VALID_OBJECT);
 		SyncListener validObject = err.getValidObject();
-		valid.appendChild(singleObjToElement(validObject, validObject.getSaveableClass()));
+		SaveableClass type = (valid != null) ? validObject.getSaveableClass() : SaveableClass.Null;
+		valid.appendChild(singleObjToElement(validObject, type));
 		errm.appendChild(valid);
 		
 		Element invalid = new Element(ErrorMessage.NAME_PROPERTY_INVALID_OBJECT);
 		SyncListener invalidObject = err.getInvalidObject();
-		invalid.appendChild(singleObjToElement(invalidObject, invalidObject.getSaveableClass()));
+		type = (invalid != null) ? invalidObject.getSaveableClass() : SaveableClass.Null;
+		invalid.appendChild(singleObjToElement(invalidObject, type));
 		errm.appendChild(invalid);
 		
 		return errm;
