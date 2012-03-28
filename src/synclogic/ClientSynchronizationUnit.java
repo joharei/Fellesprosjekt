@@ -218,9 +218,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		} catch (ParsingException e) {
 			throw new ConnectException();
 		}
-		if(this.notificationShower != null) {
-			this.notificationShower.loadNotifications();
-		}
+		// TODO: uncomment under!
+//		if(this.notificationShower != null) {
+//			this.notificationShower.loadNotifications();
+//		}
 		return errorMessages;
 	}
 	
