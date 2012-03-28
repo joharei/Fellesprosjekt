@@ -18,6 +18,7 @@ import javax.swing.JScrollPane;
 
 import model.Appointment;
 import model.Meeting;
+import model.Notification;
 import model.Room;
 import model.SaveableClass;
 import model.User;
@@ -79,9 +80,12 @@ public class ChangeAppointmentGui extends AppointmentGui{
 			gb.gridy = 5;
 			addPersons = new JList();
 			addPersons.setModel(new DefaultListModel());
-			
-			for (String username : ((Meeting) app).getInvitations()) {
-				((DefaultListModel) addPersons.getModel()).addElement((User) XCal.getCSU().getObjectFromID(SaveableClass.User, username));
+			for (User user : XCal.getCSU().getAllUsers()) {
+				for (Notification not : user.getNotifications()) {
+					if(not.getInvitation().getMeeting().getObjectID().equals(app.getObjectID())){
+						((DefaultListModel) addPersons.getModel()).addElement(user);
+					}
+				}
 			}
 			
 			gb.insets = new Insets(48, 50, 0, 0);

@@ -66,6 +66,13 @@ public class AppointmentGui extends JDialog{
 		gbLayout = new GridBagLayout();
 		setLayout(gbLayout);
 		
+		for (User user : XCal.getCSU().getAllUsers()) {
+			System.out.println(user.getUsername()+" subscribes to:");
+			for (User user2 : user.getSubscribesTo()) {
+				System.out.println(user2.getUsername());
+			}
+		}
+		
 		//date
 		gb.gridx = 0;
 		gb.gridy = 0;

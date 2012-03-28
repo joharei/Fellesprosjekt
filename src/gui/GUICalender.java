@@ -86,7 +86,7 @@ public class GUICalender extends JPanel implements PropertyChangeListener{
 					showMeeting = true;
 				}
 			}
-			if (day.get(Calendar.WEEK_OF_YEAR) == this.week && !app.isDeleted() && (app instanceof Meeting && showMeeting)){
+			if ((!(app instanceof Meeting) && day.get(Calendar.WEEK_OF_YEAR) == this.week && !app.isDeleted()) || ((app instanceof Meeting && showMeeting) && day.get(Calendar.WEEK_OF_YEAR) == this.week && !app.isDeleted())){
 				Calendar start = Calendar.getInstance();
 				start.setTime(app.getStartTime());
 				Calendar end = Calendar.getInstance();
