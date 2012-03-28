@@ -8,7 +8,7 @@ import synclogic.ClientSynchronizationUnit;
 public class XCal {
 	
 	private static ClientSynchronizationUnit CSU;
-	static JTextField usernameField;
+	public static JTextField usernameField;
 	private static String serverIp = "78.91.83.107";
 //	private static String serverIp = "localhost";
 	public static void main(String[] args) {
