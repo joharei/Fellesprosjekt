@@ -253,6 +253,18 @@ public class User implements SyncListener {
 		this.subscriptionsToAdd = subscriptionsToAdd;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD, old, getSubscriptionsToAdd()));
 	}
+	
+	public void addSubscriptionToAdd(String username) {
+		ArrayList<String> old = getSubscriptionsToAdd();
+		this.subscriptionsToAdd.add(username);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD, old, getSubscriptionsToAdd()));
+	}
+	
+	public void removeSubscriptionToAdd(String username) {
+		ArrayList<String> old = getSubscriptionsToAdd();
+		this.subscriptionsToAdd.remove(username);
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD, old, getSubscriptionsToAdd()));
+	}
 
 	public ArrayList<String> getSubscriptionsToAdd() {
 		return subscriptionsToAdd;
