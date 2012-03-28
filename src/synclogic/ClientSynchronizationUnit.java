@@ -219,9 +219,9 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			throw new ConnectException();
 		}
 		// TODO: uncomment under!
-//		if(this.notificationShower != null) {
-//			this.notificationShower.loadNotifications();
-//		}
+		if(this.notificationShower != null) {
+			this.notificationShower.loadNotifications();
+		}
 		return errorMessages;
 	}
 	
@@ -311,7 +311,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 			}
 		} else if (o instanceof Appointment){
 			this.listeners.add(o);
-		} 
+		} else {
+			// TODO: Quick fix here!
+			this.listeners.add(o);
+		}
 		
 	}
 }
