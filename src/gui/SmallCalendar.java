@@ -175,7 +175,7 @@ public class SmallCalendar extends JPanel{
 		add(addPersonsScroll, c);
 		
 		c.gridx=3;
-		c.gridy=4;
+		c.gridy=3;
 		getUserButton = new JButton("Hent");
 		getUserButton.addActionListener(new ActionListener() {
 			
@@ -197,8 +197,8 @@ public class SmallCalendar extends JPanel{
 		add(getUserButton,c);
 		
 		c.gridx=3;
-		c.gridy=5;
-		removeUserButton = new JButton("remove");
+		c.gridy=4;
+		removeUserButton = new JButton("Remove");
 		getUserButton.addActionListener(new ActionListener() {
 			
 			@Override
