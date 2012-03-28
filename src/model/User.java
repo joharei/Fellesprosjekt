@@ -18,6 +18,8 @@ public class User implements SyncListener {
 	private boolean isOnline;
 	private boolean isDeleted;
 	private ArrayList<User> subscribesTo = new ArrayList<User>();
+	private ArrayList<String> subscriptionsToAdd = new ArrayList<String>();//TODO!
+	
 	private static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 	private PropertyChangeSupport pcs;
 
@@ -32,7 +34,9 @@ public class User implements SyncListener {
 	public final static String NAME_PROPERTY_DATE_OF_BIRTH = "date";
 	public final static String NAME_PROPERTY_DELETED = "del";
 	public final static String NAME_PROPERTY_SUBSCRIBES_TO = "substo";
+	public final static String NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD = "substoadd";
 	public final static String NAME_PROPERTY_IS_ONLINE = "isonline";
+	public final static String NAME_PROPERTY_IS_NOTIFICATIONS = "notifications";
 	
 	/**
 	 * Creates a user without a password.
@@ -207,6 +211,7 @@ public class User implements SyncListener {
 		setDateOfBirth(updated.getDateOfBirth());
 		setDeleted(updated.isDeleted());
 		setSubscribesTo(updated.getSubscribesTo());
+		setSubscriptionsToAdd(getSubscriptionsToAdd());
 	}
 
 	@Override
@@ -240,5 +245,15 @@ public class User implements SyncListener {
 	@SuppressWarnings("unchecked")
 	public ArrayList<User> getSubscribesTo() {
 		return (ArrayList<User>) subscribesTo.clone();
+	}
+
+	public void setSubscriptionsToAdd(ArrayList<String> subscriptionsToAdd) {
+		ArrayList<String> old = getSubscriptionsToAdd();
+		this.subscriptionsToAdd = subscriptionsToAdd;
+		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD, old, getSubscriptionsToAdd()));
+	}
+
+	public ArrayList<String> getSubscriptionsToAdd() {
+		return subscriptionsToAdd;
 	}
 }

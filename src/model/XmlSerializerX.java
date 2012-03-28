@@ -113,6 +113,12 @@ public class XmlSerializerX extends XmlSerializer {
 		inv = not.getInvitation();
 		System.out.println("Invitationstatus: " + inv.getStatus());
 		System.out.println(inv);
+		
+		user3.addNotification(not);
+		xml = toXml(user3, user3.getSaveableClass());
+		System.out.println(xml);
+		user3 = (User) toObject(xml);
+		System.out.println(user3.getNotifications().size());
 	}
 	
 	/**
@@ -475,11 +481,14 @@ public class XmlSerializerX extends XmlSerializer {
 	/**
 	 * Copied from XmlSerializer and modified for fields; creates a user from the xml element
 	 * @throws ParseException
+	 * @throws ParsingException 
 	 */
-	private static User assembleUser(Element userElement) throws ParseException {
+	private static User assembleUser(Element userElement) throws ParseException, ParsingException {
 		String firstname = null, surname = null, username = null, password = null, email = null;
 		Date date = null;
 		ArrayList<User> subscribesTo = new ArrayList<User>();
+		ArrayList<String> stal = new ArrayList<String>();
+		ArrayList<Notification> notlist = new ArrayList<Notification>();
 		int phone = 0;
 		Element element = userElement.getFirstChildElement(User.NAME_PROPERTY_FIRSTNAME);
 		if (element != null) {
@@ -518,8 +527,25 @@ public class XmlSerializerX extends XmlSerializer {
 				subscribesTo.add(assembleUser(els.get(i)));
 			}
 		}
+//		element = userElement.getFirstChildElement(User.NAME_PROPERTY_IS_NOTIFICATIONS);
+//		if (element != null) {
+//			Elements els = element.getChildElements();
+//			for (int i = 0; i < els.size(); i++) {
+//				notlist.add(assembleNotification(els.get(i)));
+//			}
+//		}
+		
+		element = userElement.getFirstChildElement(User.NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD);
+		if (element != null) {
+			Elements els = element.getChildElements();
+			for (int i = 0; i < els.size(); i++) {
+				stal.add(els.get(i).getValue());
+			}
+		}
+		
 		User u = new User(firstname, surname, username, password, email, date, phone);
 		u.setSubscribesTo(subscribesTo);
+		u.setSubscriptionsToAdd(stal);
 		return u;
 	}
 	
@@ -557,6 +583,21 @@ public class XmlSerializerX extends XmlSerializer {
 			subs.appendChild(userToXmlElement(it.next()));
 		}
 		
+		Element sToAdd = new Element(User.NAME_PROPERTY_SUBSCRIPTIONS_TO_ADD);
+		ArrayList<String> stal = user.getSubscriptionsToAdd();
+		for (String s : stal) {
+			//add username to subscribe to
+			sToAdd.appendChild(s);
+		}
+		
+//		Element nots = new Element(User.NAME_PROPERTY_IS_NOTIFICATIONS);
+//		ArrayList<Notification> notlist = user.getNotifications();
+//		for (Notification notif : notlist) {
+//			nots.appendChild(notificationToXmlElement(notif));
+//		}
+		
+		//TODO: Add subsriptionsToAdd
+		
 		//link fields to object
 		element.appendChild(firstname);
 		element.appendChild(surname);
@@ -566,6 +607,8 @@ public class XmlSerializerX extends XmlSerializer {
 		element.appendChild(dateOfBirth);
 		element.appendChild(phone);
 		element.appendChild(subs);
+		element.appendChild(sToAdd);
+//		element.appendChild(nots);
 		return element;
 	}
 	
@@ -631,7 +674,6 @@ public class XmlSerializerX extends XmlSerializer {
 	 * Turn a room into a Xml element
 	 */
 	private static Element roomToXmlElement(Room room) {
-		//TODO: Null?
 		Element roomElement = new Element("" + SaveableClass.Room);
 		
 		Element id = new Element(Room.NAME_PROPERTY_ID);
@@ -973,11 +1015,13 @@ public class XmlSerializerX extends XmlSerializer {
 	 * and Invitation is included as well.
 	 */
 	private static Element notificationToXmlElement(Notification notif) {
+		//TODO: HUSK RECIPIENT!!
 		Element notifE = new Element("" + SaveableClass.Notification);
 		
 		Element inv = new Element(Notification.NAME_PROPERTY_INVITATION);
 		inv.appendChild(invitationToXmlElement(notif.getInvitation()));
 		notifE.appendChild(inv);
+		
 		
 		Element type = new Element(Notification.NAME_PROPERTY_TYPE);
 		type.appendChild("" + notif.getType());
@@ -991,6 +1035,9 @@ public class XmlSerializerX extends XmlSerializer {
 		tBy.appendChild(userToXmlElement(notif.getTriggeredBy()));
 		notifE.appendChild(tBy);
 		
+		Element recE = new Element(Notification.NAME_PROPERTY_RECIPIENT);
+		recE.appendChild(userToXmlElement(notif.getRecipient()));
+		notifE.appendChild(recE);
 		return notifE;
 	}
 	
@@ -1004,7 +1051,8 @@ public class XmlSerializerX extends XmlSerializer {
 		Invitation inv = null;
 		NotificationType type = null;
 		String id = null;
-		User tBy = null;
+		User tBy = null, rec = null;
+		//TODO: Husk RECIPIENT!!
 		
 		Element e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_INVITATION);
 		if (e != null) {
@@ -1030,10 +1078,25 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TRIGGERED_BY);
 		if (e != null) {
+			Element tBYE;//TODO!! 
 			tBy = assembleUser(e);
 		}
 		
+		//get target for invitation
+		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_RECIPIENT);
+		if (e != null) {
+			Element recE = e.getFirstChildElement("" + SaveableClass.User);
+			if (recE != null) {
+				rec = assembleUser(recE);
+			} else {
+				throw new ParsingException("Can't parse recipient!");
+			}
+		} else {
+			throw new ParsingException("Can't find a recipient to parse!");
+		}
+		
 		Notification notif = new Notification(inv, type, id, tBy);
+		notif.setRecipient(rec);
 		return notif;
 	}
 }
