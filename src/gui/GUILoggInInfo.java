@@ -147,10 +147,12 @@ public class GUILoggInInfo extends JPanel{
 		return message[a];
 	}
 	public void getSelectedNotification(){
-		Object value = notificationBox.getSelectedItem();
-		if(value.equals("Meeting deleted")){
-			JOptionPane.showMessageDialog(null,"Meeting"+""+" was deleted");
-		}
+		JOptionPane.showMessageDialog(null,"Noe skal skje her!");
+		
+//		Object value = notificationBox.getSelectedItem();
+//		if(value.equals("Meeting deleted")){
+//			JOptionPane.showMessageDialog(null,"Meeting"+""+" was deleted");
+//		}
 		//Her skal det skje noe mer naar man velger en notification
 	}
 //	private String getAnsattNr() {
