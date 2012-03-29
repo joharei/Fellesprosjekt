@@ -311,7 +311,7 @@ public class ConnectionImpl extends AbstractConnection {
 				// Receive ACK
 				ack = internalReceiveAck(false, packet);
 				// If we got ACK for the last packet sent, send it again
-				if (ack != null && ack.getAck() == this.lastDataPacketAttemptedToSend.getSeq_nr()){
+				if (ack != null && this.lastDataPacketAttemptedToSend != null && ack.getAck() == this.lastDataPacketAttemptedToSend.getSeq_nr()){
 					simplySendPacket(this.lastDataPacketAttemptedToSend);
 				}
 				this.lastDataPacketAttemptedToSend = packet;
@@ -370,8 +370,13 @@ public class ConnectionImpl extends AbstractConnection {
 	    		}
 	    	}catch (EOFException e){
 	    		// FIN received, close server
-	    		serverClose();
-	    		shouldThrowException = false;
+	    		if(this.disconnectRequest.getPayload() != null) {
+	    			sendAck(this.lastValidPacketReceived, false);
+	    			continue;
+	    		} else {
+		    		serverClose();
+		    		shouldThrowException = false;
+	    		}
 	    	}
     	}
     	if(shouldThrowException) {
