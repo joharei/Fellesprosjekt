@@ -301,7 +301,6 @@ public class ConnectionImpl extends AbstractConnection {
     	KtnDatagram packet = constructDataPacket(msg);
     	// Calculate checksum
     	packet.setChecksum(packet.calculateChecksum());
-    	this.lastDataPacketAttemptedToSend = packet;
     	do {
     		if(timeoutCounter > RETRIES * 2) {
     			throw new SocketTimeoutException();
@@ -315,6 +314,7 @@ public class ConnectionImpl extends AbstractConnection {
 				if (ack != null && ack.getAck() == this.lastDataPacketAttemptedToSend.getSeq_nr()){
 					simplySendPacket(this.lastDataPacketAttemptedToSend);
 				}
+				this.lastDataPacketAttemptedToSend = packet;
 			} catch (ClException e) {
 				ack = null;
 				continue;
