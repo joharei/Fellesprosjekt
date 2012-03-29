@@ -7,7 +7,6 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -17,7 +16,6 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import no.ntnu.fp.net.cl.ClException;
 import no.ntnu.fp.net.cl.ClSocket;
 import no.ntnu.fp.net.cl.KtnDatagram;
@@ -47,59 +45,52 @@ public class ConnectionImpl extends AbstractConnection {
 
     private static boolean shouldInitPortNumbers = true;
     
-    private KtnDatagram datagram;
     /**
-     * Initialise initial sequence number and setup state machine.
+     * Initialize initial sequence number and setup state machine.
      * 
      * @param myPort
      *            - the local port to associate with this connection
      */
     public ConnectionImpl(int myPort) {
-//    	initPortNumbers();
+    	// Set the IP and port
     	this.myAddress = getIPv4Address();
-    	datagram = new KtnDatagram();
     	this.myPort = myPort;
     }
     
     /**
+     * Only to be used by accept() to establish a new connection 
      * 
-     * 
-     * @param packet
+     * @param packet			The SYN-packet
      * @throws ConnectException
      * @throws IOException
      */
-    public ConnectionImpl(KtnDatagram packet) throws ConnectException, IOException {
-//    	initPortNumbers();
+    private ConnectionImpl(KtnDatagram packet) throws ConnectException, IOException {
+    	// Set up IPs and ports
     	this.myAddress = getIPv4Address();
     	this.myPort = packet.getDest_port();
     	this.remotePort = packet.getSrc_port();
     	this.remoteAddress = packet.getSrc_addr();
     	this.lastValidPacketReceived = packet;
     	
-    	// Send SYN-ACK
+    	// Wait for client to get ready
     	synchronized (this) {
     		try {
     			wait(500);
     		} catch (InterruptedException e) {
-    			// TODO Auto-generated catch block
     			e.printStackTrace();
     		}
 		}
+    	// Send SYN-ACK
     	sendAck(this.lastValidPacketReceived, true);
     	this.state = State.SYN_RCVD;
     	// Wait for ACK
-//    	this.lastValidPacketReceived = internalReceiveAck(false, this.lastValidPacketReceived);
     	this.lastValidPacketReceived = internalReceiveAck(false, this.lastDataPacketSent);
     	this.state = State.ESTABLISHED;
-    	
-//    	this.lastValidPacketReceived = receiveAck();
-//    	if(this.lastValidPacketReceived.getFlag() != Flag.ACK) {
-//    		this.state = State.CLOSED;
-//    		throw new ConnectException("Did not receive ACK for sent SYN-ACK");
-//    	}
-//    	this.state = State.ESTABLISHED;
     }
 
+    /**
+     * Used to initialize distribution of port numbers
+     */
     public static void initPortNumbers() {
     	if(shouldInitPortNumbers) {
 	    	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
@@ -107,14 +98,22 @@ public class ConnectionImpl extends AbstractConnection {
 			}
     	}
     }
-    
+     /**
+      * Finds the IP-address for the (hopefully) active network interface
+      * 
+      * @return	The IP-address
+      */
     public String getIPv4Address() {
         try {
+        	// Get all interfaces
         	Enumeration<NetworkInterface> networkInterfaces = java.net.NetworkInterface.getNetworkInterfaces();
         	while(networkInterfaces.hasMoreElements()){
+        		// Get the addresses
 				Enumeration<InetAddress> networkAddresses = networkInterfaces.nextElement().getInetAddresses();
 				while(networkAddresses.hasMoreElements()){
+					// Get the address
 					String address = networkAddresses.nextElement().getHostAddress();
+					// Make sure it's not IPv6 and not local
 					if(address.contains(".") && !address.equals("127.0.0.1")){
 						return address;
 					}
@@ -129,32 +128,38 @@ public class ConnectionImpl extends AbstractConnection {
 		}
     }
 
+    /**
+     * Gives the opportunity to have retries
+     * 
+     * @param synAck		If we should expect a SYN-ACK
+     * @param packetToAck	The packet to ACK
+     * @return				The ACK-packet
+     * @throws EOFException	If received FIN
+     * @throws IOException	If connection failed
+     */
     public KtnDatagram internalReceiveAck(boolean synAck, KtnDatagram packetToAck) throws EOFException, IOException {
     	KtnDatagram temp;
     	for (int i = 0; i < RETRIES; i++) {
-    		System.out.println("Waiting for ACK: " + i);
     		temp = receiveAck();
-    		if(temp == null) {
-    			System.out.println("ACK was null");
-    		} else {
-    			System.out.println("Received packet with flag: " + temp.getFlag().toString() + " and seq.number: " + temp.getSeq_nr());
-    		}
     		if(temp != null && (synAck && temp.getFlag() == Flag.SYN_ACK || !synAck)) {
     			return temp;
     		} 
-//				else if (packetToAck.getSeq_nr() != temp.getSeq_nr()){
-//					
-//				}
     	}
     	throw new SocketTimeoutException();
     }
-    
+
+    /**
+     * Gives the opportunity to have retries
+     * 
+     * @param flag			The flag to expect
+     * @param internal		If the receive should give up or not
+     * @return				The received packet
+     * @throws EOFException	If received FIN
+     * @throws IOException	If connection failed
+     */
     public KtnDatagram internalReceive(Flag flag, boolean internal) throws EOFException, IOException {
     	KtnDatagram temp = null;
     	for (int i = 0; i < RETRIES; i++) {
-    		if(flag == Flag.FIN) {
-    			System.out.println("Waiting for FIN");
-    		}
     		temp = receivePacket(internal);
 			if(temp != null && temp.getFlag() == flag) {
 				return temp;
@@ -178,32 +183,38 @@ public class ConnectionImpl extends AbstractConnection {
      */
     public void connect(InetAddress remoteAddress, int remotePort) throws IOException,
     SocketTimeoutException {
+    	// Set the server IP-address 
     	this.remoteAddress = remoteAddress.getHostAddress();
+    	// .. and initial port
     	this.remotePort = remotePort;
+    	// Send SYN
         KtnDatagram synPacket = constructInternalPacket(Flag.SYN);
         try {
 			simplySendPacket(synPacket);
 		} catch (ClException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Do nothing
 		}
         this.state = State.SYN_SENT;
+        // Wait for SYN-ACK
         KtnDatagram ack = internalReceiveAck(true, synPacket);
         if(ack == null){
         	throw new SocketTimeoutException("Did not receive SYN-ACK!");
         }
         this.lastValidPacketReceived = ack;
+        // Set the new granted port
         this.remotePort = this.lastValidPacketReceived.getSrc_port();
+        // Send ACK
         sendAck(this.lastValidPacketReceived, false);
         this.state = State.ESTABLISHED;
     }
     
     /**
      * Creates the local folder "Log" if it doesn't already exist.
-     * Creates the file "Log/logfile.txt" if it doesn't already exist.
+     * Creates a new log file for every session
      */
     public static void fixLogDirectory() {
     	File log = new File("Log");
+    	// Create directory if not already existing
     	if(!log.isDirectory()) {
     		log.mkdir();
     	}
@@ -212,6 +223,7 @@ public class ConnectionImpl extends AbstractConnection {
     	File logFile = new File(path);
     	int counter = 0;
     	String newName = "";
+    	// TODO: Maximum number of logs
     	while(logFile.exists()) {
     		name = path.substring(4, path.length() - 4);
     		newName = "Log/" + name + ++counter + ".txt";
@@ -232,78 +244,21 @@ public class ConnectionImpl extends AbstractConnection {
     	}
     }
     
-    public static void main(String[] args) {
-		try {
-			initPortNumbers();
-			System.out.println(getNextPortNumber());
-			System.out.println(getNextPortNumber());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-    
+    /**
+     * Finds the next available port number from INITIAL_PORT and up
+     * (Does not check if the port is already in use by another program)
+     * 
+     * @return				The port
+     * @throws IOException	If all ports are taken (specified by PORT_RANGE)
+     */
     private static int getNextPortNumber() throws IOException {
     	for (int i = INITIAL_PORT; i < INITIAL_PORT + PORT_RANGE; i++) {
-    		System.out.println("Port " + i + " is used: " + usedPorts.get(i));
 			if(!usedPorts.get(i)) {
 				usedPorts.put(i, true);
 				return i;
 			}
 		}
     	throw new IOException("Out of ports!");
-    }
-    
-    public static void serverMain(int port) {
-    	ConnectionImpl c = new ConnectionImpl(port);
-    	try {
-    		System.out.println("Listening on port " + port);
-    		Connection con = c.accept();
-    		System.out.println("Connection established! " + con.toString());
-    		while(true){
-    			String msg = con.receive();
-    			System.out.println("Message: " + msg);
-    		}
-    	} catch (SocketTimeoutException e) {
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	} catch (IOException e) {
-    		// Do nothing
-    	}
-    	System.out.println("Closed");
-    }
-    
-    public static void clientMain(String address, int port) {
-    	ConnectionImpl c = new ConnectionImpl(INITIAL_PORT - 1);
-    	System.out.println("Your IP-address is: " + c.getIPv4Address());
-    	try {
-    		System.out.println("Trying to connect to " + address + " on port " + port);
-    		c.connect(Inet4Address.getByName(address), port);
-    		System.out.println("Connection established!");
-    		Scanner scanner = new Scanner(System.in);
-    		while(true){
-    			System.out.print("Type something to send: ");
-	    		String msg = scanner.nextLine();
-	    		if (msg.equals("quit")){
-	    			break;
-	    		}
-	    		try {
-	    			c.send(msg);
-	    		} catch(SocketTimeoutException e) {
-	    			System.out.println(e);
-	    			System.out.println("Could not send packet, please try again!");
-	    		}
-    		}
-    		System.out.println("Closing...");
-    		c.close();
-    	} catch (SocketTimeoutException e) {
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	} catch (IOException e) {
-    		// TODO Auto-generated catch block
-    		e.printStackTrace();
-    	}
-    	System.out.println("Finished!");
     }
     
     /**
@@ -320,9 +275,9 @@ public class ConnectionImpl extends AbstractConnection {
     		} catch (SocketTimeoutException e) {
     			continue;
     		}
+    		// Tell the client wich port to use
 		    this.lastValidPacketReceived.setDest_port(getNextPortNumber());
-		    ConnectionImpl conn = new ConnectionImpl(this.lastValidPacketReceived);
-		    return conn;
+		    return new ConnectionImpl(this.lastValidPacketReceived);
     	}
     }
 
@@ -341,27 +296,27 @@ public class ConnectionImpl extends AbstractConnection {
     public void send(String msg) throws ConnectException, IOException, SocketTimeoutException {
     	int timeoutCounter = 0;
     	KtnDatagram ack = null;
+    	// Construct packet
     	KtnDatagram packet = constructDataPacket(msg);
+    	// Calculate checksum
     	packet.setChecksum(packet.calculateChecksum());
     	do {
     		if(timeoutCounter > RETRIES * 2) {
     			throw new SocketTimeoutException();
     		}
     		try {
-    			System.out.println("STATE: " + this.state.toString());
-    			this.
+    			// Send the constructed packet with the given message
 				simplySendPacket(packet);
+				// Receive ACK
 				ack = internalReceiveAck(false, packet);
 			} catch (ClException e) {
 				ack = null;
-				System.out.println("Header error! Resending..");
 				continue;
 			} catch (SocketTimeoutException e) {
 				ack = null;
 			}
 			timeoutCounter++;
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
-    	// La til dette den 20.03:14.37
     	this.lastValidPacketReceived = ack;
     }
 
@@ -380,23 +335,27 @@ public class ConnectionImpl extends AbstractConnection {
     	boolean shouldThrowException = true;
     	while(this.state == State.ESTABLISHED)  {
 	    	try{
+	    		// Wait for incoming packet
 	    		KtnDatagram packet = receivePacket(false);
+	    		// Check if the packet is valid
 	    		if(packet.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1 || !isValid(packet)) {
-	    			System.out.println("Corrupted or unexpected package!");
 	    			sendAck(this.lastValidPacketReceived, false);
 	    		} else {
 	    			this.lastValidPacketReceived = packet;
+	    			// Wait for sender to get ready
 	    			synchronized (this) {
 	    				try {
 							wait(200);
 						} catch (InterruptedException e) {
-							e.printStackTrace();
+							// Do nothing
 						}
 					}
+	    			// Send ACK
 	    			sendAck(this.lastValidPacketReceived, false);
 	    			return packet.getPayload().toString();
 	    		}
 	    	}catch (EOFException e){
+	    		// FIN received, close server
 	    		serverClose();
 	    		shouldThrowException = false;
 	    	}
@@ -408,7 +367,7 @@ public class ConnectionImpl extends AbstractConnection {
     }
 
     /**
-     * Close the connection.
+     * Close the client's connection.
      * 
      * @see Connection#close()
      */
@@ -418,26 +377,30 @@ public class ConnectionImpl extends AbstractConnection {
     	while(true) {
 	    	do {
 	    		try {
+	    			// Send FIN
 					simplySendPacket(fin);
 				} catch (ClException e) {
 					continue;
 				}
-				System.out.println("Waiting for ACK with seq.number = " + fin.getSeq_nr());
+	    		// Wait for ACK
 	    		ack = internalReceiveAck(false, fin);
 	    	} while(ack == null || ack.getAck() != fin.getSeq_nr());
 	    	this.lastValidPacketReceived = ack;
 	    	try{
+	    		// Wait for FIN
 	    		fin = internalReceive(Flag.FIN, true);
 	    	}
 	    	catch (EOFException e) {
-	    		System.out.println("RECEIVED FIN!");
+	    		// FIN received, move on..
 	    		break;
 	    	}
 	    	catch (SocketTimeoutException e){
+	    		// Timed out. Try again!
 	    		continue;
 	    	}
     	}
     	while(true){
+    		// Wait for server to get ready
     		synchronized (this) {
 	    		try {
 	    			wait(200);
@@ -445,12 +408,14 @@ public class ConnectionImpl extends AbstractConnection {
 	    			e1.printStackTrace();
 	    		}
     		}
+    		// Send ACK
 	    	sendAck(this.disconnectRequest, false);
 	    	try{
 	    		this.state = State.CLOSE_WAIT;
-	    		fin = internalReceive(Flag.FIN, true);
+	    		internalReceive(Flag.FIN, true);
 	    	}
 	    	catch (EOFException e) {
+	    		// Received new FIN. Start over!
 	    		continue;
 	    	}
 	    	catch (SocketTimeoutException e){
@@ -460,55 +425,59 @@ public class ConnectionImpl extends AbstractConnection {
     	}
     }
     
-    public void serverClose(){
+    /**
+     * Close the server's connection
+     */
+    private void serverClose(){
     	while(true) {
     		try {
+    			// Check the already received FIN
     			if (disconnectRequest.getSeq_nr() != this.lastValidPacketReceived.getSeq_nr() + 1){
+    				// Send ACK
     				sendAck(this.lastValidPacketReceived, false);
     				return;
     			}
+    			// Wait for client to get ready
     			synchronized (this) {
     				try {
-    					System.out.println("STARTING WAIT");
     					wait(200);
-    					System.out.println("ENDING WAIT");
     				} catch (InterruptedException e1) {
-    					e1.printStackTrace();
+    					// Do nothing
     				}
     			}
+    			// Send ACK
     			sendAck(disconnectRequest, false);
     			KtnDatagram fin = constructInternalPacket(Flag.FIN);
     			KtnDatagram ack = null;
     			while(true){
+    				// Validate ACK
     				if (ack != null && fin.getSeq_nr() == ack.getAck()){
     					this.state = State.CLOSED;
     					// TODO: Sjekk at porten faktisk blir frigjort!
     					ConnectionImpl.usedPorts.put(this.myPort, false);
     					return;
     				}
+    				// Wait for client to get ready
     				synchronized (this) {
     		    		try {
     		    			wait(200);
     		    		} catch (InterruptedException e1) {
-    		    			e1.printStackTrace();
+    		    			// Do nothing
     		    		}
     	    		}
+    				// Send FIN
     				simplySendPacket(fin);
     				try {
+    					// Wait for ACK
     					ack = internalReceiveAck(false, fin);
     					continue;
     				} catch (EOFException e) {
+    					// FIN received. Start over!
     					continue;
     				}
     			}
-    		} catch (ConnectException e) {
-    			System.out.println("Could not send FIN!");;
-    		} catch (IOException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
-    		} catch (ClException e) {
-    			// TODO Auto-generated catch block
-    			e.printStackTrace();
+    		} catch (Exception e) {
+    			// Do nothing
     		}
     	}
     }
