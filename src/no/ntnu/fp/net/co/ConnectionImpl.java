@@ -350,7 +350,14 @@ public class ConnectionImpl extends AbstractConnection {
 							// Do nothing
 						}
 					}
-	    			// Send ACK
+	    			// Wait for client to get ready, then send ACK
+	    			synchronized(this){
+	    				try {
+							wait(50);
+						} catch (InterruptedException e) {
+							// Do nothing
+						}
+	    			}
 	    			sendAck(this.lastValidPacketReceived, false);
 	    			return packet.getPayload().toString();
 	    		}

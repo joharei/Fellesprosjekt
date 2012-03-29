@@ -6,6 +6,7 @@ import java.net.SocketTimeoutException;
 public class ServerTest {
 	
     public static void serverMain(int port) {
+    	ConnectionImpl.initPortNumbers();
     	ConnectionImpl c = new ConnectionImpl(port);
     	try {
     		System.out.println("Listening on port " + port);

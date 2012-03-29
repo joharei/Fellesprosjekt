@@ -24,8 +24,8 @@ public class ClientTest {
 	    		try {
 	    			c.send(msg);
 	    		} catch(SocketTimeoutException e) {
-	    			System.out.println(e);
-	    			System.out.println("Could not send packet, please try again!");
+	    			e.printStackTrace();
+	    			System.out.println("Could not send packet, please reconnect!");
 	    		}
     		}
     		System.out.println("Closing...");
