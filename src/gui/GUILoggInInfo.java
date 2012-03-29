@@ -22,10 +22,7 @@ import model.User;
 
 public class GUILoggInInfo extends JPanel{
 	private JLabel nameLabel;
-	private JLabel ansattNrLabel;
 	private JComboBox notificationBox;
-	private String messageFromAppointment;
-	private String [] notificationStrings;
 	private List<Notification> notifications;
 	private GridBagConstraints c = new GridBagConstraints();
 	

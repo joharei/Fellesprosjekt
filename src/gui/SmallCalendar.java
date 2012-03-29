@@ -60,7 +60,6 @@ public class SmallCalendar extends JPanel{
 	public final static String NAME_PROPERTY_DATE_IN_MONTH="datoIMnd";
 	public static String navnSokes;
 	private JList addPersons;
-	private JTable tableOfPersons;
 	private JScrollPane addPersonsScroll;
 	private JLabel sokLabel;
 	private JTextField sokeField;
@@ -110,7 +109,7 @@ public class SmallCalendar extends JPanel{
 		});
 		
 		//label
-		sokLabel = new JLabel("Søk");
+		sokLabel = new JLabel("Sï¿½k");
 		c.gridx=1;
 		c.gridy=3;
 		add(sokLabel,c);

@@ -42,6 +42,7 @@ public class ConnectionImpl extends AbstractConnection {
     private final static int INITIAL_PORT = 10000;
     private final static int PORT_RANGE = 100;
     private final static int RETRIES = 1;
+    private KtnDatagram lastDataPacketAttemptedToSend;
 
     private static boolean shouldInitPortNumbers = true;
     
@@ -300,6 +301,7 @@ public class ConnectionImpl extends AbstractConnection {
     	KtnDatagram packet = constructDataPacket(msg);
     	// Calculate checksum
     	packet.setChecksum(packet.calculateChecksum());
+    	this.lastDataPacketAttemptedToSend = packet;
     	do {
     		if(timeoutCounter > RETRIES * 2) {
     			throw new SocketTimeoutException();
@@ -309,6 +311,10 @@ public class ConnectionImpl extends AbstractConnection {
 				simplySendPacket(packet);
 				// Receive ACK
 				ack = internalReceiveAck(false, packet);
+				// If we got ACK for the last packet sent, send it again
+				if (ack != null && ack.getAck() == this.lastDataPacketAttemptedToSend.getSeq_nr()){
+					simplySendPacket(this.lastDataPacketAttemptedToSend);
+				}
 			} catch (ClException e) {
 				ack = null;
 				continue;
@@ -317,6 +323,7 @@ public class ConnectionImpl extends AbstractConnection {
 			}
 			timeoutCounter++;
     	} while(ack == null || ack.getAck() != packet.getSeq_nr());
+    	this.lastDataPacketSent = packet;
     	this.lastValidPacketReceived = ack;
     }
 
