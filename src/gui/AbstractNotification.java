@@ -134,7 +134,7 @@ public abstract class AbstractNotification extends JDialog{
 		
 	}
 	
-	public JDialog getInstance(Notification notification) {
+	public static JDialog getInstance(Notification notification) {
 		// TODO
 		switch(notification.getType()) {
 		case INVITATION_ACCEPTED:
@@ -150,7 +150,8 @@ public abstract class AbstractNotification extends JDialog{
 		case MEETING_CHANGE_REJECTED:
 			
 		case MEETING_TIME_CHANGED:
-			
+			return new InvitationPromt(notification);
+			//TODO: extend?
 		}
 		return null;
 	}

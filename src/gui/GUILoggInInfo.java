@@ -10,6 +10,7 @@ import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -164,7 +165,14 @@ public class GUILoggInInfo extends JPanel{
 //	}
 	public void getSelectedNotification(){
 		if(this.notificationBox.getSelectedItem() != null && !((String)this.notificationBox.getSelectedItem()).trim().equals("Notifications")) {
-			JOptionPane.showMessageDialog(null,"Noe skal skje her!");
+			Notification not = this.notifications.get(this.notificationBox.getSelectedIndex() - 1); 
+			JDialog dialog = AbstractNotification.getInstance(not);
+			if (dialog != null) {
+				dialog.setVisible(true);
+			} else {
+				JOptionPane.showMessageDialog(null,"Noe skal skje her!");
+				
+			}
 			// TODO
 //			AbstractNotification.get
 		}
