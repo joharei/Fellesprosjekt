@@ -122,7 +122,10 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 					if (good.getStatus() == InvitationStatus.REVOKED) {
 						message = "Cannot accept meeting invitation: Invitation has been revoked!";
 					}
-					JOptionPane.showInternalMessageDialog(null, message, "Invitation error", JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, message, "Invitation error", JOptionPane.ERROR_MESSAGE);
+				}
+				case Notification : {
+					JOptionPane.showMessageDialog(null, "Could not update notification", "Error", JOptionPane.ERROR_MESSAGE);
 				}
 				default : {
 					System.out.println("Error not handled yet");
