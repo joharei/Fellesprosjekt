@@ -302,7 +302,7 @@ public class ConnectionImpl extends AbstractConnection {
     	// Calculate checksum
     	packet.setChecksum(packet.calculateChecksum());
     	do {
-    		if(timeoutCounter > RETRIES * 2) {
+    		if(timeoutCounter > RETRIES * 4) {
     			throw new SocketTimeoutException();
     		}
     		try {
