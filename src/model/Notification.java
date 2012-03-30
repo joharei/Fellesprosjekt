@@ -9,6 +9,7 @@ public class Notification implements SyncListener {
 	private Invitation invitation;
 	private NotificationType type;
 	private String id;
+	private boolean read;
 	private User triggeredBy;
 	private User recipient;
 	private PropertyChangeSupport pcs;
@@ -17,6 +18,7 @@ public class Notification implements SyncListener {
 	public static final String NAME_PROPERTY_CLASSTYPE = "notification";
 	public static final String NAME_PROPERTY_INVITATION = "invitation";
 	public static final String NAME_PROPERTY_TYPE = "type";
+	public static final String NAME_PROPERTY_READ = "isRead";
 	public static final String NAME_PROPERTY_ID = "id";
 	public static final String NAME_PROPERTY_TRIGGERED_BY = "triggeredBy";
 	public static final String NAME_PROPERTY_RECIPIENT = "recipient";
@@ -71,7 +73,6 @@ public class Notification implements SyncListener {
 		this.read = read;
 		pcs.firePropertyChange(new PropertyChangeEvent(this, NAME_PROPERTY_INVITATION, old, isRead()));
 	}
-	private boolean read;
 
 	@Override
 	public void fire(SaveableClass classType, Object newVersion) {

@@ -942,12 +942,15 @@ public class XmlSerializerX extends XmlSerializer {
 	 * and Invitation is included as well.
 	 */
 	private static Element notificationToXmlElement(Notification notif) {
-		//TODO: HUSK RECIPIENT!!
 		Element notifE = new Element("" + SaveableClass.Notification);
 		
 		Element inv = new Element(Notification.NAME_PROPERTY_INVITATION);
 		inv.appendChild(invitationToXmlElement(notif.getInvitation()));
 		notifE.appendChild(inv);
+		
+		Element read = new Element(Notification.NAME_PROPERTY_READ);
+		read.appendChild("" + notif.isRead());
+		notifE.appendChild(read);
 		
 		
 		Element type = new Element(Notification.NAME_PROPERTY_TYPE);
@@ -979,7 +982,7 @@ public class XmlSerializerX extends XmlSerializer {
 		NotificationType type = null;
 		String id = null;
 		User tBy = null, rec = null;
-		//TODO: Husk RECIPIENT!!
+		boolean read = false;
 		
 		Element e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_INVITATION);
 		if (e != null) {
@@ -991,6 +994,11 @@ public class XmlSerializerX extends XmlSerializer {
 			}
 		} else {
 			throw new ParsingException("Invitation data corrupt");
+		}
+		
+		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_READ);
+		if (e != null) {
+			read = Boolean.parseBoolean(e.getValue());
 		}
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TYPE);
@@ -1005,8 +1013,14 @@ public class XmlSerializerX extends XmlSerializer {
 		
 		e = notifE.getFirstChildElement(Notification.NAME_PROPERTY_TRIGGERED_BY);
 		if (e != null) {
-			Element tBYE;//TODO!! 
-			tBy = assembleUser(e);
+			Element tBYE = e.getFirstChildElement("" + SaveableClass.User);
+			if (tBYE != null) {
+				tBy = assembleUser(tBYE);
+			} else {
+				throw new ParsingException("Could not parse user who triggered notification!");
+			}
+		} else {
+			throw new ParsingException("Could not find user who triggered the notification!");
 		}
 		
 		//get target for invitation
@@ -1023,6 +1037,7 @@ public class XmlSerializerX extends XmlSerializer {
 		}
 		
 		Notification notif = new Notification(inv, type, id, tBy);
+		notif.setRead(read);
 		notif.setRecipient(rec);
 		return notif;
 	}
