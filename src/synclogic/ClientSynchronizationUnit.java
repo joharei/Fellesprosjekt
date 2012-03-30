@@ -24,6 +24,7 @@ import javax.swing.Timer;
 
 import model.Appointment;
 import model.Invitation;
+import model.InvitationStatus;
 import model.Meeting;
 import model.Notification;
 import model.Room;
@@ -112,7 +113,21 @@ public class ClientSynchronizationUnit extends SynchronizationUnit implements Pr
 		} else {
 			// TODO: Gjoer mer!
 			//updated object!
-			
+			SaveableClass type = error.getInvalidObject().getSaveableClass();
+			switch (type) {
+				case Invitation : {
+					Invitation good = (Invitation) error.getValidObject();
+					Invitation bad = (Invitation) error.getInvalidObject();
+					String message = "Invitation reply failed";
+					if (good.getStatus() == InvitationStatus.REVOKED) {
+						message = "Cannot accept meeting invitation: Invitation has been revoked!";
+					}
+					JOptionPane.showInternalMessageDialog(null, message, "Invitation error", JOptionPane.ERROR_MESSAGE);
+				}
+				default : {
+					System.out.println("Error not handled yet");
+				}
+			}
 		}
 	}
 	
