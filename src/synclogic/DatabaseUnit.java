@@ -414,7 +414,7 @@ public class DatabaseUnit {
 		ArrayList<Notification> notificationArray = new ArrayList<Notification>();
 		java.sql.PreparedStatement pstmt;
 		//execute query to find out witch notification is connected to witch user
-		String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username " +
+		String sel = "SELECT Notification.NotificationID, type, TriggeredBy, Username, isRead " +
 		"FROM Notification JOIN UserNotification ON " +
 		"Notification.NotificationID = UserNotification.NotificationID " + 
 		"WHERE Username = ?";
@@ -427,6 +427,7 @@ public class DatabaseUnit {
 				int type = rs.getInt("type");
 				String triggeredBy = rs.getString("TriggeredBy");
 				int userIndex = 0;
+				boolean isRead = rs.getBoolean("isRead");
 				//find the TriggeredBy user
 				for (int j = 0; j < userArray.size(); j++) {
 					if(userArray.get(j).getUsername().equalsIgnoreCase(triggeredBy)){
@@ -448,52 +449,13 @@ public class DatabaseUnit {
 					}
 				}
 				//Makes the notification objects with the information found over and with different notifiction types
-				switch (type) {
-				case 0:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.MEETING_CANCELLED, (Integer.toString(notificationID)), userArray.get(userIndex));				
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);					
-					break;
-				}
-				case 1:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.INVITATION_RECEIVED, (Integer.toString(notificationID)), userArray.get(userIndex));
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);
-					break;				
-				}
-				case 2:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.INVITATION_ACCEPTED, (Integer.toString(notificationID)), userArray.get(userIndex));
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);
-					break;
-				}
-				case 3:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.INVITATION_REJECTED, (Integer.toString(notificationID)), userArray.get(userIndex));
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);
-					break;				
-				}
-				case 4:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.INVITATION_REVOKED, (Integer.toString(notificationID)), userArray.get(userIndex));
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);
-					break;				
-				}
-				case 5:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.MEETING_TIME_CHANGED, (Integer.toString(notificationID)), userArray.get(userIndex));
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);
-					break;				
-				}
-				case 6:{
-					Notification not = new Notification(invitationArray.get(invitationIndex), NotificationType.MEETING_CHANGE_REJECTED, (Integer.toString(notificationID)), userArray.get(userIndex));
-					(userArray.get(i)).addNotification(not);
-					notificationArray.add(not);
-					break;				
-				}
-				default:
-					break;
-				}
+				Notification not;
+				//convert integer to notificationtype enum
+				NotificationType NType = NotificationType.class.getEnumConstants()[type];
+				not = new Notification(invitationArray.get(invitationIndex), NType, "" + notificationID, userArray.get(userIndex));
+				not.setRead(isRead);
+				(userArray.get(i)).addNotification(not);
+				notificationArray.add(not);
 			}
 		}
 		return notificationArray;
