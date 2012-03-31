@@ -37,23 +37,6 @@ public class GUILoggInInfo extends JPanel{
 		c.gridy=1;
 		add(nameLabel,c);
 		
-//		ansattNrLabel = new JLabel();
-//		ansattNrLabel.setText(getAnsattNr());
-//		c.gridx=1;
-//		c.gridy=2;
-//		add(ansattNrLabel,c);
-		
-//		notifications = new String[20];
-//		notifications[0]=("Notifications");
-//		for (int i = 1; i < notifications.length-1; i++) {
-//			
-//			try {
-//				notifications[i]=(sendNotification(i));
-//			} catch (Exception e) {
-//				// TODO Auto-generated catch block
-//			}
-//		}
-		
 		notificationBox = new JComboBox();
 		c.gridx=1;
 		c.gridy=4;
@@ -75,14 +58,23 @@ public class GUILoggInInfo extends JPanel{
 	public void loadNotifications() {
 		User loggedInUser = (User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText());
 //		for (SyncListener listener : XCal.getCSU().getObjectsFromID(SaveableClass.Notification, null)) {
-		for(SyncListener listener : ((User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())).getNotifications()) {
-			// Check if its this user's notification
-			System.out.println("Fant notification: " + listener.getObjectID());
-			if(!this.notifications.contains(listener)) {
-				System.out.println("Added notification: " + listener.getObjectID());
-				this.notifications.add((Notification) listener);
+//		for(SyncListener listener : ((User) XCal.getCSU().getObjectFromID(SaveableClass.User, XCal.usernameField.getText())).getNotifications()) {
+//			// Check if its this user's notification
+//			System.out.println("Fant notification: " + listener.getObjectID());
+//			if(!this.notifications.contains(listener)) {
+//				System.out.println("Added notification: " + listener.getObjectID());
+//				this.notifications.add((Notification) listener);
+//			} else {
+//				System.out.println("Did not add notification");
+//			}
+//		}
+		for (Notification notif : loggedInUser.getNotifications()) {
+			if (notif.isRead()) {
+				System.out.println("Notification with id " + notif.getId() + " is already read.");
+				continue;
 			} else {
-				System.out.println("Did not add notification");
+				addNotification(notif);
+				System.out.println("Adding unread notification with id " + notif.getId());
 			}
 		}
 		DefaultComboBoxModel model = ((DefaultComboBoxModel)this.notificationBox.getModel());
@@ -171,10 +163,7 @@ public class GUILoggInInfo extends JPanel{
 				dialog.setVisible(true);
 			} else {
 				JOptionPane.showMessageDialog(null,"Noe skal skje her!");
-				
 			}
-			// TODO
-//			AbstractNotification.get
 		}
 		
 //		Object value = notificationBox.getSelectedItem();
