@@ -181,12 +181,14 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 				 * User can update own invitation with status only.
 				 */
 				if (original == null) {
+					System.err.println("Clients cannot create invitations!");
 					return false;
 				}
 				Invitation inv = (Invitation) update;
 				Invitation old = (Invitation) original;
 				//id match?
 				if (!inv.getID().equals(old.getID())) {
+					System.err.println("Invitation IDs do not match!");
 					return false;
 				}
 				//check if user owns notification
@@ -200,12 +202,14 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 					}
 				}
 				if (!userGotInv) {
+					System.err.println("Sender trying to update invitation belonging to another user!");
 					return false;
 				}
 				//check if meeting was changed
 				Meeting invmeeting = inv.getMeeting();
 				Meeting oldmeeting = old.getMeeting();
-				if (!invmeeting.equals(oldmeeting)) {
+				if (!invmeeting.getId().equals(oldmeeting.getId())) {
+					System.err.println("Invitation cannot be changed to refer to another meeting!");
 					return false;
 				}
 				return true;
@@ -228,9 +232,10 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 					
 					//same id?
 					if (!notify.getId().equals(old.getId())) {
+						System.err.println("Notification id change attempt!");
 						return false;
 					}
-					//right user?
+					//right user? iterate over the senders notifications to look for this one
 					boolean userGotNotif = false;
 					ArrayList<Notification> notlist = sentBy.getNotifications();
 					for (Notification notification : notlist) {
@@ -239,22 +244,26 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 							break;
 						}
 					}
+					if (!userGotNotif) {
+						System.err.println("Interference by other user, notification change rejected!");
+						return false;
+					}
 					
 					//check the invitation
 					validInvitation = isValidUpdate(inv, ninv, sentBy);
 					if (!validInvitation) {
+						System.err.println("Invitation contained within notification failed validation!");
 						return false;
 					}
 					
-					if (!userGotNotif) {
-						return false;
-					}
 					//notification type identical?
 					if (notify.getType() != old.getType()) {
+						System.err.println("Notification type cannot change!");
 						return false;
 					}
 				} else {
 					//new notification should not be sent to server
+					System.err.println("Notifications cannot be created on the clients!");
 					return false;
 				}
 				return true;
@@ -351,6 +360,7 @@ public class ServerSynchronizationUnit extends SynchronizationUnit {
 	/**
 	 * Get all Appointment and meeting objects
 	 */
+	@SuppressWarnings("rawtypes")
 	private List<Appointment> getAllAppointments() {
 		ArrayList<Appointment> apps = new ArrayList<Appointment>();
 		List<SyncListener> appsAndMeets = getObjectsFromID(SaveableClass.Appointment, null);
