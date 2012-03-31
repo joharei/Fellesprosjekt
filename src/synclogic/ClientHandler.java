@@ -179,7 +179,7 @@ public class ClientHandler implements Runnable {
 			System.out.println("Behandler: " + o.getSaveableClass() + ":" + o.getObjectID());
 			SyncListener original = this.serverSynchronizationUnit.getObjectFromID(o.getSaveableClass(), o.getObjectID());
 			if(!this.serverSynchronizationUnit.isValidUpdate(o, original, this.getUser())) {
-				System.out.println("ERROR! Consult Fossum!");
+				System.err.println("Object of type " + o.getSaveableClass() + " sent from client " + user + " was not accepted.");
 				this.sendQueue.add(new ErrorMessage(original, o));
 			} else {
 				// Execute update
